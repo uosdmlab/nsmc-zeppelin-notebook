@@ -1,0 +1,1859 @@
+{
+  "paragraphs": [
+    {
+      "text": "import org.apache.spark.ml.feature.Word2VecModel\n\nval model \u003d Word2VecModel.load(\"nsmc/model/w2v_all\")",
+      "user": "anonymous",
+      "dateUpdated": "Jun 22, 2017 9:06:01 PM",
+      "config": {
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/scala",
+        "results": {},
+        "enabled": true,
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false
+        }
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "import org.apache.spark.ml.feature.Word2VecModel\nmodel: org.apache.spark.ml.feature.Word2VecModel \u003d w2v_87dd014e2e8f\n"
+          }
+        ]
+      },
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            "http://192.168.0.21:4040/jobs/job?id\u003d482",
+            "http://192.168.0.21:4040/jobs/job?id\u003d483",
+            "http://192.168.0.21:4040/jobs/job?id\u003d484"
+          ],
+          "interpreterSettingId": "2CN9E6YH7"
+        }
+      },
+      "apps": [],
+      "jobName": "paragraph_1498121236906_-366209371",
+      "id": "20170622-144735_1865164783",
+      "dateCreated": "Jun 22, 2017 5:47:16 PM",
+      "dateStarted": "Jun 22, 2017 9:06:01 PM",
+      "dateFinished": "Jun 22, 2017 9:06:03 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "import org.apache.spark.sql.functions\n\nval wordVec \u003d model.getVectors\nwordVec.createOrReplaceTempView(\"word_vec\")",
+      "user": "anonymous",
+      "dateUpdated": "Jun 22, 2017 9:09:06 PM",
+      "config": {
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/scala",
+        "results": {},
+        "enabled": true,
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false
+        }
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "import org.apache.spark.sql.functions\nwordVec: org.apache.spark.sql.DataFrame \u003d [word: string, vector: vector]\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498121236908_-368517864",
+      "id": "20170622-144823_1235323206",
+      "dateCreated": "Jun 22, 2017 5:47:16 PM",
+      "dateStarted": "Jun 22, 2017 9:09:06 PM",
+      "dateFinished": "Jun 22, 2017 9:09:07 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "import org.apache.spark.ml.feature.PCA\n\nval pcaModel \u003d new PCA()\n    .setInputCol(\"vector\")\n    .setOutputCol(\"pca_vector\")\n    .setK(2)\n    .fit(wordVec)\n\nval pcaWordVec \u003d pcaModel.transform(wordVec)",
+      "user": "anonymous",
+      "dateUpdated": "Jun 22, 2017 9:09:55 PM",
+      "config": {
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/scala",
+        "results": {},
+        "enabled": true,
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false
+        }
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "import org.apache.spark.ml.feature.PCA\npcaModel: org.apache.spark.ml.feature.PCAModel \u003d pca_ce7eb3de319e\npcaWordVec: org.apache.spark.sql.DataFrame \u003d [word: string, vector: vector ... 1 more field]\n"
+          }
+        ]
+      },
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            "http://192.168.0.21:4040/jobs/job?id\u003d489",
+            "http://192.168.0.21:4040/jobs/job?id\u003d490",
+            "http://192.168.0.21:4040/jobs/job?id\u003d491",
+            "http://192.168.0.21:4040/jobs/job?id\u003d492"
+          ],
+          "interpreterSettingId": "2CN9E6YH7"
+        }
+      },
+      "apps": [],
+      "jobName": "paragraph_1498121236909_-368902613",
+      "id": "20170622-144730_230425418",
+      "dateCreated": "Jun 22, 2017 5:47:16 PM",
+      "dateStarted": "Jun 22, 2017 9:09:55 PM",
+      "dateFinished": "Jun 22, 2017 9:09:57 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "import org.apache.spark.sql.functions._\nimport org.apache.spark.ml.linalg.Vector\n\nval vec2arr \u003d udf { v: Vector \u003d\u003e v.toArray }\n\nval wordPoint \u003d pcaWordVec\n    .withColumn(\"pca_array\", vec2arr($\"pca_vector\"))\n    .selectExpr(\"word\", \"pca_array[0] AS x\", \"pca_array[1] AS y\")\n\nwordPoint.write.parquet(\"nsmc/data/word_points.parquet\")",
+      "user": "anonymous",
+      "dateUpdated": "Jun 22, 2017 9:11:18 PM",
+      "config": {
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/scala",
+        "results": {},
+        "enabled": true,
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false
+        }
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "import org.apache.spark.sql.functions._\nimport org.apache.spark.ml.linalg.Vector\nvec2arr: org.apache.spark.sql.expressions.UserDefinedFunction \u003d UserDefinedFunction(\u003cfunction1\u003e,ArrayType(DoubleType,false),Some(List(org.apache.spark.ml.linalg.VectorUDT@3bfc3ba7)))\nwordPoint: org.apache.spark.sql.DataFrame \u003d [word: string, x: double ... 1 more field]\n"
+          }
+        ]
+      },
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            "http://192.168.0.21:4040/jobs/job?id\u003d493"
+          ],
+          "interpreterSettingId": "2CN9E6YH7"
+        }
+      },
+      "apps": [],
+      "jobName": "paragraph_1498121236910_-367748366",
+      "id": "20170622-145214_444122282",
+      "dateCreated": "Jun 22, 2017 5:47:16 PM",
+      "dateStarted": "Jun 22, 2017 9:11:18 PM",
+      "dateFinished": "Jun 22, 2017 9:11:20 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "val findSyn \u003d udf { word: String \u003d\u003e model.findSynonymsArray(word, 10) }\n\nval syn \u003d wordVec\n    .select(\"word\")\n    .withColumn(\"syn_sims\", findSyn($\"word\"))\n    .withColumn(\"syn_sim\", explode($\"syn_sims\"))\n    .selectExpr(\"word\", \"syn_sim._1 AS syn\", \"syn_sim._2 AS similarity\")\n    .union(wordVec.selectExpr(\"word\", \"word AS syn\", \"1.0\"))\n\nsyn.write.mode(\"overwrite\").parquet(\"nsmc/data/synonyms.parquet\")",
+      "user": "anonymous",
+      "dateUpdated": "Jun 22, 2017 9:41:15 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "findSyn: org.apache.spark.sql.expressions.UserDefinedFunction \u003d UserDefinedFunction(\u003cfunction1\u003e,ArrayType(StructType(StructField(_1,StringType,true), StructField(_2,DoubleType,false)),true),Some(List(StringType)))\nsyn: org.apache.spark.sql.Dataset[org.apache.spark.sql.Row] \u003d [word: string, syn: string ... 1 more field]\n"
+          }
+        ]
+      },
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            "http://192.168.0.21:4040/jobs/job?id\u003d530"
+          ],
+          "interpreterSettingId": "2CN9E6YH7"
+        }
+      },
+      "apps": [],
+      "jobName": "paragraph_1498133554765_-2094791845",
+      "id": "20170622-211234_1296330206",
+      "dateCreated": "Jun 22, 2017 9:12:34 PM",
+      "dateStarted": "Jun 22, 2017 9:41:15 PM",
+      "dateFinished": "Jun 22, 2017 9:41:57 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "val wordPoint \u003d spark.read.parquet(\"nsmc/data/word_points.parquet\")\nval syn \u003d spark.read.parquet(\"nsmc/data/synonyms.parquet\")\n\nwordPoint.createOrReplaceTempView(\"word_point\")\nsyn.createOrReplaceTempView(\"syn\")",
+      "user": "anonymous",
+      "dateUpdated": "Jun 22, 2017 9:42:14 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "wordPoint: org.apache.spark.sql.DataFrame \u003d [word: string, x: double ... 1 more field]\nsyn: org.apache.spark.sql.DataFrame \u003d [word: string, syn: string ... 1 more field]\n"
+          }
+        ]
+      },
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            "http://192.168.0.21:4040/jobs/job?id\u003d533",
+            "http://192.168.0.21:4040/jobs/job?id\u003d534"
+          ],
+          "interpreterSettingId": "2CN9E6YH7"
+        }
+      },
+      "apps": [],
+      "jobName": "paragraph_1498134163724_1682516849",
+      "id": "20170622-212243_1195708862",
+      "dateCreated": "Jun 22, 2017 9:22:43 PM",
+      "dateStarted": "Jun 22, 2017 9:42:14 PM",
+      "dateFinished": "Jun 22, 2017 9:42:14 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "%md\n* 나루토\n* ㅉㅉ",
+      "user": "anonymous",
+      "dateUpdated": "Jun 22, 2017 9:51:12 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorMode": "ace/mode/markdown",
+        "editorHide": true,
+        "tableHide": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003cul\u003e\n  \u003cli\u003e나루토\u003c/li\u003e\n  \u003cli\u003eㅉㅉ\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498135853446_93137756",
+      "id": "20170622-215053_1602696240",
+      "dateCreated": "Jun 22, 2017 9:50:53 PM",
+      "dateStarted": "Jun 22, 2017 9:51:12 PM",
+      "dateFinished": "Jun 22, 2017 9:51:17 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "%sql \nWITH target_syn (\n    SELECT *\n    FROM syn\n    WHERE word \u003d \u0027${단어}\u0027\n)\nSELECT sy.syn, x, y, sy.similarity\nFROM target_syn sy\n    JOIN word_point wp ON (sy.syn \u003d wp.word)",
+      "user": "anonymous",
+      "dateUpdated": "Jun 22, 2017 9:55:02 PM",
+      "config": {
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/sql",
+        "results": {
+          "0": {
+            "graph": {
+              "mode": "ultimate-scatter-chart",
+              "height": 571.0,
+              "optionOpen": false,
+              "setting": {
+                "scatterChart": {
+                  "xAxis": {
+                    "name": "x",
+                    "index": 1.0,
+                    "aggr": "sum"
+                  },
+                  "yAxis": {
+                    "name": "y",
+                    "index": 2.0,
+                    "aggr": "sum"
+                  },
+                  "group": {
+                    "name": "syn",
+                    "index": 0.0,
+                    "aggr": "sum"
+                  },
+                  "size": {
+                    "name": "similarity",
+                    "index": 3.0,
+                    "aggr": "sum"
+                  }
+                },
+                "ultimate-scatter-chart": {
+                  "chartChanged": false,
+                  "parameterChanged": false,
+                  "panel": {
+                    "columnPanelOpened": true,
+                    "parameterPanelOpened": false
+                  },
+                  "spec": {
+                    "charts": {
+                      "scatter": {
+                        "transform": {
+                          "method": "array"
+                        },
+                        "sharedAxis": false,
+                        "axis": {
+                          "xAxis": {
+                            "dimension": "single",
+                            "axisType": "key",
+                            "minAxisCount": 1.0,
+                            "description": "serial",
+                            "name": "xAxis"
+                          },
+                          "yAxis": {
+                            "dimension": "multiple",
+                            "axisType": "aggregator",
+                            "minAxisCount": 1.0,
+                            "description": "serial",
+                            "name": "yAxis"
+                          },
+                          "category": {
+                            "dimension": "multiple",
+                            "axisType": "group",
+                            "name": "category"
+                          }
+                        },
+                        "parameter": {
+                          "usePredefinedColorSet": {
+                            "valueType": "boolean",
+                            "defaultValue": true,
+                            "description": "use predefined color set",
+                            "widget": "checkbox",
+                            "name": "usePredefinedColorSet"
+                          },
+                          "markerRadius": {
+                            "valueType": "int",
+                            "defaultValue": 3.0,
+                            "description": "radius size of markers",
+                            "name": "markerRadius"
+                          },
+                          "floatingLegend": {
+                            "valueType": "string",
+                            "defaultValue": "default",
+                            "description": "floating legend",
+                            "widget": "option",
+                            "optionValues": [
+                              "default",
+                              "top-right",
+                              "top-left"
+                            ],
+                            "name": "floatingLegend"
+                          },
+                          "rotateXAxisLabel": {
+                            "valueType": "int",
+                            "defaultValue": 0.0,
+                            "description": "rotate xAxis labels",
+                            "name": "rotateXAxisLabel"
+                          },
+                          "rotateYAxisLabel": {
+                            "valueType": "int",
+                            "defaultValue": 0.0,
+                            "description": "rotate yAxis labels",
+                            "name": "rotateYAxisLabel"
+                          },
+                          "tooltipPrecision": {
+                            "valueType": "string",
+                            "defaultValue": ".1f",
+                            "description": "precision of tooltip format without \u003ccode\u003e:\u003c/code\u003e (\u003ca href\u003d\"http://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting\"\u003edoc\u003c/a\u003e)",
+                            "name": "tooltipPrecision"
+                          },
+                          "legendLabelFormat": {
+                            "valueType": "string",
+                            "defaultValue": "",
+                            "description": "text format of legend (\u003ca href\u003d\"http://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting\"\u003edoc\u003c/a\u003e)",
+                            "name": "legendLabelFormat"
+                          },
+                          "xAxisPosition": {
+                            "valueType": "string",
+                            "defaultValue": "bottom",
+                            "description": "xAxis position",
+                            "widget": "option",
+                            "optionValues": [
+                              "bottom",
+                              "top"
+                            ],
+                            "name": "xAxisPosition"
+                          },
+                          "yAxisPosition": {
+                            "valueType": "string",
+                            "defaultValue": "left",
+                            "description": "yAxis position",
+                            "widget": "option",
+                            "optionValues": [
+                              "left",
+                              "right"
+                            ],
+                            "name": "yAxisPosition"
+                          },
+                          "showLegend": {
+                            "valueType": "boolean",
+                            "defaultValue": true,
+                            "description": "show legend",
+                            "widget": "checkbox",
+                            "name": "showLegend"
+                          },
+                          "legendPosition": {
+                            "valueType": "string",
+                            "defaultValue": "bottom",
+                            "description": "position of legend",
+                            "widget": "option",
+                            "optionValues": [
+                              "bottom",
+                              "top"
+                            ],
+                            "name": "legendPosition"
+                          },
+                          "legendLayout": {
+                            "valueType": "string",
+                            "defaultValue": "horizontal",
+                            "description": "layout of legend",
+                            "widget": "option",
+                            "optionValues": [
+                              "horizontal",
+                              "vertical"
+                            ],
+                            "name": "legendLayout"
+                          },
+                          "zoomType": {
+                            "valueType": "string",
+                            "defaultValue": "xy",
+                            "description": "type of zoom",
+                            "widget": "option",
+                            "optionValues": [
+                              "xy",
+                              "none"
+                            ],
+                            "name": "zoomType"
+                          },
+                          "subTitle": {
+                            "valueType": "string",
+                            "defaultValue": "",
+                            "description": "sub title of chart",
+                            "name": "subTitle"
+                          },
+                          "mainTitle": {
+                            "valueType": "string",
+                            "defaultValue": "",
+                            "description": "main title of chart",
+                            "name": "mainTitle"
+                          },
+                          "xAxisUnit": {
+                            "valueType": "string",
+                            "defaultValue": "",
+                            "description": "unit of xAxis",
+                            "name": "xAxisUnit"
+                          },
+                          "yAxisUnit": {
+                            "valueType": "string",
+                            "defaultValue": "",
+                            "description": "unit of yAxis",
+                            "name": "yAxisUnit"
+                          },
+                          "xAxisName": {
+                            "valueType": "string",
+                            "defaultValue": "",
+                            "description": "name of xAxis",
+                            "name": "xAxisName"
+                          },
+                          "yAxisName": {
+                            "valueType": "string",
+                            "defaultValue": "",
+                            "description": "name of yAxis",
+                            "name": "yAxisName"
+                          }
+                        }
+                      },
+                      "bubble": {
+                        "transform": {
+                          "method": "array:2-key"
+                        },
+                        "sharedAxis": false,
+                        "axis": {
+                          "xAxis": {
+                            "dimension": "single",
+                            "axisType": "key",
+                            "minAxisCount": 1.0,
+                            "description": "serial",
+                            "name": "xAxis"
+                          },
+                          "yAxis": {
+                            "dimension": "single",
+                            "axisType": "key",
+                            "minAxisCount": 1.0,
+                            "description": "serial",
+                            "name": "yAxis"
+                          },
+                          "zAxis": {
+                            "dimension": "multiple",
+                            "axisType": "aggregator",
+                            "minAxisCount": 1.0,
+                            "name": "zAxis"
+                          },
+                          "category": {
+                            "dimension": "multiple",
+                            "axisType": "group",
+                            "name": "category"
+                          }
+                        },
+                        "parameter": {
+                          "minBubbleSize": {
+                            "valueType": "int",
+                            "defaultValue": 3.0,
+                            "description": "minimum size of bubble",
+                            "name": "minBubbleSize"
+                          },
+                          "maxBubbleSize": {
+                            "valueType": "int",
+                            "defaultValue": 50.0,
+                            "description": "maximum size of bubble",
+                            "name": "maxBubbleSize"
+                          },
+                          "plotBorderWidth": {
+                            "valueType": "int",
+                            "defaultValue": 1.0,
+                            "description": "border width of plot",
+                            "name": "plotBorderWidth"
+                          },
+                          "xGridLineWidth": {
+                            "valueType": "int",
+                            "defaultValue": 1.0,
+                            "description": "grid line width of X axis",
+                            "name": "xGridLineWidth"
+                          },
+                          "yGridLineWidth": {
+                            "valueType": "int",
+                            "defaultValue": 1.0,
+                            "description": "grid line width of Y axis",
+                            "name": "yGridLineWidth"
+                          },
+                          "floatingLegend": {
+                            "valueType": "string",
+                            "defaultValue": "default",
+                            "description": "floating legend",
+                            "widget": "option",
+                            "optionValues": [
+                              "default",
+                              "top-right",
+                              "top-left"
+                            ],
+                            "name": "floatingLegend"
+                          },
+                          "rotateXAxisLabel": {
+                            "valueType": "int",
+                            "defaultValue": 0.0,
+                            "description": "rotate xAxis labels",
+                            "name": "rotateXAxisLabel"
+                          },
+                          "rotateYAxisLabel": {
+                            "valueType": "int",
+                            "defaultValue": 0.0,
+                            "description": "rotate yAxis labels",
+                            "name": "rotateYAxisLabel"
+                          },
+                          "tooltipPrecision": {
+                            "valueType": "string",
+                            "defaultValue": ".1f",
+                            "description": "precision of tooltip format without \u003ccode\u003e:\u003c/code\u003e (\u003ca href\u003d\"http://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting\"\u003edoc\u003c/a\u003e)",
+                            "name": "tooltipPrecision"
+                          },
+                          "legendLabelFormat": {
+                            "valueType": "string",
+                            "defaultValue": "",
+                            "description": "text format of legend (\u003ca href\u003d\"http://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting\"\u003edoc\u003c/a\u003e)",
+                            "name": "legendLabelFormat"
+                          },
+                          "xAxisPosition": {
+                            "valueType": "string",
+                            "defaultValue": "bottom",
+                            "description": "xAxis position",
+                            "widget": "option",
+                            "optionValues": [
+                              "bottom",
+                              "top"
+                            ],
+                            "name": "xAxisPosition"
+                          },
+                          "yAxisPosition": {
+                            "valueType": "string",
+                            "defaultValue": "left",
+                            "description": "yAxis position",
+                            "widget": "option",
+                            "optionValues": [
+                              "left",
+                              "right"
+                            ],
+                            "name": "yAxisPosition"
+                          },
+                          "showLegend": {
+                            "valueType": "boolean",
+                            "defaultValue": true,
+                            "description": "show legend",
+                            "widget": "checkbox",
+                            "name": "showLegend"
+                          },
+                          "legendPosition": {
+                            "valueType": "string",
+                            "defaultValue": "bottom",
+                            "description": "position of legend",
+                            "widget": "option",
+                            "optionValues": [
+                              "bottom",
+                              "top"
+                            ],
+                            "name": "legendPosition"
+                          },
+                          "legendLayout": {
+                            "valueType": "string",
+                            "defaultValue": "horizontal",
+                            "description": "layout of legend",
+                            "widget": "option",
+                            "optionValues": [
+                              "horizontal",
+                              "vertical"
+                            ],
+                            "name": "legendLayout"
+                          },
+                          "zoomType": {
+                            "valueType": "string",
+                            "defaultValue": "xy",
+                            "description": "type of zoom",
+                            "widget": "option",
+                            "optionValues": [
+                              "xy",
+                              "none"
+                            ],
+                            "name": "zoomType"
+                          },
+                          "subTitle": {
+                            "valueType": "string",
+                            "defaultValue": "",
+                            "description": "sub title of chart",
+                            "name": "subTitle"
+                          },
+                          "mainTitle": {
+                            "valueType": "string",
+                            "defaultValue": "",
+                            "description": "main title of chart",
+                            "name": "mainTitle"
+                          },
+                          "xAxisUnit": {
+                            "valueType": "string",
+                            "defaultValue": "",
+                            "description": "unit of xAxis",
+                            "name": "xAxisUnit"
+                          },
+                          "yAxisUnit": {
+                            "valueType": "string",
+                            "defaultValue": "",
+                            "description": "unit of yAxis",
+                            "name": "yAxisUnit"
+                          },
+                          "zAxisUnit": {
+                            "valueType": "string",
+                            "defaultValue": "",
+                            "description": "unit of zAxis",
+                            "name": "zAxisUnit"
+                          },
+                          "xAxisName": {
+                            "valueType": "string",
+                            "defaultValue": "",
+                            "description": "name of xAxis",
+                            "name": "xAxisName"
+                          },
+                          "yAxisName": {
+                            "valueType": "string",
+                            "defaultValue": "",
+                            "description": "name of yAxis",
+                            "name": "yAxisName"
+                          }
+                        }
+                      }
+                    },
+                    "initialized": false,
+                    "version": {
+                      "axis": "{\"scatter\":[{\"dimension\":\"single\",\"axisType\":\"key\",\"minAxisCount\":1,\"description\":\"serial\",\"name\":\"xAxis\"},{\"dimension\":\"multiple\",\"axisType\":\"aggregator\",\"minAxisCount\":1,\"description\":\"serial\",\"name\":\"yAxis\"},{\"dimension\":\"multiple\",\"axisType\":\"group\",\"name\":\"category\"}],\"bubble\":[{\"dimension\":\"single\",\"axisType\":\"key\",\"minAxisCount\":1,\"description\":\"serial\",\"name\":\"xAxis\"},{\"dimension\":\"single\",\"axisType\":\"key\",\"minAxisCount\":1,\"description\":\"serial\",\"name\":\"yAxis\"},{\"dimension\":\"multiple\",\"axisType\":\"aggregator\",\"minAxisCount\":1,\"name\":\"zAxis\"},{\"dimension\":\"multiple\",\"axisType\":\"group\",\"name\":\"category\"}]}",
+                      "parameter": "{\"scatter\":[{\"valueType\":\"boolean\",\"defaultValue\":true,\"description\":\"use predefined color set\",\"widget\":\"checkbox\",\"name\":\"usePredefinedColorSet\"},{\"valueType\":\"int\",\"defaultValue\":3,\"description\":\"radius size of markers\",\"name\":\"markerRadius\"},{\"valueType\":\"string\",\"defaultValue\":\"default\",\"description\":\"floating legend\",\"widget\":\"option\",\"optionValues\":[\"default\",\"top-right\",\"top-left\"],\"name\":\"floatingLegend\"},{\"valueType\":\"int\",\"defaultValue\":0,\"description\":\"rotate xAxis labels\",\"name\":\"rotateXAxisLabel\"},{\"valueType\":\"int\",\"defaultValue\":0,\"description\":\"rotate yAxis labels\",\"name\":\"rotateYAxisLabel\"},{\"valueType\":\"string\",\"defaultValue\":\".1f\",\"description\":\"precision of tooltip format without \u003ccode\u003e:\u003c/code\u003e (\u003ca href\u003d\\\"http://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting\\\"\u003edoc\u003c/a\u003e)\",\"name\":\"tooltipPrecision\"},{\"valueType\":\"string\",\"defaultValue\":\"\",\"description\":\"text format of legend (\u003ca href\u003d\\\"http://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting\\\"\u003edoc\u003c/a\u003e)\",\"name\":\"legendLabelFormat\"},{\"valueType\":\"string\",\"defaultValue\":\"bottom\",\"description\":\"xAxis position\",\"widget\":\"option\",\"optionValues\":[\"bottom\",\"top\"],\"name\":\"xAxisPosition\"},{\"valueType\":\"string\",\"defaultValue\":\"left\",\"description\":\"yAxis position\",\"widget\":\"option\",\"optionValues\":[\"left\",\"right\"],\"name\":\"yAxisPosition\"},{\"valueType\":\"boolean\",\"defaultValue\":true,\"description\":\"show legend\",\"widget\":\"checkbox\",\"name\":\"showLegend\"},{\"valueType\":\"string\",\"defaultValue\":\"bottom\",\"description\":\"position of legend\",\"widget\":\"option\",\"optionValues\":[\"bottom\",\"top\"],\"name\":\"legendPosition\"},{\"valueType\":\"string\",\"defaultValue\":\"horizontal\",\"description\":\"layout of legend\",\"widget\":\"option\",\"optionValues\":[\"horizontal\",\"vertical\"],\"name\":\"legendLayout\"},{\"valueType\":\"string\",\"defaultValue\":\"xy\",\"description\":\"type of zoom\",\"widget\":\"option\",\"optionValues\":[\"xy\",\"none\"],\"name\":\"zoomType\"},{\"valueType\":\"string\",\"defaultValue\":\"\",\"description\":\"sub title of chart\",\"name\":\"subTitle\"},{\"valueType\":\"string\",\"defaultValue\":\"\",\"description\":\"main title of chart\",\"name\":\"mainTitle\"},{\"valueType\":\"string\",\"defaultValue\":\"\",\"description\":\"unit of xAxis\",\"name\":\"xAxisUnit\"},{\"valueType\":\"string\",\"defaultValue\":\"\",\"description\":\"unit of yAxis\",\"name\":\"yAxisUnit\"},{\"valueType\":\"string\",\"defaultValue\":\"\",\"description\":\"name of xAxis\",\"name\":\"xAxisName\"},{\"valueType\":\"string\",\"defaultValue\":\"\",\"description\":\"name of yAxis\",\"name\":\"yAxisName\"}],\"bubble\":[{\"valueType\":\"int\",\"defaultValue\":3,\"description\":\"minimum size of bubble\",\"name\":\"minBubbleSize\"},{\"valueType\":\"int\",\"defaultValue\":50,\"description\":\"maximum size of bubble\",\"name\":\"maxBubbleSize\"},{\"valueType\":\"int\",\"defaultValue\":1,\"description\":\"border width of plot\",\"name\":\"plotBorderWidth\"},{\"valueType\":\"int\",\"defaultValue\":1,\"description\":\"grid line width of X axis\",\"name\":\"xGridLineWidth\"},{\"valueType\":\"int\",\"defaultValue\":1,\"description\":\"grid line width of Y axis\",\"name\":\"yGridLineWidth\"},{\"valueType\":\"string\",\"defaultValue\":\"default\",\"description\":\"floating legend\",\"widget\":\"option\",\"optionValues\":[\"default\",\"top-right\",\"top-left\"],\"name\":\"floatingLegend\"},{\"valueType\":\"int\",\"defaultValue\":0,\"description\":\"rotate xAxis labels\",\"name\":\"rotateXAxisLabel\"},{\"valueType\":\"int\",\"defaultValue\":0,\"description\":\"rotate yAxis labels\",\"name\":\"rotateYAxisLabel\"},{\"valueType\":\"string\",\"defaultValue\":\".1f\",\"description\":\"precision of tooltip format without \u003ccode\u003e:\u003c/code\u003e (\u003ca href\u003d\\\"http://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting\\\"\u003edoc\u003c/a\u003e)\",\"name\":\"tooltipPrecision\"},{\"valueType\":\"string\",\"defaultValue\":\"\",\"description\":\"text format of legend (\u003ca href\u003d\\\"http://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting\\\"\u003edoc\u003c/a\u003e)\",\"name\":\"legendLabelFormat\"},{\"valueType\":\"string\",\"defaultValue\":\"bottom\",\"description\":\"xAxis position\",\"widget\":\"option\",\"optionValues\":[\"bottom\",\"top\"],\"name\":\"xAxisPosition\"},{\"valueType\":\"string\",\"defaultValue\":\"left\",\"description\":\"yAxis position\",\"widget\":\"option\",\"optionValues\":[\"left\",\"right\"],\"name\":\"yAxisPosition\"},{\"valueType\":\"boolean\",\"defaultValue\":true,\"description\":\"show legend\",\"widget\":\"checkbox\",\"name\":\"showLegend\"},{\"valueType\":\"string\",\"defaultValue\":\"bottom\",\"description\":\"position of legend\",\"widget\":\"option\",\"optionValues\":[\"bottom\",\"top\"],\"name\":\"legendPosition\"},{\"valueType\":\"string\",\"defaultValue\":\"horizontal\",\"description\":\"layout of legend\",\"widget\":\"option\",\"optionValues\":[\"horizontal\",\"vertical\"],\"name\":\"legendLayout\"},{\"valueType\":\"string\",\"defaultValue\":\"xy\",\"description\":\"type of zoom\",\"widget\":\"option\",\"optionValues\":[\"xy\",\"none\"],\"name\":\"zoomType\"},{\"valueType\":\"string\",\"defaultValue\":\"\",\"description\":\"sub title of chart\",\"name\":\"subTitle\"},{\"valueType\":\"string\",\"defaultValue\":\"\",\"description\":\"main title of chart\",\"name\":\"mainTitle\"},{\"valueType\":\"string\",\"defaultValue\":\"\",\"description\":\"unit of xAxis\",\"name\":\"xAxisUnit\"},{\"valueType\":\"string\",\"defaultValue\":\"\",\"description\":\"unit of yAxis\",\"name\":\"yAxisUnit\"},{\"valueType\":\"string\",\"defaultValue\":\"\",\"description\":\"unit of zAxis\",\"name\":\"zAxisUnit\"},{\"valueType\":\"string\",\"defaultValue\":\"\",\"description\":\"name of xAxis\",\"name\":\"xAxisName\"},{\"valueType\":\"string\",\"defaultValue\":\"\",\"description\":\"name of yAxis\",\"name\":\"yAxisName\"}]}"
+                    }
+                  },
+                  "chart": {
+                    "current": "bubble",
+                    "available": [
+                      "scatter",
+                      "bubble"
+                    ]
+                  },
+                  "axis": {
+                    "scatter": {
+                      "yAxis": [
+                        {
+                          "name": "y",
+                          "index": 2.0,
+                          "aggr": "sum"
+                        }
+                      ],
+                      "category": [
+                        {
+                          "name": "syn",
+                          "index": 0.0,
+                          "aggr": "sum"
+                        }
+                      ],
+                      "xAxis": {
+                        "name": "x",
+                        "index": 1.0,
+                        "aggr": "sum"
+                      }
+                    },
+                    "bubble": {
+                      "zAxis": [
+                        {
+                          "name": "similarity",
+                          "index": 3.0,
+                          "aggr": "sum"
+                        }
+                      ],
+                      "category": [
+                        {
+                          "name": "syn",
+                          "index": 0.0,
+                          "aggr": "sum"
+                        }
+                      ],
+                      "xAxis": {
+                        "name": "x",
+                        "index": 1.0,
+                        "aggr": "sum"
+                      },
+                      "yAxis": {
+                        "name": "y",
+                        "index": 2.0,
+                        "aggr": "sum"
+                      }
+                    }
+                  },
+                  "sharedAxis": {},
+                  "axisSpecs": {
+                    "scatter": [
+                      {
+                        "dimension": "single",
+                        "axisType": "key",
+                        "minAxisCount": 1.0,
+                        "description": "serial",
+                        "name": "xAxis"
+                      },
+                      {
+                        "dimension": "multiple",
+                        "axisType": "aggregator",
+                        "minAxisCount": 1.0,
+                        "description": "serial",
+                        "name": "yAxis"
+                      },
+                      {
+                        "dimension": "multiple",
+                        "axisType": "group",
+                        "name": "category"
+                      }
+                    ],
+                    "bubble": [
+                      {
+                        "dimension": "single",
+                        "axisType": "key",
+                        "minAxisCount": 1.0,
+                        "description": "serial",
+                        "name": "xAxis"
+                      },
+                      {
+                        "dimension": "single",
+                        "axisType": "key",
+                        "minAxisCount": 1.0,
+                        "description": "serial",
+                        "name": "yAxis"
+                      },
+                      {
+                        "dimension": "multiple",
+                        "axisType": "aggregator",
+                        "minAxisCount": 1.0,
+                        "name": "zAxis"
+                      },
+                      {
+                        "dimension": "multiple",
+                        "axisType": "group",
+                        "name": "category"
+                      }
+                    ]
+                  },
+                  "parameter": {
+                    "scatter": {
+                      "usePredefinedColorSet": true,
+                      "markerRadius": 3.0,
+                      "floatingLegend": "default",
+                      "rotateXAxisLabel": 0.0,
+                      "rotateYAxisLabel": 0.0,
+                      "tooltipPrecision": ".4f",
+                      "legendLabelFormat": "",
+                      "xAxisPosition": "bottom",
+                      "yAxisPosition": "left",
+                      "showLegend": true,
+                      "legendPosition": "bottom",
+                      "legendLayout": "horizontal",
+                      "zoomType": "xy",
+                      "subTitle": "",
+                      "mainTitle": "",
+                      "xAxisUnit": "",
+                      "yAxisUnit": "",
+                      "xAxisName": "",
+                      "yAxisName": ""
+                    },
+                    "bubble": {
+                      "minBubbleSize": 3.0,
+                      "maxBubbleSize": 50.0,
+                      "plotBorderWidth": 1.0,
+                      "xGridLineWidth": 1.0,
+                      "yGridLineWidth": 1.0,
+                      "floatingLegend": "default",
+                      "rotateXAxisLabel": 0.0,
+                      "rotateYAxisLabel": 0.0,
+                      "tooltipPrecision": ".3f",
+                      "legendLabelFormat": "",
+                      "xAxisPosition": "bottom",
+                      "yAxisPosition": "left",
+                      "showLegend": true,
+                      "legendPosition": "bottom",
+                      "legendLayout": "horizontal",
+                      "zoomType": "xy",
+                      "subTitle": "",
+                      "mainTitle": "",
+                      "xAxisUnit": "",
+                      "yAxisUnit": "",
+                      "zAxisUnit": "",
+                      "xAxisName": "",
+                      "yAxisName": ""
+                    }
+                  },
+                  "paramSpecs": {
+                    "scatter": [
+                      {
+                        "valueType": "boolean",
+                        "defaultValue": true,
+                        "description": "use predefined color set",
+                        "widget": "checkbox",
+                        "name": "usePredefinedColorSet"
+                      },
+                      {
+                        "valueType": "int",
+                        "defaultValue": 3.0,
+                        "description": "radius size of markers",
+                        "name": "markerRadius"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "default",
+                        "description": "floating legend",
+                        "widget": "option",
+                        "optionValues": [
+                          "default",
+                          "top-right",
+                          "top-left"
+                        ],
+                        "name": "floatingLegend"
+                      },
+                      {
+                        "valueType": "int",
+                        "defaultValue": 0.0,
+                        "description": "rotate xAxis labels",
+                        "name": "rotateXAxisLabel"
+                      },
+                      {
+                        "valueType": "int",
+                        "defaultValue": 0.0,
+                        "description": "rotate yAxis labels",
+                        "name": "rotateYAxisLabel"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": ".1f",
+                        "description": "precision of tooltip format without \u003ccode\u003e:\u003c/code\u003e (\u003ca href\u003d\"http://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting\"\u003edoc\u003c/a\u003e)",
+                        "name": "tooltipPrecision"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "",
+                        "description": "text format of legend (\u003ca href\u003d\"http://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting\"\u003edoc\u003c/a\u003e)",
+                        "name": "legendLabelFormat"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "bottom",
+                        "description": "xAxis position",
+                        "widget": "option",
+                        "optionValues": [
+                          "bottom",
+                          "top"
+                        ],
+                        "name": "xAxisPosition"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "left",
+                        "description": "yAxis position",
+                        "widget": "option",
+                        "optionValues": [
+                          "left",
+                          "right"
+                        ],
+                        "name": "yAxisPosition"
+                      },
+                      {
+                        "valueType": "boolean",
+                        "defaultValue": true,
+                        "description": "show legend",
+                        "widget": "checkbox",
+                        "name": "showLegend"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "bottom",
+                        "description": "position of legend",
+                        "widget": "option",
+                        "optionValues": [
+                          "bottom",
+                          "top"
+                        ],
+                        "name": "legendPosition"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "horizontal",
+                        "description": "layout of legend",
+                        "widget": "option",
+                        "optionValues": [
+                          "horizontal",
+                          "vertical"
+                        ],
+                        "name": "legendLayout"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "xy",
+                        "description": "type of zoom",
+                        "widget": "option",
+                        "optionValues": [
+                          "xy",
+                          "none"
+                        ],
+                        "name": "zoomType"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "",
+                        "description": "sub title of chart",
+                        "name": "subTitle"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "",
+                        "description": "main title of chart",
+                        "name": "mainTitle"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "",
+                        "description": "unit of xAxis",
+                        "name": "xAxisUnit"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "",
+                        "description": "unit of yAxis",
+                        "name": "yAxisUnit"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "",
+                        "description": "name of xAxis",
+                        "name": "xAxisName"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "",
+                        "description": "name of yAxis",
+                        "name": "yAxisName"
+                      }
+                    ],
+                    "bubble": [
+                      {
+                        "valueType": "int",
+                        "defaultValue": 3.0,
+                        "description": "minimum size of bubble",
+                        "name": "minBubbleSize"
+                      },
+                      {
+                        "valueType": "int",
+                        "defaultValue": 50.0,
+                        "description": "maximum size of bubble",
+                        "name": "maxBubbleSize"
+                      },
+                      {
+                        "valueType": "int",
+                        "defaultValue": 1.0,
+                        "description": "border width of plot",
+                        "name": "plotBorderWidth"
+                      },
+                      {
+                        "valueType": "int",
+                        "defaultValue": 1.0,
+                        "description": "grid line width of X axis",
+                        "name": "xGridLineWidth"
+                      },
+                      {
+                        "valueType": "int",
+                        "defaultValue": 1.0,
+                        "description": "grid line width of Y axis",
+                        "name": "yGridLineWidth"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "default",
+                        "description": "floating legend",
+                        "widget": "option",
+                        "optionValues": [
+                          "default",
+                          "top-right",
+                          "top-left"
+                        ],
+                        "name": "floatingLegend"
+                      },
+                      {
+                        "valueType": "int",
+                        "defaultValue": 0.0,
+                        "description": "rotate xAxis labels",
+                        "name": "rotateXAxisLabel"
+                      },
+                      {
+                        "valueType": "int",
+                        "defaultValue": 0.0,
+                        "description": "rotate yAxis labels",
+                        "name": "rotateYAxisLabel"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": ".1f",
+                        "description": "precision of tooltip format without \u003ccode\u003e:\u003c/code\u003e (\u003ca href\u003d\"http://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting\"\u003edoc\u003c/a\u003e)",
+                        "name": "tooltipPrecision"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "",
+                        "description": "text format of legend (\u003ca href\u003d\"http://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting\"\u003edoc\u003c/a\u003e)",
+                        "name": "legendLabelFormat"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "bottom",
+                        "description": "xAxis position",
+                        "widget": "option",
+                        "optionValues": [
+                          "bottom",
+                          "top"
+                        ],
+                        "name": "xAxisPosition"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "left",
+                        "description": "yAxis position",
+                        "widget": "option",
+                        "optionValues": [
+                          "left",
+                          "right"
+                        ],
+                        "name": "yAxisPosition"
+                      },
+                      {
+                        "valueType": "boolean",
+                        "defaultValue": true,
+                        "description": "show legend",
+                        "widget": "checkbox",
+                        "name": "showLegend"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "bottom",
+                        "description": "position of legend",
+                        "widget": "option",
+                        "optionValues": [
+                          "bottom",
+                          "top"
+                        ],
+                        "name": "legendPosition"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "horizontal",
+                        "description": "layout of legend",
+                        "widget": "option",
+                        "optionValues": [
+                          "horizontal",
+                          "vertical"
+                        ],
+                        "name": "legendLayout"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "xy",
+                        "description": "type of zoom",
+                        "widget": "option",
+                        "optionValues": [
+                          "xy",
+                          "none"
+                        ],
+                        "name": "zoomType"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "",
+                        "description": "sub title of chart",
+                        "name": "subTitle"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "",
+                        "description": "main title of chart",
+                        "name": "mainTitle"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "",
+                        "description": "unit of xAxis",
+                        "name": "xAxisUnit"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "",
+                        "description": "unit of yAxis",
+                        "name": "yAxisUnit"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "",
+                        "description": "unit of zAxis",
+                        "name": "zAxisUnit"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "",
+                        "description": "name of xAxis",
+                        "name": "xAxisName"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "",
+                        "description": "name of yAxis",
+                        "name": "yAxisName"
+                      }
+                    ]
+                  }
+                },
+                "table": {
+                  "tableGridState": {
+                    "columns": [
+                      {
+                        "name": "word",
+                        "visible": true,
+                        "width": "*",
+                        "sort": {},
+                        "filters": [
+                          {}
+                        ],
+                        "pinned": ""
+                      },
+                      {
+                        "name": "syn",
+                        "visible": true,
+                        "width": "*",
+                        "sort": {},
+                        "filters": [
+                          {}
+                        ],
+                        "pinned": ""
+                      },
+                      {
+                        "name": "similarity",
+                        "visible": true,
+                        "width": "*",
+                        "sort": {},
+                        "filters": [
+                          {}
+                        ],
+                        "pinned": ""
+                      },
+                      {
+                        "name": "x",
+                        "visible": true,
+                        "width": "*",
+                        "sort": {},
+                        "filters": [
+                          {}
+                        ],
+                        "pinned": ""
+                      },
+                      {
+                        "name": "y",
+                        "visible": true,
+                        "width": "*",
+                        "sort": {},
+                        "filters": [
+                          {}
+                        ],
+                        "pinned": ""
+                      }
+                    ],
+                    "scrollFocus": {},
+                    "selection": [],
+                    "grouping": {
+                      "grouping": [],
+                      "aggregations": [],
+                      "rowExpandedStates": {}
+                    },
+                    "treeView": {},
+                    "pagination": {
+                      "paginationCurrentPage": 1.0,
+                      "paginationPageSize": 250.0
+                    }
+                  },
+                  "tableColumnTypeState": {
+                    "updated": false,
+                    "names": {
+                      "syn": "string",
+                      "x": "string",
+                      "y": "string"
+                    }
+                  },
+                  "updated": false,
+                  "initialized": false,
+                  "tableOptionSpecHash": "[{\"name\":\"useFilter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable filter for columns\"},{\"name\":\"showPagination\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable pagination for better navigation\"},{\"name\":\"showAggregationFooter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable a footer for displaying aggregated values\"}]",
+                  "tableOptionValue": {
+                    "useFilter": false,
+                    "showPagination": false,
+                    "showAggregationFooter": false
+                  }
+                }
+              }
+            },
+            "helium": {}
+          }
+        },
+        "enabled": true,
+        "editorSetting": {
+          "language": "sql",
+          "editOnDblClick": false
+        }
+      },
+      "settings": {
+        "params": {
+          "단어": "타이타닉"
+        },
+        "forms": {
+          "단어": {
+            "name": "단어",
+            "defaultValue": "",
+            "hidden": false
+          }
+        }
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TABLE",
+            "data": "syn\tx\ty\tsimilarity\n아바타\t0.3481472894319292\t-0.21728229239326508\t0.694739043712616\n남극\t0.19441875772783765\t-0.05055783198989622\t0.681129515171051\n반반\t0.22249411286895748\t-0.04359169855068479\t0.6750353574752808\n몽골\t0.35014024045064207\t-0.13902167010514657\t0.6746057271957397\n들판\t0.1624887368636734\t-0.06902127982590087\t0.6741756200790405\n얼음\t0.31693846780873164\t-0.2736113494412319\t0.6666259169578552\n더티\t0.1353011758054961\t-0.09277909246775128\t0.6621600985527039\n애국심\t0.4897774815094708\t0.011999381074220699\t0.6604512929916382\n황비홍\t0.3076059113337538\t-0.3909081793691305\t0.6548054218292236\n쿠키\t0.17520850419784742\t-0.12008581791146801\t0.6524866819381714\n타이타닉\t0.27232101219115185\t-0.1105437496381861\t1.0\n"
+          }
+        ]
+      },
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            "http://192.168.0.21:4040/jobs/job?id\u003d599",
+            "http://192.168.0.21:4040/jobs/job?id\u003d600",
+            "http://192.168.0.21:4040/jobs/job?id\u003d601",
+            "http://192.168.0.21:4040/jobs/job?id\u003d602"
+          ],
+          "interpreterSettingId": "2CN9E6YH7"
+        }
+      },
+      "apps": [],
+      "jobName": "paragraph_1498121236910_-367748366",
+      "id": "20170622-150138_1208736680",
+      "dateCreated": "Jun 22, 2017 5:47:16 PM",
+      "dateStarted": "Jun 22, 2017 9:55:02 PM",
+      "dateFinished": "Jun 22, 2017 9:55:02 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "%sql\nSELECT *\nFROM syn\nWHERE similarity \u003c 1.0\nORDER BY similarity DESC",
+      "user": "anonymous",
+      "dateUpdated": "Jun 22, 2017 9:49:24 PM",
+      "config": {
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/sql",
+        "results": {
+          "0": {
+            "graph": {
+              "mode": "table",
+              "height": 300.0,
+              "optionOpen": false,
+              "setting": {
+                "table": {
+                  "tableGridState": {},
+                  "tableColumnTypeState": {
+                    "names": {
+                      "word": "string",
+                      "syn": "string",
+                      "similarity": "string"
+                    },
+                    "updated": false
+                  },
+                  "tableOptionSpecHash": "[{\"name\":\"useFilter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable filter for columns\"},{\"name\":\"showPagination\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable pagination for better navigation\"},{\"name\":\"showAggregationFooter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable a footer for displaying aggregated values\"}]",
+                  "tableOptionValue": {
+                    "useFilter": false,
+                    "showPagination": false,
+                    "showAggregationFooter": false
+                  },
+                  "updated": false,
+                  "initialized": false
+                }
+              },
+              "commonSetting": {}
+            }
+          }
+        },
+        "enabled": true,
+        "editorSetting": {
+          "language": "sql"
+        }
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TABLE",
+            "data": "word\tsyn\tsimilarity\nspider\tpig\t0.9828612804412842\npig\tspider\t0.9828612208366394\n러블\t웨어\t0.97948157787323\n웨어\t러블\t0.9794813990592957\n책임져라\t밥그릇\t0.9742236733436584\n밥그릇\t책임져라\t0.9742235541343689\n수결\t금련\t0.961347758769989\n금련\t수결\t0.9613476395606995\nnews\tblog\t0.9519443511962891\nblog\tnews\t0.9519443511962891\nVery\tvery\t0.9518015384674072\nvery\tVery\t0.9518014788627625\nseen\tve\t0.9485374689102173\nve\tseen\t0.9485373497009277\nyou\tI\t0.9453371167182922\nI\tyou\t0.9453369975090027\nwww\tblog\t0.9440622925758362\nblog\twww\t0.9440622329711914\nnaver\tblog\t0.942813515663147\nblog\tnaver\t0.9428134560585022\n다이스\t케이온\t0.9405390620231628\n케이온\t다이스\t0.940538763999939\n70\t80\t0.9400627613067627\n80\t70\t0.9400625228881836\nwww\tnews\t0.9396067261695862\nnews\twww\t0.9396067261695862\n☆\t★\t0.9384876489639282\n★\t☆\t0.9384875297546387\n＼\t▽\t0.938397228717804\n▽\t＼\t0.938397228717804\nyou\ti\t0.9377182126045227\ni\tyou\t0.9377180933952332\n￣\t∇\t0.9370021820068359\n∇\t￣\t0.9370020627975464\nthe\tis\t0.9364299774169922\nis\tthe\t0.9364299178123474\nnaver\tcom\t0.9358898997306824\ncom\tnaver\t0.9358897805213928\ngt\tlt\t0.9354711174964905\nlt\tgt\t0.9354709982872009\nyou\tthat\t0.9346113801002502\nthat\tyou\t0.9346109628677368\n2000\t1990\t0.931315541267395\n1990\t2000\t0.9313154816627502\nづ\t￣\t0.9312549829483032\n￣\tづ\t0.9312548637390137\n8\t7\t0.9306468367576599\n7\t8\t0.9306467175483704\ni\tthat\t0.9305999875068665\nthat\ti\t0.9305999279022217\nIt\tit\t0.9296545386314392\nit\tIt\t0.9296544194221497\nyou\tto\t0.9274500608444214\nto\tyou\t0.9274499416351318\nI\tthat\t0.9273872375488281\nthat\tI\t0.9273871779441833\nblog\tcom\t0.9265743494033813\ncom\tblog\t0.9265742897987366\nyou\tme\t0.9248337745666504\nme\tyou\t0.9248334765434265\n1970\t1990\t0.9247792959213257\n1990\t1970\t0.9247792959213257\nsee\tyou\t0.9243547916412354\nyou\tsee\t0.9243544340133667\n\u003e\t\u003c\t0.9243521690368652\n\u003c\t\u003e\t0.9243521690368652\n이제야\t이제서야\t0.9233797192573547\n이제서야\t이제야\t0.9233797192573547\n뒤돌아보\t되돌아보\t0.9233211874961853\n되돌아보\t뒤돌아보\t0.9233210682868958\nsee\tthat\t0.9231106042861938\nthat\tsee\t0.9231106042861938\nnaver\twww\t0.9230557680130005\nwww\tnaver\t0.9230555891990662\nyou\tis\t0.9229130148887634\nis\tyou\t0.9229128956794739\nblog\thttp\t0.9228696227073669\nhttp\tblog\t0.9228695631027222\n보낸다\t보냅니다\t0.9219391942024231\n보냅니다\t보낸다\t0.9219390153884888\nround\tbaby\t0.9218037724494934\nbaby\tround\t0.9218037128448486\n극장\t영화관\t0.9206403493881226\n영화관\t극장\t0.920640230178833\nIt\tperfect\t0.9196134209632874\nperfect\tIt\t0.919613242149353\nwww\tnet\t0.9184422492980957\nnet\twww\t0.9184420704841614\nyou\tmy\t0.9184284806251526\nmy\tyou\t0.9184284210205078\nis\tthat\t0.9176861643791199\nthat\tis\t0.9176861047744751\n당할\t낚일\t0.9175549149513245\n낚일\t당할\t0.9175546765327454\n땔\t뗄\t0.9172883033752441\n뗄\t땔\t0.9172881841659546\n이국\t원초\t0.9170705080032349\n원초\t이국\t0.917070209980011\n80\t90\t0.9162207841873169\n90\t80\t0.9162207841873169\n2002\t2004\t0.9155435562133789\n2004\t2002\t0.9155434966087341\ngood\tvery\t0.9154567122459412\nvery\tgood\t0.9154562950134277\nt\tcan\t0.9153056144714355\ncan\tt\t0.915305495262146\nmovies\tthe\t0.9149006605148315\nthe\tmovies\t0.9149006009101868\nyou\tthis\t0.9147322177886963\nthis\tyou\t0.9147320985794067\none\tbest\t0.914500892162323\nbest\tone\t0.9145007133483887\nI\tsee\t0.9142342209815979\nsee\tI\t0.9142339825630188\nand\tyou\t0.9140607118606567\nyou\tand\t0.9140607118606567\nsee\tyour\t0.914003849029541\nyour\tsee\t0.9140037298202515\nfor\tyou\t0.9134024977684021\n카타\t바사\t0.9133272767066956\n바사\t카타\t0.913327157497406\n더럽\t드럽\t0.9133201837539673\n드럽\t더럽\t0.9133201241493225\n1980\t1990\t0.9132959246635437\n1990\t1980\t0.9132959246635437\nmovie\tis\t0.913021445274353\nis\tmovie\t0.913021445274353\n2001\t2002\t0.9118095636367798\n2002\t2001\t0.9118093252182007\nknow\tyou\t0.9109853506088257\n1996\t2001\t0.9103498458862305\n2001\t1996\t0.9103497862815857\nnaver\tnews\t0.9100421071052551\nnews\tnaver\t0.910041868686676\ni\tI\t0.9099316596984863\nI\ti\t0.9099316596984863\neverything\tyou\t0.9095041155815125\nthe\tthat\t0.9089120030403137\nthat\tthe\t0.9089118838310242\n2001\t2004\t0.9089069366455078\n2004\t2001\t0.9089069366455078\nㅋ개\t낰ㅋ\t0.9087011218070984\n낰ㅋ\tㅋ개\t0.9087009429931641\nㅇㄴ\tㄹ\t0.9086015820503235\nㄹ\tㅇㄴ\t0.9086015820503235\nthe\tyou\t0.908410370349884\nis\tthis\t0.9082714915275574\nthis\tis\t0.908271312713623\nthis\tthat\t0.9080386757850647\nthat\tthis\t0.9080384969711304\nis\tI\t0.907968282699585\nI\tis\t0.9079682230949402\nto\tthat\t0.9075644016265869\nthat\tto\t0.9075644016265869\nthat\tit\t0.9072065949440002\nit\tthat\t0.9072064757347107\nI\tthe\t0.9070992469787598\nthe\tI\t0.907099187374115\nin\tlife\t0.907081663608551\nlife\tin\t0.9070815443992615\n2000\t70\t0.9069976806640625\n70\t2000\t0.9069973230361938\nwww\thttp\t0.9068946242332458\nhttp\twww\t0.9068945646286011\n2000\t1980\t0.9068713188171387\n1980\t2000\t0.9068713188171387\nit\tI\t0.9067062139511108\nI\tit\t0.9067060351371765\n거려서\t거려\t0.9062526226043701\n거려\t거려서\t0.9062525033950806\nsee\tthis\t0.9061663150787354\nthis\tsee\t0.9061661958694458\nbest\tof\t0.9056870341300964\nof\tbest\t0.9056867361068726\n브룩\t쉴즈\t0.9046326279640198\n쉴즈\t브룩\t0.9046323895454407\n2002\t2011\t0.9045724868774414\n2011\t2002\t0.9045722484588623\nin\tthe\t0.9045301079750061\nthe\tin\t0.904529869556427\nto\ti\t0.9043974280357361\ni\tto\t0.9043973088264465\n일방\t기념비\t0.9043354392051697\n기념비\t일방\t0.9043354392051697\n됬\t됐\t0.9039856195449829\n됐\t됬\t0.9039852023124695\nwant\tYou\t0.9037672877311707\nYou\twant\t0.9037671089172363\n{\t}\t0.9037342667579651\n}\t{\t0.9037341475486755\nI\tyour\t0.9032979607582092\nyour\tI\t0.9032979011535645\n인위\t치명\t0.9032904505729675\n치명\t인위\t0.9032903909683228\n돌아보\t되돌아보\t0.9027462601661682\n되돌아보\t돌아보\t0.9027459621429443\ni\tsee\t0.9026655554771423\nsee\ti\t0.9026653170585632\nmovies\tis\t0.9025259613990784\nis\tmovies\t0.9025258421897888\n스런\t스러운\t0.9022424817085266\n스러운\t스런\t0.9022422432899475\n2006\t2010\t0.9019110202789307\n2010\t2006\t0.9019108414649963\n허니\t예스\t0.9018872380256653\n예스\t허니\t0.9018871784210205\ni\tis\t0.9017765522003174\nis\ti\t0.9017764925956726\nre\tthat\t0.9017654657363892\nthat\tre\t0.9017653465270996\n몽환\t서정\t0.9017400741577148\n서정\t몽환\t0.9017397165298462\n※\t■\t0.9016193151473999\n■\t※\t0.901619017124176\n몽환\t이국\t0.9016054272651672\n이국\t몽환\t0.9016050696372986\n매혹\t관능\t0.9015828967094421\n관능\t매혹\t0.9015825390815735\n러닝\t런닝\t0.9015446305274963\n런닝\t러닝\t0.9015443921089172\no\t＼\t0.9014468789100647\n＼\to\t0.9014468193054199\n2000\t2004\t0.9012465476989746\n2004\t2000\t0.9012464880943298\n1996\t2002\t0.9010987281799316\n2002\t1996\t0.901098370552063\nづ\t∇\t0.9009054899215698\n∇\tづ\t0.900905430316925\nThis\tone\t0.9007078409194946\none\tThis\t0.9007077813148499\n2000\t1970\t0.900132417678833\n1970\t2000\t0.9001322388648987\nis\tsee\t0.9000514149665833\nsee\tis\t0.9000512361526489\n방금\t어제\t0.8998879194259644\n어제\t방금\t0.8998878002166748\n객관\t노골\t0.8998445272445679\n노골\t객관\t0.8998441100120544\nセックス\tの\t0.8996995091438293\nの\tセックス\t0.8996991515159607\n빈약\t부실\t0.8996739387512207\n부실\t빈약\t0.8996739387512207\n꿀\t개꿀\t0.8995047807693481\n개꿀\t꿀\t0.8995046615600586\n2002\t2003\t0.8994999527931213\n2003\t2002\t0.8994998335838318\n2000\t80\t0.8994972705841064\n80\t2000\t0.8994970321655273\nmy\tin\t0.8992447257041931\nin\tmy\t0.8992445468902588\nto\tit\t0.8991997838020325\nit\tto\t0.8991994261741638\n치명\t긍정\t0.8991371989250183\n긍정\t치명\t0.8991370797157288\nI\tand\t0.8991022706031799\nand\tI\t0.8991021513938904\n2012\t2004\t0.8989883065223694\n2004\t2012\t0.8989882469177246\ns\tt\t0.8989359140396118\nt\ts\t0.8989356756210327\nve\tthat\t0.8986653089523315\ncan\tDon\t0.8986614942550659\nDon\tcan\t0.8986613750457764\n치명\t이국\t0.8985265493392944\n이국\t치명\t0.8985264301300049\nblog\tmi\t0.8985180854797363\nmi\tblog\t0.8985178470611572\n2004\t2003\t0.898369550704956\n2003\t2004\t0.8983694911003113\nmy\tme\t0.8982687592506409\nme\tmy\t0.8982685804367065\nand\tthat\t0.8982124924659729\n2009\t2008\t0.8980384469032288\n2008\t2009\t0.898038387298584\nis\talways\t0.8976138830184937\nalways\tis\t0.8976138830184937\n2006\t1982\t0.8973217606544495\n1982\t2006\t0.8973216414451599\ndon\tt\t0.8973091840744019\nt\tdon\t0.8973090648651123\nthe\tmy\t0.8970992565155029\nmy\tthe\t0.8970992565155029\n1990\t1950\t0.8968132734298706\n1950\t1990\t0.8968132138252258\n바꿀\t이룰\t0.8967836499214172\n이룰\t바꿀\t0.8967835903167725\n2003\t2001\t0.8967685699462891\n2001\t2003\t0.89676833152771\nThis\tis\t0.896761417388916\njust\tI\t0.8967383503913879\nI\tjust\t0.8967383503913879\nboring\tcheap\t0.8966585993766785\ncheap\tboring\t0.8966584801673889\n70\t1970\t0.8966477513313293\n1970\t70\t0.8966476917266846\n2015\t2006\t0.8964744210243225\n2006\t2015\t0.8964741826057434\nit\tnot\t0.8963786363601685\nnot\tit\t0.8963785171508789\nMy\tOh\t0.8962494134902954\nOh\tMy\t0.8962492942810059\ncom\tkr\t0.8962017297744751\nkr\tcom\t0.8962016701698303\n이래\t이럼\t0.8956822752952576\n이럼\t이래\t0.8956822156906128\n엿볼\t돌아볼\t0.895682156085968\n돌아볼\t엿볼\t0.8956820368766785\n1980\t1970\t0.8955845832824707\n1970\t1980\t0.8955844044685364\nthis\tand\t0.8955247402191162\nand\tthis\t0.8955244421958923\n2007\t2006\t0.8955066204071045\n2006\t2007\t0.8955065608024597\ni\tand\t0.8953872323036194\nand\ti\t0.8953868746757507\n2004\t2011\t0.8953717350959778\n2011\t2004\t0.8953715562820435\n60\t2000\t0.895227313041687\n2000\t60\t0.8952271938323975\nbe\tI\t0.8951958417892456\nBest\tworld\t0.8950626254081726\nworld\tBest\t0.8950625061988831\nand\tis\t0.8950623869895935\n어용\t어여\t0.8948370218276978\n어여\t어용\t0.8948368430137634\nt\tthat\t0.894743025302887\n일방\t극단\t0.89469975233078\n극단\t일방\t0.8946994543075562\nare\tlove\t0.8945670127868652\nlove\tare\t0.8945668339729309\nto\tis\t0.8945645093917847\n허니\t개꿀\t0.8945448398590088\n개꿀\t허니\t0.8945446014404297\n2010\t2004\t0.8943014740943909\n2004\t2010\t0.8943012356758118\nnaver\tkr\t0.8942976593971252\nkr\tnaver\t0.8942975997924805\nnews\tch\t0.8942001461982727\nch\tnews\t0.894199788570404\nmovie\tmovies\t0.893854558467865\nmovies\tmovie\t0.8938543796539307\n인위\t노골\t0.8937383890151978\n노골\t인위\t0.893738329410553\n처음\t첨\t0.8936168551445007\n첨\t처음\t0.8936168551445007\n극단\t인위\t0.893609881401062\n인위\t극단\t0.8936096429824829\n이룰\t엿볼\t0.8935303688049316\n엿볼\t이룰\t0.8935303688049316\n￣\t▽\t0.8935002684593201\n▽\t￣\t0.8935002088546753\n70\t60\t0.8933742046356201\n60\t70\t0.8933741450309753\na\tyou\t0.8933727145195007\nto\tI\t0.8933514356613159\nthe\tmovie\t0.8933030366897583\nmovie\tthe\t0.8933026790618896\n러블\t측정\t0.8931970000267029\n측정\t러블\t0.8931968808174133\n늦출\t놓칠\t0.8931363821029663\n놓칠\t늦출\t0.8931360244750977\nit\tyou\t0.8931211829185486\n재밌\t재미있\t0.89288330078125\n재미있\t재밌\t0.8928830027580261\ns\tre\t0.8928785920143127\nre\ts\t0.8928784728050232\n줍니다\t준다\t0.8928154706954956\n준다\t줍니다\t0.892815351486206\n에밀\t쿠스트리차\t0.8927162289619446\n쿠스트리차\t에밀\t0.8927162289619446\n2010\t2011\t0.89264315366745\n2011\t2010\t0.89264315366745\nknow\tthat\t0.8925510048866272\nyour\tthat\t0.8925395011901855\nnews\thttp\t0.8925359845161438\nhttp\tnews\t0.8925358653068542\nㅋ개\t앜ㅋ\t0.8923872113227844\n앜ㅋ\tㅋ개\t0.8923870921134949\n1998\t2004\t0.8921540975570679\n2004\t1998\t0.8921540975570679\nyour\tyou\t0.89189213514328\n2002\t2000\t0.8917978405952454\n2000\t2002\t0.891797661781311\nve\tin\t0.8917245268821716\nin\tve\t0.8917243480682373\nlife\tmovies\t0.8916853666305542\nmovies\tlife\t0.8916852474212646\n일방\t인위\t0.8916354775428772\n인위\t일방\t0.8916351199150085\n이뻐요\t예뻐요\t0.891627311706543\n예뻐요\t이뻐요\t0.8916270732879639\n처절\t진솔\t0.8914777636528015\n진솔\t처절\t0.8914775252342224\n2007\t2004\t0.8911449909210205\n2004\t2007\t0.8911446928977966\n90\t70\t0.8910019993782043\n70\t90\t0.8910019397735596\n70\t1990\t0.8905982375144958\n1990\t70\t0.8905981183052063\nthis\tI\t0.8902886509895325\nwant\tyou\t0.8902287483215332\ncom\twww\t0.8900045156478882\nwww\tcom\t0.8900043964385986\n2000\t2001\t0.8898854851722717\n2001\t2000\t0.8898853063583374\nQ\t▽\t0.8897550702095032\n▽\tQ\t0.8897550702095032\nㅋ개\t넼\t0.8896908760070801\n넼\tㅋ개\t0.8896908164024353\na\tis\t0.8894627094268799\n2004\t94\t0.8894475698471069\n94\t2004\t0.8894475102424622\nand\tto\t0.8893990516662598\nto\tand\t0.8893990516662598\nworld\tmovies\t0.8893914222717285\nmovies\tworld\t0.8893914222717285\ndon\tre\t0.8888702392578125\nre\tdon\t0.8888700008392334\nfor\tis\t0.8887737393379211\n객관\t주관\t0.8885354995727539\n주관\t객관\t0.88853520154953\n매혹\t원초\t0.8885295987129211\n원초\t매혹\t0.8885294795036316\nmy\tare\t0.888395369052887\nare\tmy\t0.8883952498435974\nBest\tis\t0.88808673620224\n2006\t2001\t0.8879717588424683\n2001\t2006\t0.8879717588424683\nyour\tthis\t0.8878278136253357\nthis\tyour\t0.8878275752067566\nmy\tis\t0.8878104090690613\nof\tthe\t0.8877708315849304\nthe\tof\t0.8877705335617065\n1990\t2004\t0.8876492381095886\nsee\tt\t0.8876046538352966\nt\tsee\t0.8876045346260071\n2008\t2007\t0.8875515460968018\n2007\t2008\t0.8875513672828674\nworld\tone\t0.8875248432159424\none\tworld\t0.8875247836112976\n닼\t앜ㅋ\t0.8874750733375549\n앜ㅋ\t닼\t0.8874749541282654\n일방\t긍정\t0.8874610066413879\n긍정\t일방\t0.8874607682228088\na\tthat\t0.8873952031135559\n메세지\t메시지\t0.8873689770698547\n메시지\t메세지\t0.8873687386512756\nblog\t/\t0.8871410489082336\n/\tblog\t0.8871410489082336\n2010\t2002\t0.8870519995689392\n2002\t2010\t0.8870518803596497\nlove\tyou\t0.8868914842605591\nMan\tknow\t0.8868685364723206\nknow\tMan\t0.8868684768676758\n극단\t노골\t0.8867486119270325\n노골\t극단\t0.8867484927177429\n아려\t저며\t0.8867300748825073\n저며\t아려\t0.8867296576499939\ns\tthat\t0.8865716457366943\nthis\teverything\t0.8864669799804688\neverything\tthis\t0.8864668607711792\nDon\tt\t0.8864091634750366\nt\tDon\t0.8864089846611023\n1996\t2004\t0.8863593935966492\n빈약\t엉성\t0.8863089084625244\n엉성\t빈약\t0.8863085508346558\nfor\tI\t0.886155366897583\nmovies\tbest\t0.8861313462257385\nbest\tmovies\t0.8861312866210938\nch\twww\t0.8861070871353149\nwww\tch\t0.8861067891120911\n70\t1980\t0.8859091401100159\n1980\t70\t0.8859090805053711\n예쁘\t이쁘\t0.8859020471572876\n이쁘\t예쁘\t0.8859018683433533\n95\t2004\t0.8858671188354492\n매혹\t몽환\t0.8858640193939209\n몽환\t매혹\t0.8858638405799866\nnews\tmi\t0.8858364224433899\nmi\tnews\t0.8858364224433899\nof\tmovies\t0.8855903148651123\nmovies\tof\t0.8855901956558228\nperfect\tthat\t0.8855301141738892\nt\tYou\t0.8854841589927673\nYou\tt\t0.8854840397834778\nsee\teverything\t0.8853855729103088\neverything\tsee\t0.8853855729103088\nmovies\tone\t0.885372519493103\none\tmovies\t0.8853724002838135\nMan\tthat\t0.8853029608726501\nblog\tch\t0.885162353515625\nch\tblog\t0.8851622939109802\nthe\tbest\t0.8851369023323059\nbest\tthe\t0.8851368427276611\ni\tit\t0.8849554061889648\nit\ti\t0.884955108165741\nit\tjust\t0.884880542755127\njust\tit\t0.8848802447319031\n8\t9\t0.8847897052764893\n9\t8\t0.8847896456718445\n객관\t실질\t0.8847501277923584\n실질\t객관\t0.8847500085830688\n원초\t천부\t0.8846737146377563\n천부\t원초\t0.8846735954284668\nYou\tre\t0.8846412301063538\nre\tYou\t0.8846410512924194\n담담\t담백\t0.8846004605293274\n담백\t담담\t0.8846003413200378\nthis\talways\t0.8845898509025574\nalways\tthis\t0.8845898509025574\n95\t1990\t0.8845670819282532\n1990\t95\t0.8845670819282532\nre\tt\t0.8845077157020569\nt\tre\t0.8845076560974121\nof\tin\t0.8844470381736755\nin\tof\t0.8844467401504517\nsee\tto\t0.8844311833381653\nto\tsee\t0.884431004524231\n2001\t2007\t0.8843905925750732\n2007\t2001\t0.8843905329704285\n▽\tづ\t0.8843754529953003\nづ\t▽\t0.884375274181366\n2001\t1990\t0.8843482136726379\n1990\t2001\t0.8843480944633484\n파이팅\t홧팅\t0.8843350410461426\n홧팅\t파이팅\t0.8843348026275635\n1998\t1996\t0.8843251466751099\n1996\t1998\t0.8843249678611755\nづ\tQ\t0.8842185139656067\nQ\tづ\t0.8842183947563171\none\tis\t0.884168267250061\nmy\tlove\t0.8841567039489746\nlove\tmy\t0.8841565251350403\n라는\t란\t0.8841488361358643\n란\t라는\t0.8841487169265747\n1970\t1950\t0.8840736746788025\n1950\t1970\t0.8840734958648682\n강압\t일방\t0.8839209079742432\n일방\t강압\t0.8839208483695984\nknow\ti\t0.883916974067688\ni\tknow\t0.8839167952537537\n에휴\t쩝\t0.8838682770729065\n쩝\t에휴\t0.8838680982589722\n1990\t1998\t0.8838073015213013\n1998\t1990\t0.8838073015213013\n97\t2004\t0.8837835192680359\n9\t7\t0.8837448358535767\n7\t9\t0.883744478225708\n2005\t2004\t0.8836455345153809\n때우\t떼우\t0.8835827112197876\n떼우\t때우\t0.8835827112197876\n왠만\t웬만\t0.8833798766136169\n웬만\t왠만\t0.8833798170089722\nyour\tdon\t0.8833441138267517\ndon\tyour\t0.8833439350128174\nin\tis\t0.8832851052284241\nve\tyou\t0.8831859827041626\n치명\t원초\t0.8831842541694641\n원초\t치명\t0.8831841945648193\nbe\tthat\t0.8831338286399841\n이국\t매혹\t0.8830748200416565\n매혹\t이국\t0.8830747008323669\n97\t2001\t0.8828655481338501\n2001\t97\t0.8828654289245605\n멈출\t늦출\t0.8828262686729431\n늦출\t멈출\t0.882826030254364\n2000\t2003\t0.8828011751174927\n2003\t2000\t0.8828009963035583\n바라볼\t엿볼\t0.8827843070030212\n엿볼\t바라볼\t0.8827842473983765\nfor\tto\t0.8826558589935303\nto\tfor\t0.8826557993888855\n30\t40\t0.8822568655014038\n40\t30\t0.8822567462921143\nIt\ts\t0.8821699619293213\ns\tIt\t0.8821696639060974\n치명\t맹목\t0.881998598575592\n맹목\t치명\t0.8819985389709473\nve\tt\t0.8819197416305542\nt\tve\t0.8819196820259094\na\tI\t0.8818376064300537\n스윈튼\t틸다\t0.8816856145858765\n틸다\t스윈튼\t0.8816854953765869\n긍정\t맹목\t0.8816573023796082\n맹목\t긍정\t0.8816571831703186\nit\tis\t0.8815290927886963\n2010\t1998\t0.8814595341682434\n1998\t2010\t0.8814593553543091\nbe\tyou\t0.8813264966011047\nslow\tlife\t0.8812651634216309\nlife\tslow\t0.8812650442123413\none\tBest\t0.8811893463134766\nBest\tone\t0.881189227104187\nwas\tand\t0.8811548352241516\nand\twas\t0.8811546564102173\nlife\tthe\t0.881105363368988\n측정\t웨어\t0.8809911608695984\n웨어\t측정\t0.8809911012649536\nin\tmovies\t0.8809213638305664\nmovies\tin\t0.8809211850166321\nfor\tme\t0.8808969259262085\nme\tfor\t0.8808968663215637\nmovies\tthat\t0.8808663487434387\na\tthe\t0.880840539932251\nyour\tRock\t0.8808366656303406\nRock\tyour\t0.880836546421051\n젊은이\t군상\t0.8808222413063049\n군상\t젊은이\t0.8808220028877258\n2010\t2001\t0.8807631134986877\n2001\t2010\t0.8807629346847534\n1982\t2001\t0.8807370066642761\nt\tIt\t0.8807298541069031\nIt\tt\t0.8807296752929688\nc\tC\t0.8806979060173035\nC\tc\t0.8806977272033691\n40\t50\t0.8806723952293396\n50\t40\t0.8806723356246948\n대해서\t대해\t0.8805824518203735\n대해\t대해서\t0.880582332611084\nwas\tyou\t0.8804641366004944\n1998\t2002\t0.8803197741508484\n2002\t1998\t0.8803196549415588\nperfect\tthe\t0.880189836025238\ncom\tnews\t0.8801224827766418\nnews\tcom\t0.8801223039627075\nㅋ개\t닼\t0.8800824284553528\n닼\tㅋ개\t0.8800821304321289\nthis\tit\t0.8799793124198914\nit\tthis\t0.879979133605957\nmi\tnhn\t0.8799645304679871\nnhn\tmi\t0.8799644708633423\nve\tcan\t0.8797460794448853\ncan\tve\t0.8797459602355957\n브란도\t말론\t0.8797191977500916\n말론\t브란도\t0.8797189593315125\nworld\tis\t0.8796976804733276\njust\tdon\t0.879619300365448\ndon\tjust\t0.8796191215515137\n2006\t2004\t0.8795890212059021\n맹목\t일방\t0.8795785903930664\n일방\t맹목\t0.8795784115791321\nlife\tbetter\t0.8795619606971741\nbetter\tlife\t0.879561722278595\nof\tis\t0.8795506358146667\n긍정\t실질\t0.8794651627540588\n실질\t긍정\t0.8794651627540588\nve\tI\t0.8794509172439575\nme\ti\t0.8794266581535339\ni\tme\t0.8794265985488892\n앜ㅋ\t엌ㅋ\t0.8794196248054504\n엌ㅋ\t앜ㅋ\t0.8794195652008057\neverything\tve\t0.8792878985404968\nve\teverything\t0.8792877197265625\n1998\t2001\t0.8792096972465515\n6\t7\t0.8791834115982056\n7\t6\t0.8791833519935608\nThe\tyou\t0.8789812922477722\n넼ㅋ\t엌ㅋ\t0.878957211971283\n엌ㅋ\t넼ㅋ\t0.8789570331573486\n산만\t허술\t0.8788532018661499\n허술\t산만\t0.8788530826568604\n빕\t고인\t0.878842294216156\n고인\t빕\t0.8788418769836426\n예스\t개꿀\t0.8788366317749023\n개꿀\t예스\t0.8788365125656128\n치명\t극단\t0.878627598285675\n극단\t치명\t0.878627598285675\n맹목\t이국\t0.8785900473594666\n이국\t맹목\t0.8785899877548218\n객관\t긍정\t0.878569483757019\n긍정\t객관\t0.8785692453384399\n시온\t소노\t0.8785237073898315\n소노\t시온\t0.8785237073898315\n소박\t유머러스\t0.8784806728363037\n유머러스\t소박\t0.8784803152084351\n낰ㅋ\t앜ㅋ\t0.8784392476081848\n앜ㅋ\t낰ㅋ\t0.87843918800354\nin\tyou\t0.8784307837486267\n2008\t2002\t0.878378689289093\n2002\t2008\t0.8783784508705139\n2011\t2003\t0.8783528208732605\n2003\t2011\t0.8783524632453918\n허니\t딸기\t0.87833172082901\n딸기\t허니\t0.8783316016197205\n2002\t2007\t0.8780105710029602\n2007\t2002\t0.8780104517936707\n1980\t2004\t0.8779239654541016\nin\tthis\t0.8779195547103882\n지독\t처절\t0.8778603076934814\n처절\t지독\t0.8778601884841919\n인위\t추상\t0.87781822681427\n추상\t인위\t0.8778180480003357\n도대체\t대체\t0.8777754902839661\n대체\t도대체\t0.8777754902839661\n위해서\t위해\t0.8777129650115967\n위해\t위해서\t0.877712607383728\nyour\tit\t0.8776693940162659\nseen\tthis\t0.8775936961174011\n2006\t97\t0.8775650858879089\n97\t2006\t0.8775649070739746\neverything\ti\t0.8774909973144531\nll\tre\t0.8774291276931763\nre\tll\t0.8774290680885315\nre\tperfect\t0.8774242401123047\nperfect\tre\t0.8774241209030151\nto\tthe\t0.8774158954620361\nOne\tthe\t0.8773320913314819\n치열\t부유\t0.8772812485694885\n부유\t치열\t0.8772810697555542\ncom\tnet\t0.8772575855255127\nnet\tcom\t0.877257227897644\n2015\t2001\t0.8772258758544922\nfor\tthis\t0.8771690130233765\n감출\t금할\t0.8770425915718079\n금할\t감출\t0.8770425319671631\n노골\t일방\t0.8770084381103516\n일방\t노골\t0.8770083785057068\nas\tand\t0.87682044506073\nand\tas\t0.8768203258514404\nㄴ\tㅈ\t0.8767081499099731\nㅈ\tㄴ\t0.8767079710960388\n맹목\t원초\t0.8766539096832275\n원초\t맹목\t0.8766536712646484\n매혹\t서정\t0.8765519261360168\n서정\t매혹\t0.8765519261360168\nperfect\tit\t0.8765436410903931\n2011\t2012\t0.8765366673469543\n2012\t2011\t0.8765366077423096\nseen\tthat\t0.8764797449111938\njust\tsee\t0.8763688206672668\n이국\t관능\t0.8762876391410828\n관능\t이국\t0.8762875199317932\n2008\t2010\t0.8762595057487488\n2010\t2008\t0.8762592673301697\n인위\t가학\t0.8762577176094055\n가학\t인위\t0.8762576580047607\n코미디\t코메디\t0.8761940002441406\n코메디\t코미디\t0.8761939406394958\n2005\t2003\t0.8761485815048218\n2003\t2005\t0.8761484622955322\nVery\tgood\t0.876128613948822\ngood\tVery\t0.8761284947395325\n난잡\t어수선\t0.8760421872138977\n어수선\t난잡\t0.8760418891906738\nhave\tis\t0.8760212063789368\n2003\t2012\t0.8755708336830139\n2012\t2003\t0.8755707740783691\nfor\tthat\t0.8755422830581665\n1982\t1999\t0.8753670454025269\n1999\t1982\t0.8753669857978821\n2012\t2007\t0.8753595948219299\n2007\t2012\t0.8753594756126404\n엌ㅋ\tㅋ개\t0.8753199577331543\nㅋ개\t엌ㅋ\t0.87531977891922\nme\tis\t0.8752866387367249\n2015\t2008\t0.8752658367156982\n2008\t2015\t0.8752656579017639\n산만\t난잡\t0.8752301931381226\n난잡\t산만\t0.8752301335334778\n엌ㅋ\t낰ㅋ\t0.875229001045227\n낰ㅋ\t엌ㅋ\t0.8752289414405823\nCtrl\tV\t0.8752289414405823\nV\tCtrl\t0.875228762626648\nbe\tThe\t0.8751893043518066\nThe\tbe\t0.8751891255378723\nare\tyou\t0.8751583099365234\nme\tI\t0.8750424981117249\nme\tare\t0.8750140070915222\nare\tme\t0.8750138878822327\n먹먹\t뭉클\t0.8750045299530029\n뭉클\t먹먹\t0.8750042915344238\n2008\t2001\t0.8748308420181274\n80\t1990\t0.8748252391815186\n1990\t80\t0.8748250007629395\nam\tI\t0.8747978806495667\nll\tdon\t0.8747683763504028\ndon\tll\t0.8747683167457581\nmy\ti\t0.8747432827949524\nblog\tkr\t0.8746951222419739\nkr\tblog\t0.8746951222419739\nThe\tthat\t0.8745898604393005\nseen\teverything\t0.87445068359375\neverything\tseen\t0.8744505643844604\nmy\tmovies\t0.8744184374809265\nwww\tkr\t0.874380886554718\nkr\twww\t0.8743807077407837\n2005\t2000\t0.8743795156478882\n꿀\t허니\t0.874355137348175\n허니\t꿀\t0.8743548393249512\nas\tlove\t0.8742594122886658\nlove\tas\t0.8742590546607971\n1950\t2000\t0.8741875290870667\n극단\t객관\t0.8740898370742798\n객관\t극단\t0.874089777469635\n2003\t2007\t0.8740794062614441\n2007\t2003\t0.8740794062614441\nperfect\ts\t0.8739466071128845\ns\tperfect\t0.873946487903595\n향한\t통한\t0.8739416599273682\n통한\t향한\t0.8739415407180786\n95\t2001\t0.873915433883667\nand\tsee\t0.8738704323768616\nRock\tlove\t0.8738449811935425\nlove\tRock\t0.8738448619842529\n엿볼\t바꿀\t0.8738351464271545\n바꿀\t엿볼\t0.873835027217865\nOCN\tebs\t0.8738294839859009\nebs\tOCN\t0.8738290667533875\n2006\t89\t0.8737441301345825\n89\t2006\t0.8737439513206482\n관능\t원초\t0.8737112879753113\n원초\t관능\t0.8737110495567322\n추격\t총격\t0.8736627697944641\n총격\t추격\t0.8736624717712402\n신카이\t마코토\t0.8736374378204346\n마코토\t신카이\t0.8736373782157898\n그려냈\t풀어냈\t0.8736280202865601\n풀어냈\t그려냈\t0.8736277222633362\n이기심\t억압\t0.8735646605491638\n억압\t이기심\t0.8735645413398743\n멈출\t미워할\t0.8734791874885559\n미워할\t멈출\t0.8734790682792664\nwas\tis\t0.8734336495399475\nseen\tyou\t0.8733767867088318\n97\t95\t0.8732192516326904\n95\t97\t0.8732191920280457\nnaver\tnet\t0.8732143640518188\n2008\t2004\t0.8732142448425293\nnet\tnaver\t0.873214066028595\n일방\t이국\t0.8731467127799988\n이국\t일방\t0.873146653175354\nIt\tthat\t0.8731276988983154\n2007\t2010\t0.8731245994567871\n2010\t2007\t0.8731244802474976\n2005\t2001\t0.8730809688568115\n주관\t실질\t0.8730794191360474\n실질\t주관\t0.8730791807174683\ns\tdon\t0.8730440735816956\ndon\ts\t0.8730440139770508\n극단\t강압\t0.872964084148407\n강압\t극단\t0.8729640245437622\n믿겨\t믿기\t0.8728752732276917\n믿기\t믿겨\t0.8728752136230469\ns\tit\t0.872861385345459\n30\t20\t0.8727930188179016\n20\t30\t0.8727929592132568\n여자\t남자\t0.8727427124977112\n남자\t여자\t0.8727427124977112\n2006\t67\t0.872715413570404\n67\t2006\t0.8727153539657593\nIt\tnot\t0.8727098107337952\nnot\tIt\t0.8727096915245056\nocn\tebs\t0.8726972341537476\nebs\tocn\t0.8726971745491028\n오빠\t언니\t0.8726291656494141\n언니\t오빠\t0.8726290464401245\n2006\t95\t0.8725512623786926\n95\t2006\t0.8725512027740479\nin\tThe\t0.8725103139877319\nThe\tin\t0.8725103139877319\nMan\tyou\t0.8723979592323303\njust\tthat\t0.8723270893096924\nbest\tis\t0.8722900748252869\n마루\t유루\t0.8722578883171082\n유루\t마루\t0.8722575902938843\n2007\t2009\t0.872235119342804\n2009\t2007\t0.8722350001335144\n닼\t닼ㅋ\t0.8720860481262207\n닼ㅋ\t닼\t0.8720858693122864\n느슨\t난잡\t0.8720023036003113\n난잡\t느슨\t0.8720022439956665\ntime\tis\t0.8719891905784607\n역경\t가치관\t0.871982753276825\n가치관\t역경\t0.871982753276825\n인위\t맹목\t0.8719608187675476\n맹목\t인위\t0.8719608187675476\nof\tve\t0.8717809915542603\nve\tof\t0.8717808127403259\n￣\t＼\t0.8717727661132812\n＼\t￣\t0.8717727065086365\nso\tRock\t0.8716476559638977\nRock\tso\t0.8716475367546082\n이뻐서\t예뻐서\t0.8716164827346802\n예뻐서\t이뻐서\t0.871616005897522\n2007\t1990\t0.8715988397598267\n2008\t1982\t0.8715906143188477\n1982\t2008\t0.8715903759002686\nve\tthis\t0.871544361114502\n쓸쓸\t애잔\t0.8714472055435181\n애잔\t쓸쓸\t0.8714472055435181\n통속\t관능\t0.87141352891922\n관능\t통속\t0.8714134693145752\n매혹\t독보\t0.8713942170143127\n독보\t매혹\t0.8713939189910889\nbe\tall\t0.8713029623031616\nall\tbe\t0.8713029623031616\n신앙\t가치관\t0.8711559772491455\n가치관\t신앙\t0.8711557388305664\n일방\t치명\t0.8711049556732178\n치명\t일방\t0.8711048364639282\n원초\t기념비\t0.8709520101547241\n기념비\t원초\t0.8709518313407898\n돌아볼\t이룰\t0.87095046043396\n이룰\t돌아볼\t0.8709503412246704\ncan\tsee\t0.8709411025047302\n실질\t일방\t0.8708550930023193\n일방\t실질\t0.8708550333976746\nYou\tdon\t0.8708456754684448\ndon\tYou\t0.8708456754684448\n매혹\t파격\t0.8707581162452698\n파격\t매혹\t0.8707578778266907\n거린다\t거림\t0.8706858158111572\n거림\t거린다\t0.8706858158111572\n닼ㅋ\t욬ㅋ\t0.8706760406494141\n욬ㅋ\t닼ㅋ\t0.8706759810447693\n명복\t빕\t0.870581328868866\n빕\t명복\t0.870581328868866\nyour\tjust\t0.87051922082901\njust\tyour\t0.8705191016197205\n2010\t2000\t0.8703323602676392\n허술\t엉성\t0.8702991008758545\n엉성\t허술\t0.8702988624572754\n이룰\t바라볼\t0.8702839016914368\n바라볼\t이룰\t0.8702836632728577\n2008\t2006\t0.8702824711799622\nfor\tmy\t0.8700364828109741\nmy\tfor\t0.8700364232063293\n인위\t실질\t0.8698363900184631\n실질\t인위\t0.8698363900184631\n미묘\t오묘\t0.8697847127914429\n오묘\t미묘\t0.8697846531867981\nnot\tI\t0.8697174191474915\n1998\t2000\t0.8697027564048767\nfor\ti\t0.8696423172950745\nBest\tbest\t0.8695465922355652\nbest\tBest\t0.8695464730262756\nll\tve\t0.8695441484451294\n2011\t2001\t0.8694642186164856\nknow\tto\t0.8693886995315552\nknow\tI\t0.8693752884864807\nre\tit\t0.8693534731864929\n낰ㅋ\t넼ㅋ\t0.869331955909729\n넼ㅋ\t낰ㅋ\t0.869331955909729\nme\twhen\t0.8692886233329773\nwhen\tme\t0.869288444519043\nIt\tI\t0.8692039251327515\n버스커\t로이킴\t0.869169294834137\n로이킴\t버스커\t0.8691692352294922\nwant\tthat\t0.8690742254257202\nare\tis\t0.8690294027328491\nnobody\twant\t0.8690178394317627\nwant\tnobody\t0.8690176010131836\nwww\tmi\t0.8689951300621033\nmi\twww\t0.8689948320388794\nwhat\tis\t0.8688023686408997\n60\t1990\t0.8687828183174133\n노골\t긍정\t0.8687524199485779\n긍정\t노골\t0.8687520623207092\nwas\tthat\t0.868412435054779\n앜ㅋ\t닼ㅋ\t0.8683657646179199\n닼ㅋ\t앜ㅋ\t0.8683657050132751\nMan\tto\t0.8681973218917847\nll\tit\t0.8681749701499939\n객관\t일방\t0.8681714534759521\n전체\t전반\t0.8681495785713196\n전반\t전체\t0.8681493401527405\n97\t2007\t0.8681085109710693\n방화\t1970\t0.8680939674377441\n1970\t방화\t0.8680939078330994\nperfect\tI\t0.8680744171142578\n1987\t2002\t0.8680102825164795\nmi\thttp\t0.8679909706115723\nhttp\tmi\t0.8679906129837036\nkr\tco\t0.8678282499313354\nco\tkr\t0.8678282499313354\neverything\tthat\t0.8678238391876221\nlife\tmy\t0.8677040934562683\nwant\tthis\t0.867689847946167\nfor\tthe\t0.8676382899284363\nOne\tmovies\t0.8676202893257141\nMan\tand\t0.867602527141571\n80\t60\t0.8675271272659302\n60\t80\t0.8675268292427063\n95\t2000\t0.8674610257148743\n2003\t1997\t0.8674283027648926\n1997\t2003\t0.8674282431602478\n인위\t직설\t0.8674175143241882\n직설\t인위\t0.8674170970916748\n긍정\t원초\t0.867405891418457\n원초\t긍정\t0.8674058318138123\nlife\tis\t0.8674049377441406\nwhen\tyou\t0.8673927187919617\n애매\t조잡\t0.8673880100250244\n조잡\t애매\t0.8673878312110901\n곸\t욬ㅋ\t0.867311954498291\n욬ㅋ\t곸\t0.8673118948936462\n1996\t2010\t0.8672774434089661\n2010\t1996\t0.8672773241996765\nam\tyou\t0.8672536611557007\n긍정\t주관\t0.8672106266021729\n"
+          },
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"result-alert alert-warning\" role\u003d\"alert\"\u003e\u003cbutton type\u003d\"button\" class\u003d\"close\" data-dismiss\u003d\"alert\" aria-label\u003d\"Close\"\u003e\u003cspan aria-hidden\u003d\"true\"\u003e\u0026times;\u003c/span\u003e\u003c/button\u003e\u003cstrong\u003eOutput is truncated\u003c/strong\u003e to 1000 rows. Learn more about \u003cstrong\u003ezeppelin.spark.maxResult\u003c/strong\u003e\u003c/div\u003e"
+          }
+        ]
+      },
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            "http://192.168.0.21:4040/jobs/job?id\u003d566"
+          ],
+          "interpreterSettingId": "2CN9E6YH7"
+        }
+      },
+      "apps": [],
+      "jobName": "paragraph_1498121236911_-368133115",
+      "id": "20170622-161709_1895492737",
+      "dateCreated": "Jun 22, 2017 5:47:16 PM",
+      "dateStarted": "Jun 22, 2017 9:49:24 PM",
+      "dateFinished": "Jun 22, 2017 9:49:24 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "%sql\nWITH syn (\n    SELECT EXPLODE(findSyn(word))\n    FROM word_point\n    WHERE word \u003d \u0027공포\u0027\n)",
+      "dateUpdated": "Jun 22, 2017 5:47:16 PM",
+      "config": {
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/sql",
+        "results": {
+          "0": {
+            "graph": {
+              "mode": "table",
+              "height": 300.0,
+              "optionOpen": false,
+              "setting": {
+                "table": {
+                  "tableGridState": {},
+                  "tableColumnTypeState": {
+                    "names": {
+                      "UDF(word)": "string"
+                    },
+                    "updated": false
+                  },
+                  "tableOptionSpecHash": "[{\"name\":\"useFilter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable filter for columns\"},{\"name\":\"showPagination\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable pagination for better navigation\"},{\"name\":\"showAggregationFooter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable a footer for displaying aggregated values\"}]",
+                  "tableOptionValue": {
+                    "useFilter": false,
+                    "showPagination": false,
+                    "showAggregationFooter": false
+                  },
+                  "updated": false,
+                  "initialized": false
+                }
+              },
+              "commonSetting": {}
+            }
+          }
+        },
+        "enabled": true,
+        "editorSetting": {
+          "language": "sql"
+        }
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TABLE",
+            "data": "UDF(word)\nWrappedArray([만드세요,0.5125321745872498], [라네,0.5046432018280029], [훨,0.4928343892097473], [아영,0.4921555817127228], [낫,0.4873605966567993], [맹,0.48722800612449646], [백배,0.4766407012939453], [클라스,0.47366565465927124], [후레쉬,0.4660932421684265], [먼데,0.46434780955314636])\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498121236911_-368133115",
+      "id": "20170622-164246_1219086386",
+      "dateCreated": "Jun 22, 2017 5:47:16 PM",
+      "status": "READY",
+      "errorMessage": "",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "dateUpdated": "Jun 22, 2017 5:47:16 PM",
+      "config": {},
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "jobName": "paragraph_1498121236911_-368133115",
+      "id": "20170622-164552_1456317060",
+      "dateCreated": "Jun 22, 2017 5:47:16 PM",
+      "status": "READY",
+      "errorMessage": "",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "val syn \u003d wordPoint.select(\"word\")\n    .withColumn(\"syn\", findSyn($\"word\"))\n    .withColumn(\"syn\", explode($\"syn\"))\n    .selectExpr(\"word\", \"syn._1 AS syn\", \"syn._2 AS similarity\")",
+      "dateUpdated": "Jun 22, 2017 5:47:16 PM",
+      "config": {
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/scala",
+        "results": {},
+        "enabled": true,
+        "editorSetting": {
+          "language": "scala"
+        }
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "syn: org.apache.spark.sql.DataFrame \u003d [word: string, syn: string ... 1 more field]\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498121236911_-368133115",
+      "id": "20170622-161712_614030773",
+      "dateCreated": "Jun 22, 2017 5:47:16 PM",
+      "status": "READY",
+      "errorMessage": "",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "dateUpdated": "Jun 22, 2017 5:47:16 PM",
+      "config": {},
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "jobName": "paragraph_1498121236911_-368133115",
+      "id": "20170622-164937_1816930014",
+      "dateCreated": "Jun 22, 2017 5:47:16 PM",
+      "status": "READY",
+      "errorMessage": "",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "syn.createOrReplaceTempView(\"syn\")\nsyn.where(\"syn \u003d \u0027공포\u0027\").show",
+      "dateUpdated": "Jun 22, 2017 5:47:16 PM",
+      "config": {
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/scala",
+        "results": {},
+        "enabled": true,
+        "editorSetting": {
+          "language": "scala"
+        }
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "+-----+---+-------------------+\n| word|syn|         similarity|\n+-----+---+-------------------+\n|   한국| 공포| 0.6522224545478821|\n|  프랑스| 공포| 0.7085151672363281|\n|   재난| 공포| 0.7359961867332458|\n|다큐멘터리| 공포|  0.660248875617981|\n|   야구| 공포| 0.5903142690658569|\n|   장르| 공포|  0.641280472278595|\n|  로맨스| 공포| 0.6385701894760132|\n|   코미| 공포|0.48495906591415405|\n|  요스케| 공포| 0.4083824157714844|\n|   독립| 공포| 0.6973564028739929|\n+-----+---+-------------------+\n\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498121236912_-357744895",
+      "id": "20170622-145220_1238885852",
+      "dateCreated": "Jun 22, 2017 5:47:16 PM",
+      "status": "READY",
+      "errorMessage": "",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "model.findSynonymsArray(\"공포\", 10) ",
+      "dateUpdated": "Jun 22, 2017 5:47:16 PM",
+      "config": {
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/scala",
+        "results": {},
+        "enabled": true,
+        "editorSetting": {
+          "language": "scala"
+        }
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "res14: Array[(String, Double)] \u003d Array((재난,0.7359963059425354), (프랑스,0.7085152268409729), (호러,0.7052285671234131), (독립,0.6973565220832825), (SF,0.6969732046127319), (sf,0.6820512413978577), (스릴러,0.6791664361953735), (다큐멘터리,0.6602489948272705), (무협,0.6553106904029846), (한국,0.6522224545478821))\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498121236912_-357744895",
+      "id": "20170622-163535_1668922597",
+      "dateCreated": "Jun 22, 2017 5:47:16 PM",
+      "status": "READY",
+      "errorMessage": "",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "dateUpdated": "Jun 22, 2017 5:47:16 PM",
+      "config": {},
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "jobName": "paragraph_1498121236912_-357744895",
+      "id": "20170622-170109_1462008195",
+      "dateCreated": "Jun 22, 2017 5:47:16 PM",
+      "status": "READY",
+      "errorMessage": "",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "%sql\nSELECT *\nFROM syn \n    JOIN word_point wp ON (syn.word \u003d wp.word)\nWHERE syn.syn \u003d \u0027공포\u0027",
+      "dateUpdated": "Jun 22, 2017 5:47:16 PM",
+      "config": {
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/sql",
+        "results": {
+          "0": {
+            "graph": {
+              "mode": "table",
+              "height": 300.0,
+              "optionOpen": false,
+              "setting": {
+                "table": {
+                  "tableGridState": {},
+                  "tableColumnTypeState": {
+                    "names": {
+                      "word": "string",
+                      "syn": "string",
+                      "similarity": "string"
+                    },
+                    "updated": false
+                  },
+                  "tableOptionSpecHash": "[{\"name\":\"useFilter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable filter for columns\"},{\"name\":\"showPagination\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable pagination for better navigation\"},{\"name\":\"showAggregationFooter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable a footer for displaying aggregated values\"}]",
+                  "tableOptionValue": {
+                    "useFilter": false,
+                    "showPagination": false,
+                    "showAggregationFooter": false
+                  },
+                  "updated": false,
+                  "initialized": false
+                }
+              },
+              "commonSetting": {}
+            }
+          }
+        },
+        "enabled": true,
+        "editorSetting": {
+          "language": "sql"
+        }
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "ERROR",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "java.lang.NullPointerException\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498121236912_-357744895",
+      "id": "20170622-163325_181266987",
+      "dateCreated": "Jun 22, 2017 5:47:16 PM",
+      "status": "READY",
+      "errorMessage": "",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "%sql\nSELECT * FROM syn WHERE syn \u003d \u0027공포\u0027",
+      "dateUpdated": "Jun 22, 2017 5:47:16 PM",
+      "config": {
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/sql",
+        "results": {
+          "0": {
+            "graph": {
+              "mode": "table",
+              "height": 300.0,
+              "optionOpen": false,
+              "setting": {
+                "table": {
+                  "tableGridState": {},
+                  "tableColumnTypeState": {
+                    "names": {
+                      "word": "string",
+                      "syn": "string",
+                      "similarity": "string"
+                    },
+                    "updated": false
+                  },
+                  "tableOptionSpecHash": "[{\"name\":\"useFilter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable filter for columns\"},{\"name\":\"showPagination\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable pagination for better navigation\"},{\"name\":\"showAggregationFooter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable a footer for displaying aggregated values\"}]",
+                  "tableOptionValue": {
+                    "useFilter": false,
+                    "showPagination": false,
+                    "showAggregationFooter": false
+                  },
+                  "updated": false,
+                  "initialized": false
+                }
+              },
+              "commonSetting": {}
+            }
+          }
+        },
+        "enabled": true,
+        "editorSetting": {
+          "language": "sql"
+        }
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TABLE",
+            "data": "word\tsyn\tsimilarity\n한국\t공포\t0.6522224545478821\n프랑스\t공포\t0.7085151672363281\n재난\t공포\t0.7359961867332458\n다큐멘터리\t공포\t0.660248875617981\n야구\t공포\t0.5903142690658569\n장르\t공포\t0.641280472278595\n로맨스\t공포\t0.6385701894760132\n코미\t공포\t0.48495906591415405\n요스케\t공포\t0.4083824157714844\n독립\t공포\t0.6973564028739929\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498121236913_-358129644",
+      "id": "20170622-162806_747132696",
+      "dateCreated": "Jun 22, 2017 5:47:16 PM",
+      "status": "READY",
+      "errorMessage": "",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "syn.where(\"syn \u003d \u0027공포\u0027\")\n    .join(wordPoint, \"word\")\n    .show",
+      "dateUpdated": "Jun 22, 2017 5:47:16 PM",
+      "config": {
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/scala",
+        "results": {},
+        "enabled": true,
+        "editorSetting": {
+          "language": "scala"
+        }
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "ERROR",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "org.apache.spark.SparkException: Job aborted due to stage failure: Task 0 in stage 50.0 failed 1 times, most recent failure: Lost task 0.0 in stage 50.0 (TID 169, localhost, executor driver): org.apache.spark.SparkException: Failed to execute user defined function($anonfun$1: (string) \u003d\u003e array\u003cstruct\u003c_1:string,_2:double\u003e\u003e)\n\tat org.apache.spark.sql.catalyst.expressions.GeneratedClass$GeneratedIterator.processNext(Unknown Source)\n\tat org.apache.spark.sql.execution.BufferedRowIterator.hasNext(BufferedRowIterator.java:43)\n\tat org.apache.spark.sql.execution.WholeStageCodegenExec$$anonfun$8$$anon$1.hasNext(WholeStageCodegenExec.scala:395)\n\tat scala.collection.Iterator$$anon$12.hasNext(Iterator.scala:439)\n\tat scala.collection.Iterator$JoinIterator.hasNext(Iterator.scala:211)\n\tat scala.collection.Iterator$$anon$11.hasNext(Iterator.scala:408)\n\tat org.apache.spark.sql.catalyst.expressions.GeneratedClass$GeneratedIterator.processNext(Unknown Source)\n\tat org.apache.spark.sql.execution.BufferedRowIterator.hasNext(BufferedRowIterator.java:43)\n\tat org.apache.spark.sql.execution.WholeStageCodegenExec$$anonfun$8$$anon$1.hasNext(WholeStageCodegenExec.scala:395)\n\tat org.apache.spark.sql.execution.SparkPlan$$anonfun$2.apply(SparkPlan.scala:234)\n\tat org.apache.spark.sql.execution.SparkPlan$$anonfun$2.apply(SparkPlan.scala:228)\n\tat org.apache.spark.rdd.RDD$$anonfun$mapPartitionsInternal$1$$anonfun$apply$25.apply(RDD.scala:827)\n\tat org.apache.spark.rdd.RDD$$anonfun$mapPartitionsInternal$1$$anonfun$apply$25.apply(RDD.scala:827)\n\tat org.apache.spark.rdd.MapPartitionsRDD.compute(MapPartitionsRDD.scala:38)\n\tat org.apache.spark.rdd.RDD.computeOrReadCheckpoint(RDD.scala:323)\n\tat org.apache.spark.rdd.RDD.iterator(RDD.scala:287)\n\tat org.apache.spark.scheduler.ResultTask.runTask(ResultTask.scala:87)\n\tat org.apache.spark.scheduler.Task.run(Task.scala:108)\n\tat org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:335)\n\tat java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)\n\tat java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)\n\tat java.lang.Thread.run(Thread.java:748)\nCaused by: java.lang.NullPointerException\n\nDriver stacktrace:\n  at org.apache.spark.scheduler.DAGScheduler.org$apache$spark$scheduler$DAGScheduler$$failJobAndIndependentStages(DAGScheduler.scala:1499)\n  at org.apache.spark.scheduler.DAGScheduler$$anonfun$abortStage$1.apply(DAGScheduler.scala:1487)\n  at org.apache.spark.scheduler.DAGScheduler$$anonfun$abortStage$1.apply(DAGScheduler.scala:1486)\n  at scala.collection.mutable.ResizableArray$class.foreach(ResizableArray.scala:59)\n  at scala.collection.mutable.ArrayBuffer.foreach(ArrayBuffer.scala:48)\n  at org.apache.spark.scheduler.DAGScheduler.abortStage(DAGScheduler.scala:1486)\n  at org.apache.spark.scheduler.DAGScheduler$$anonfun$handleTaskSetFailed$1.apply(DAGScheduler.scala:814)\n  at org.apache.spark.scheduler.DAGScheduler$$anonfun$handleTaskSetFailed$1.apply(DAGScheduler.scala:814)\n  at scala.Option.foreach(Option.scala:257)\n  at org.apache.spark.scheduler.DAGScheduler.handleTaskSetFailed(DAGScheduler.scala:814)\n  at org.apache.spark.scheduler.DAGSchedulerEventProcessLoop.doOnReceive(DAGScheduler.scala:1714)\n  at org.apache.spark.scheduler.DAGSchedulerEventProcessLoop.onReceive(DAGScheduler.scala:1669)\n  at org.apache.spark.scheduler.DAGSchedulerEventProcessLoop.onReceive(DAGScheduler.scala:1658)\n  at org.apache.spark.util.EventLoop$$anon$1.run(EventLoop.scala:48)\n  at org.apache.spark.scheduler.DAGScheduler.runJob(DAGScheduler.scala:630)\n  at org.apache.spark.SparkContext.runJob(SparkContext.scala:2022)\n  at org.apache.spark.SparkContext.runJob(SparkContext.scala:2043)\n  at org.apache.spark.SparkContext.runJob(SparkContext.scala:2062)\n  at org.apache.spark.sql.execution.SparkPlan.executeTake(SparkPlan.scala:336)\n  at org.apache.spark.sql.execution.CollectLimitExec.executeCollect(limit.scala:38)\n  at org.apache.spark.sql.Dataset.org$apache$spark$sql$Dataset$$collectFromPlan(Dataset.scala:2853)\n  at org.apache.spark.sql.Dataset$$anonfun$head$1.apply(Dataset.scala:2153)\n  at org.apache.spark.sql.Dataset$$anonfun$head$1.apply(Dataset.scala:2153)\n  at org.apache.spark.sql.Dataset$$anonfun$55.apply(Dataset.scala:2837)\n  at org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId(SQLExecution.scala:65)\n  at org.apache.spark.sql.Dataset.withAction(Dataset.scala:2836)\n  at org.apache.spark.sql.Dataset.head(Dataset.scala:2153)\n  at org.apache.spark.sql.Dataset.take(Dataset.scala:2366)\n  at org.apache.spark.sql.Dataset.showString(Dataset.scala:245)\n  at org.apache.spark.sql.Dataset.show(Dataset.scala:644)\n  at org.apache.spark.sql.Dataset.show(Dataset.scala:603)\n  at org.apache.spark.sql.Dataset.show(Dataset.scala:612)\n  ... 50 elided\nCaused by: org.apache.spark.SparkException: Failed to execute user defined function($anonfun$1: (string) \u003d\u003e array\u003cstruct\u003c_1:string,_2:double\u003e\u003e)\n  at org.apache.spark.sql.catalyst.expressions.GeneratedClass$GeneratedIterator.processNext(Unknown Source)\n  at org.apache.spark.sql.execution.BufferedRowIterator.hasNext(BufferedRowIterator.java:43)\n  at org.apache.spark.sql.execution.WholeStageCodegenExec$$anonfun$8$$anon$1.hasNext(WholeStageCodegenExec.scala:395)\n  at scala.collection.Iterator$$anon$12.hasNext(Iterator.scala:439)\n  at scala.collection.Iterator$JoinIterator.hasNext(Iterator.scala:211)\n  at scala.collection.Iterator$$anon$11.hasNext(Iterator.scala:408)\n  at org.apache.spark.sql.catalyst.expressions.GeneratedClass$GeneratedIterator.processNext(Unknown Source)\n  at org.apache.spark.sql.execution.BufferedRowIterator.hasNext(BufferedRowIterator.java:43)\n  at org.apache.spark.sql.execution.WholeStageCodegenExec$$anonfun$8$$anon$1.hasNext(WholeStageCodegenExec.scala:395)\n  at org.apache.spark.sql.execution.SparkPlan$$anonfun$2.apply(SparkPlan.scala:234)\n  at org.apache.spark.sql.execution.SparkPlan$$anonfun$2.apply(SparkPlan.scala:228)\n  at org.apache.spark.rdd.RDD$$anonfun$mapPartitionsInternal$1$$anonfun$apply$25.apply(RDD.scala:827)\n  at org.apache.spark.rdd.RDD$$anonfun$mapPartitionsInternal$1$$anonfun$apply$25.apply(RDD.scala:827)\n  at org.apache.spark.rdd.MapPartitionsRDD.compute(MapPartitionsRDD.scala:38)\n  at org.apache.spark.rdd.RDD.computeOrReadCheckpoint(RDD.scala:323)\n  at org.apache.spark.rdd.RDD.iterator(RDD.scala:287)\n  at org.apache.spark.scheduler.ResultTask.runTask(ResultTask.scala:87)\n  at org.apache.spark.scheduler.Task.run(Task.scala:108)\n  at org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:335)\n  ... 3 more\nCaused by: java.lang.NullPointerException\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498121236913_-358129644",
+      "id": "20170622-162942_287295133",
+      "dateCreated": "Jun 22, 2017 5:47:16 PM",
+      "status": "READY",
+      "errorMessage": "",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "dateUpdated": "Jun 22, 2017 5:47:16 PM",
+      "config": {},
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "jobName": "paragraph_1498121236913_-358129644",
+      "id": "20170622-170134_578201852",
+      "dateCreated": "Jun 22, 2017 5:47:16 PM",
+      "status": "READY",
+      "errorMessage": "",
+      "progressUpdateIntervalMs": 500
+    }
+  ],
+  "name": "nsmc/3.Word2VecViz 2",
+  "id": "2CJNQGD5M",
+  "angularObjects": {
+    "2CKTHFEEN:shared_process": [],
+    "2CKEM1FWA:shared_process": [],
+    "2CP4QBJTW:shared_process": [],
+    "2CNH2S2YX:shared_process": [],
+    "2CNY4UK4X:shared_process": [],
+    "2CNV8M2G4:shared_process": [],
+    "2CJUG18JF:shared_process": [],
+    "2CKHXRJRW:shared_process": [],
+    "2CMQQ777A:shared_process": [],
+    "2CP53M4NX:shared_process": [],
+    "2CMPUE6U6:shared_process": [],
+    "2CN9E6YH7:shared_process": [],
+    "2CK2G39DN:shared_process": [],
+    "2CMMW2XRN:shared_process": [],
+    "2CJJBH813:shared_process": [],
+    "2CKEAV2P8:shared_process": [],
+    "2CP6BU88N:shared_process": [],
+    "2CMXE61R1:shared_process": [],
+    "2CN4SHBAH:shared_process": []
+  },
+  "config": {},
+  "info": {}
+}

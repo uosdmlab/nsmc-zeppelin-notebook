@@ -1,0 +1,609 @@
+{
+  "paragraphs": [
+    {
+      "title": "Load NSMC",
+      "text": "val rating \u003d spark.read.parquet(\"nsmc/data/ratings.parquet\")",
+      "user": "anonymous",
+      "dateUpdated": "Jun 25, 2017 9:28:29 PM",
+      "config": {
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/scala",
+        "results": {},
+        "enabled": true,
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false
+        },
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "rating: org.apache.spark.sql.DataFrame \u003d [id: int, document: string ... 1 more field]\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498121226579_1944977272",
+      "id": "20170622-140049_240694608",
+      "dateCreated": "Jun 22, 2017 5:47:06 PM",
+      "dateStarted": "Jun 23, 2017 5:15:23 PM",
+      "dateFinished": "Jun 23, 2017 5:15:24 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Tokenizing",
+      "text": "import com.github.uosdmlab.nkp.Tokenizer\n\nval tokenizer \u003d new Tokenizer()\n    .setInputCol(\"document\")\n    .setOutputCol(\"words\")\n\nval words \u003d tokenizer.transform(rating)\nwords.createOrReplaceTempView(\"words\")",
+      "user": "anonymous",
+      "dateUpdated": "Jun 25, 2017 9:28:42 PM",
+      "config": {
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/scala",
+        "results": {},
+        "enabled": true,
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false
+        },
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "import com.github.uosdmlab.nkp.Tokenizer\ntokenizer: com.github.uosdmlab.nkp.Tokenizer \u003d nkp_t_d4c30caebd26\nwords: org.apache.spark.sql.DataFrame \u003d [id: int, document: string ... 2 more fields]\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498121226580_1943053528",
+      "id": "20170622-140115_257767199",
+      "dateCreated": "Jun 22, 2017 5:47:06 PM",
+      "dateStarted": "Jun 23, 2017 5:15:23 PM",
+      "dateFinished": "Jun 23, 2017 5:15:25 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Word2Vec",
+      "text": "import org.apache.spark.ml.feature.Word2Vec\n\nval model \u003d new Word2Vec()\n    .setInputCol(\"words\")\n    .setOutputCol(\"vector\")\n    .setWindowSize(10)\n    .setVectorSize(300)\n    .setMaxIter(5)\n    .fit(words)\n    \nmodel.write.overwrite.save(\"nsmc/model/w2v\")",
+      "user": "anonymous",
+      "dateUpdated": "Jun 25, 2017 9:28:50 PM",
+      "config": {
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/scala",
+        "results": {},
+        "enabled": true,
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false
+        },
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "import org.apache.spark.ml.feature.Word2Vec\nmodel: org.apache.spark.ml.feature.Word2VecModel \u003d w2v_35278f4db7ad\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498121226582_1943823026",
+      "id": "20170622-142840_1582013485",
+      "dateCreated": "Jun 22, 2017 5:47:06 PM",
+      "dateStarted": "Jun 23, 2017 5:15:25 PM",
+      "dateFinished": "Jun 23, 2017 5:35:15 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Load trained Word2Vec model",
+      "text": "import org.apache.spark.ml.feature.Word2VecModel\n\nval model \u003d Word2VecModel.load(\"nsmc/model/w2v\")",
+      "user": "anonymous",
+      "dateUpdated": "Jun 25, 2017 9:32:23 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala",
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "import org.apache.spark.ml.feature.Word2VecModel\nmodel: org.apache.spark.ml.feature.Word2VecModel \u003d w2v_35278f4db7ad\n"
+          }
+        ]
+      },
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            "http://192.168.0.19:4040/jobs/job?id\u003d3",
+            "http://192.168.0.19:4040/jobs/job?id\u003d4",
+            "http://192.168.0.19:4040/jobs/job?id\u003d5"
+          ],
+          "interpreterSettingId": "2CN9E6YH7"
+        }
+      },
+      "apps": [],
+      "jobName": "paragraph_1498220923746_411797921",
+      "id": "20170623-212843_1245166655",
+      "dateCreated": "Jun 23, 2017 9:28:43 PM",
+      "dateStarted": "Jun 25, 2017 9:32:23 PM",
+      "dateFinished": "Jun 25, 2017 9:32:30 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "model.findSynonyms(\"영화\", 30).show(100)",
+      "user": "anonymous",
+      "dateUpdated": "Jun 23, 2017 9:29:11 PM",
+      "config": {
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/scala",
+        "results": {},
+        "enabled": true,
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false
+        }
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "+----+-------------------+\n|word|         similarity|\n+----+-------------------+\n| 드라마| 0.3914400339126587|\n| 쓰레기| 0.3657165467739105|\n|  작품|0.34424152970314026|\n|웃음거리|0.33924999833106995|\n|   .| 0.3266613483428955|\n|  억불|0.32612180709838867|\n|  교본| 0.3195480406284332|\n| 공포물|0.31906864047050476|\n|  졸작| 0.2980974316596985|\n|  질색|  0.295497328042984|\n|  영호|0.29298821091651917|\n| 기영화|0.29228851199150085|\n| ucc| 0.2903479337692261|\n|  대선|0.28942111134529114|\n|  씨알|0.28844189643859863|\n|  어브| 0.2883954346179962|\n| 영화광| 0.2864954471588135|\n|핵폐기물| 0.2834044098854065|\n|   건|0.28101736307144165|\n| 영상물| 0.2804288864135742|\n|   거|0.28040027618408203|\n|  냉무| 0.2799484133720398|\n| 음식물| 0.2777867317199707|\n|   다| 0.2719104588031769|\n|  상술| 0.2666788697242737|\n|  더미| 0.2648710012435913|\n|  미천| 0.2544476389884949|\n| 콧방귀| 0.2531883418560028|\n| 어비스| 0.2531870901584625|\n|  초원|0.25289687514305115|\n+----+-------------------+\n\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498121226582_1943823026",
+      "id": "20170622-143151_895367137",
+      "dateCreated": "Jun 22, 2017 5:47:06 PM",
+      "dateStarted": "Jun 23, 2017 9:29:11 PM",
+      "dateFinished": "Jun 23, 2017 9:29:12 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "model.findSynonyms(\"아만다\", 5).show",
+      "user": "anonymous",
+      "dateUpdated": "Jun 25, 2017 9:46:46 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "+-----+-------------------+\n| word|         similarity|\n+-----+-------------------+\n|사이프리드| 0.6810351014137268|\n|  바인즈| 0.5503100752830505|\n|   로한| 0.4283628761768341|\n|  나오미| 0.4217909872531891|\n|  벨루치|0.40238362550735474|\n+-----+-------------------+\n\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498394552854_-1210574024",
+      "id": "20170625-214232_554781115",
+      "dateCreated": "Jun 25, 2017 9:42:32 PM",
+      "dateStarted": "Jun 25, 2017 9:46:46 PM",
+      "dateFinished": "Jun 25, 2017 9:46:46 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "model.findSynonyms(\"맥아담스\", 30).show(100)",
+      "user": "anonymous",
+      "dateUpdated": "Jun 23, 2017 9:29:15 PM",
+      "config": {
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/scala",
+        "results": {},
+        "enabled": true,
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false
+        }
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "+-----+-------------------+\n| word|         similarity|\n+-----+-------------------+\n|  레이첼| 0.7213231325149536|\n|   올가| 0.4930166006088257|\n|   로한| 0.4423156678676605|\n|  린제이|0.43187806010246277|\n|사이프리드|0.41835442185401917|\n|  스트립|   0.40211021900177|\n|  아만다|0.40056413412094116|\n|   감초|0.38042211532592773|\n|  조민수| 0.3753257989883423|\n|  Ost| 0.3748219907283783|\n| 까메오로|0.37191393971443176|\n|  민효린| 0.3704487383365631|\n|   찌찌| 0.3602805435657501|\n|  예쁘다| 0.3576164245605469|\n|  기네스| 0.3569486737251282|\n|   이쁠|  0.356660395860672|\n|  미도리| 0.3547521233558655|\n|  남상미|0.35429224371910095|\n|  에반스| 0.3529818654060364|\n|  일레인|0.35281115770339966|\n|   캐미| 0.3498084843158722|\n|  이천희| 0.3482239246368408|\n|   줄리|0.34335529804229736|\n| 트리스탄| 0.3420592248439789|\n|  서인국| 0.3398185670375824|\n|  러팔로|  0.339803546667099|\n|  귀여움| 0.3388730585575104|\n|   레이|0.33759987354278564|\n|  김소현| 0.3369181156158447|\n|  로버츠|0.33512938022613525|\n+-----+-------------------+\n\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498121226583_1943438277",
+      "id": "20170622-143732_401754936",
+      "dateCreated": "Jun 22, 2017 5:47:06 PM",
+      "dateStarted": "Jun 23, 2017 9:29:15 PM",
+      "dateFinished": "Jun 23, 2017 9:29:15 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "model.findSynonyms(\"블록버스터\", 30).show(100)",
+      "user": "anonymous",
+      "dateUpdated": "Jun 23, 2017 5:15:23 PM",
+      "config": {
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/scala",
+        "results": {},
+        "enabled": true,
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false
+        }
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "+----+-------------------+\n|word|         similarity|\n+----+-------------------+\n| 액션물| 0.3868103623390198|\n|  SF|0.37414872646331787|\n|헐리우드|0.37095966935157776|\n|  이을|0.35968366265296936|\n|  활극|0.35169893503189087|\n| 헐리웃|0.35142263770103455|\n|  괴수|0.34951117634773254|\n|   C|0.34751462936401367|\n|  크리| 0.3470415472984314|\n|  규모|0.34400710463523865|\n|   B|0.34242865443229675|\n|  재난| 0.3410268723964691|\n|   f| 0.3385516107082367|\n|   급|0.33665379881858826|\n| 중국식|  0.333077609539032|\n|  홍콩|   0.33250692486763|\n| 느와르|0.33197084069252014|\n| 윤제균|0.33162111043930054|\n|어드벤쳐|  0.330781489610672|\n| 버스터|0.32964080572128296|\n|  극화|0.32956868410110474|\n| 쏟아져| 0.3269202709197998|\n|  진과| 0.3252280354499817|\n| 칼부림|0.32247328758239746|\n|할리우드| 0.3221963047981262|\n| 스릴러|0.31977441906929016|\n| 속한다|0.31868743896484375|\n|  첩보|0.31733429431915283|\n|스펙터클|0.31692105531692505|\n| 마수리|0.31509339809417725|\n+----+-------------------+\n\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498121226583_1943438277",
+      "id": "20170622-143817_985565932",
+      "dateCreated": "Jun 22, 2017 5:47:06 PM",
+      "dateStarted": "Jun 23, 2017 5:35:15 PM",
+      "dateFinished": "Jun 23, 2017 5:35:15 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "model.findSynonyms(\"헐리우드\", 30).show(100)",
+      "user": "anonymous",
+      "dateUpdated": "Jun 23, 2017 5:15:23 PM",
+      "config": {
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/scala",
+        "results": {},
+        "enabled": true,
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false
+        }
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "+-----+-------------------+\n| word|         similarity|\n+-----+-------------------+\n|  할리웃| 0.3982481360435486|\n|   홍콩| 0.3961474299430847|\n|블록버스터|0.37095963954925537|\n|   호러|0.34762659668922424|\n|  암흑기| 0.3431146442890167|\n| 밀레니엄| 0.3352937400341034|\n|   재난|0.33061665296554565|\n|   첩보| 0.3278127610683441|\n|   진출|0.32325929403305054|\n|   버디|0.32217636704444885|\n|   이을|0.32155048847198486|\n|   남미| 0.3190945088863373|\n|  헐리웃|0.31899741291999817|\n|  대명사| 0.3183819651603699|\n|   극화| 0.3161371052265167|\n|  전성기|0.31598010659217834|\n| 브라더스| 0.3152758777141571|\n|  느와르|0.31396937370300293|\n|  최하급| 0.3100091218948364|\n|   접목| 0.3093853294849396|\n|   컨대|0.30572155117988586|\n|  버스터|  0.300545871257782|\n|  칼부림|0.29826846718788147|\n|   원탑| 0.2975389063358307|\n|   역대| 0.2970518171787262|\n|   액션|0.29370757937431335|\n|   영국| 0.2902827858924866|\n|   미국|  0.288759708404541|\n|  오우삼|0.28762999176979065|\n|   베송|0.28754398226737976|\n+-----+-------------------+\n\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498121226583_1943438277",
+      "id": "20170622-143826_2143649563",
+      "dateCreated": "Jun 22, 2017 5:47:06 PM",
+      "dateStarted": "Jun 23, 2017 5:35:15 PM",
+      "dateFinished": "Jun 23, 2017 5:35:15 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "model.findSynonyms(\"남주\", 5).show",
+      "user": "anonymous",
+      "dateUpdated": "Jun 25, 2017 9:53:39 PM",
+      "config": {
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/scala",
+        "results": {},
+        "enabled": true,
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false
+        }
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "+----+-------------------+\n|word|         similarity|\n+----+-------------------+\n|  여주| 0.5964747667312622|\n|  이쁨| 0.4427756667137146|\n|  됫다|0.43983620405197144|\n| 남상미| 0.4005754292011261|\n|  도하| 0.3692246675491333|\n+----+-------------------+\n\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498121226583_1943438277",
+      "id": "20170622-143833_309248588",
+      "dateCreated": "Jun 22, 2017 5:47:06 PM",
+      "dateStarted": "Jun 25, 2017 9:53:39 PM",
+      "dateFinished": "Jun 25, 2017 9:53:39 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "model.findSynonyms(\"최고\", 10).show\nmodel.findSynonyms(\"시시\", 10).show\nmodel.findSynonyms(\"별로\", 10).show\nmodel.findSynonyms(\"재밌\", 10).show\nmodel.findSynonyms(\"애니\", 10).show\nmodel.findSynonyms(\"삶\", 10).show\nmodel.findSynonyms(\"반전\", 10).show\nmodel.findSynonyms(\"긴장\", 10).show\nmodel.findSynonyms(\"사랑\", 10).show\nmodel.findSynonyms(\"헐\", 10).show\nmodel.findSynonyms(\"ㅠ\", 10).show\nmodel.findSynonyms(\"아이언맨\", 10).show\nmodel.findSynonyms(\"토렌트\", 10).show\nmodel.findSynonyms(\"웃김\", 10).show\nmodel.findSynonyms(\"낭비\", 10).show\nmodel.findSynonyms(\"액션\", 10).show\nmodel.findSynonyms(\"스토리\", 10).show\nmodel.findSynonyms(\"배우\", 10).show",
+      "user": "anonymous",
+      "dateUpdated": "Jun 23, 2017 9:29:19 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "+----+-------------------+\n|word|         similarity|\n+----+-------------------+\n|  최악| 0.5760936141014099|\n|  으뜸| 0.5117879509925842|\n|  역대| 0.5010335445404053|\n| 하나다|0.49015599489212036|\n|  단연|0.46851786971092224|\n|  컨대|0.43664541840553284|\n| 최고봉| 0.4363442063331604|\n|  등극|  0.432219535112381|\n| 손꼽히| 0.4262203872203827|\n|  쵝도|0.42415112257003784|\n+----+-------------------+\n\n+----+-------------------+\n|word|         similarity|\n+----+-------------------+\n|  허술| 0.4394496977329254|\n|  유치| 0.4196098744869232|\n|  따분| 0.4006679952144623|\n|  지루| 0.3800193667411804|\n|  밋밋|0.37376439571380615|\n|  식상| 0.3416000008583069|\n| 리만큼| 0.3410715162754059|\n| 어정쩡| 0.3239518105983734|\n|  황당| 0.3225281536579132|\n|  조잡|0.32152846455574036|\n+----+-------------------+\n\n+----+-------------------+\n|word|         similarity|\n+----+-------------------+\n|  별루|0.43311524391174316|\n|  그닥| 0.4100704789161682|\n| 솔직히|0.37294071912765503|\n| 개인차|0.31579554080963135|\n|  괜찮| 0.3115684986114502|\n| 였어요| 0.3020874261856079|\n| 그다지|0.30125510692596436|\n|  괜찬|0.29873475432395935|\n|  전혀|  0.287898451089859|\n|   음| 0.2849038243293762|\n+----+-------------------+\n\n+------+-------------------+\n|  word|         similarity|\n+------+-------------------+\n|   재미있| 0.7257670760154724|\n|   재미없|  0.490316778421402|\n|     밋| 0.3614085018634796|\n|   재미나|0.34734004735946655|\n|   무서웠| 0.3467995226383209|\n|재밋게봣는데|0.33409637212753296|\n|    무섭|0.32171839475631714|\n|    웃기|0.29750919342041016|\n|    제미|  0.295628160238266|\n|    웃긴| 0.2948112487792969|\n+------+-------------------+\n\n+-----+-------------------+\n| word|         similarity|\n+-----+-------------------+\n|애니메이션| 0.5022090673446655|\n|   만화|0.48732978105545044|\n|  디즈니| 0.4523722529411316|\n|   픽사|0.40087592601776123|\n|  지브리|0.37582632899284363|\n|    판| 0.3559757173061371|\n|  클레이|0.35092541575431824|\n|  극장판| 0.3412759304046631|\n|   실사| 0.3365306556224823|\n|   일본|0.33445388078689575|\n+-----+-------------------+\n\n+----+------------------+\n|word|        similarity|\n+----+------------------+\n|  덧없| 0.561901330947876|\n| 지나온|0.5605273246765137|\n|  권태|0.5541353821754456|\n|  죽음|0.5523061156272888|\n|  열망|0.5415278673171997|\n|  회한|0.5343543887138367|\n|되돌아보|0.5277038812637329|\n| 영향력|0.5253248810768127|\n|  그름|0.5249595046043396|\n| 남겨진|0.5217731595039368|\n+----+------------------+\n\n+----+-------------------+\n|word|         similarity|\n+----+-------------------+\n|  예상| 0.5276744365692139|\n|  결말| 0.5234132409095764|\n| 긴장감| 0.4227977395057678|\n|  예측| 0.4010995328426361|\n|  치도| 0.3847186267375946|\n|  범인| 0.3462630808353424|\n|  복선|0.34512004256248474|\n|  억측| 0.3324904441833496|\n| 유주얼| 0.3299660086631775|\n|  부분|0.32396331429481506|\n+----+-------------------+\n\n+----+-------------------+\n|word|         similarity|\n+----+-------------------+\n|  늦출| 0.5175191164016724|\n| 긴장감|0.46600404381752014|\n|  놓칠| 0.4581143260002136|\n|  몰입|0.41567152738571167|\n| 몰아치|0.37191176414489746|\n| 숨죽이|0.37062111496925354|\n|  팽팽|0.36882278323173523|\n|  스릴| 0.3660600185394287|\n|   뗄|0.35430195927619934|\n|조마조마| 0.3483678102493286|\n+----+-------------------+\n\n+----+-------------------+\n|word|         similarity|\n+----+-------------------+\n|  열정|0.41434523463249207|\n|  열망| 0.4098385274410248|\n| 남겨진|0.40060922503471375|\n|  바니|0.39446958899497986|\n|  우정| 0.3938703238964081|\n|  증오| 0.3868400752544403|\n|  헌신| 0.3841274678707123|\n|   삶| 0.3840968608856201|\n|  갈망| 0.3784579634666443|\n| 죄의식| 0.3769685626029968|\n+----+-------------------+\n\n+----+-------------------+\n|word|         similarity|\n+----+-------------------+\n|  헐헐| 0.3495328426361084|\n|  라니| 0.3465058505535126|\n|   큭|0.30827224254608154|\n| 슬플까| 0.3079225718975067|\n| 흐흐흐|0.30608779191970825|\n|   쩝|0.30533188581466675|\n| ㅎㄷㄷ|0.30309274792671204|\n|  에고| 0.3028091490268707|\n|  으아| 0.2999137043952942|\n| 맙소사|0.29926595091819763|\n+----+-------------------+\n\n+-----+-------------------+\n| word|         similarity|\n+-----+-------------------+\n|   ㅠㅠ| 0.5183176398277283|\n|    ㅜ|0.42983779311180115|\n| 나올까요| 0.4155344069004059|\n|  슬퍼요| 0.3990578353404999|\n|ㅠㅠㅠㅠㅠ| 0.3968012034893036|\n|   난당| 0.3866335153579712|\n|포카혼타스|   0.38512122631073|\n|   이얌| 0.3719055950641632|\n|   어ㅠ|0.36221739649772644|\n|    륵| 0.3597985804080963|\n+-----+-------------------+\n\n+-----+-------------------+\n| word|         similarity|\n+-----+-------------------+\n| 어벤저스|0.43581435084342957|\n|   리딕|0.43130066990852356|\n|스파이더맨| 0.4280816912651062|\n|   호빗|0.42231500148773193|\n|   애스|0.41120201349258423|\n|   토르|0.40197664499282837|\n| 브레이커| 0.3993355631828308|\n| 스카이폴|0.39521607756614685|\n|  파이널|0.39113181829452515|\n|   헐크|0.38975605368614197|\n+-----+-------------------+\n\n+----+-------------------+\n|word|         similarity|\n+----+-------------------+\n|  유료|0.49230536818504333|\n|  주고| 0.4712086319923401|\n|그레이드|  0.458085834980011|\n| 고화질|0.45711585879325867|\n|  느데| 0.4495094418525696|\n| 유튜브| 0.4419054090976715|\n|  환불|0.44091781973838806|\n|  공짜| 0.4395621120929718|\n|  내고| 0.4370215833187103|\n|  할인|0.43575993180274963|\n+----+-------------------+\n\n+-----+-------------------+\n| word|         similarity|\n+-----+-------------------+\n|   봣음|0.42201173305511475|\n|   터짐| 0.4135739505290985|\n| 진짜웃김|0.41054174304008484|\n|  웃겨요| 0.4064873158931732|\n|   웃겨| 0.3980365991592407|\n|  터져요| 0.3971300423145294|\n|   김ㅋ|0.39581751823425293|\n|   욬ㅋ| 0.3912443518638611|\n|   짱ㅋ| 0.3845466673374176|\n|재밌음ㅋㅋ| 0.3796613812446594|\n+-----+-------------------+\n\n+----+-------------------+\n|word|         similarity|\n+----+-------------------+\n|  날렸| 0.4652603268623352|\n|  시간| 0.4595399498939514|\n|  사간|0.45415636897087097|\n|  때우|0.42839178442955017|\n|  줄일|0.42261362075805664|\n|  허비| 0.4202130138874054|\n|  전파|0.38190391659736633|\n| 남아도| 0.3744403123855591|\n|  날린|  0.368984580039978|\n|  아까|0.35506901144981384|\n+----+-------------------+\n\n+----+-------------------+\n|word|         similarity|\n+----+-------------------+\n|  무술|0.46210014820098877|\n| 테크노| 0.4435337483882904|\n|  호쾌| 0.4160090386867523|\n|  총격| 0.4066178500652313|\n|   씬| 0.4050469398498535|\n| 액션물| 0.4031325578689575|\n| 와이어|0.40080785751342773|\n|  화끈|0.39314696192741394|\n|  연출|0.38958802819252014|\n| 볼거리| 0.3829413652420044|\n+----+-------------------+\n\n+----+-------------------+\n|word|         similarity|\n+----+-------------------+\n|  내용| 0.5491326451301575|\n|  전개| 0.5410568714141846|\n|시나리오| 0.4480956494808197|\n|  연출| 0.4465755224227905|\n| 색다를| 0.4334960877895355|\n|  구성| 0.4232037663459778|\n|  설정| 0.4122432470321655|\n| 두서없|0.40395835041999817|\n|  엉성| 0.4025295078754425|\n|  연계|0.40150168538093567|\n+----+-------------------+\n\n+----+-------------------+\n|word|         similarity|\n+----+-------------------+\n| 연기력| 0.4855051040649414|\n|  연기| 0.4531835615634918|\n| 연기자|0.45149755477905273|\n| 여배우| 0.4423454999923706|\n|  주연| 0.4383831024169922|\n| 명배우| 0.4350389540195465|\n|  조연| 0.4327670931816101|\n| 연기파| 0.3982393741607666|\n|  신인| 0.3979990482330322|\n|데려다가| 0.3875087797641754|\n+----+-------------------+\n\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498143229665_551028497",
+      "id": "20170622-235349_183597119",
+      "dateCreated": "Jun 22, 2017 11:53:49 PM",
+      "dateStarted": "Jun 23, 2017 9:29:19 PM",
+      "dateFinished": "Jun 23, 2017 9:29:20 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "model.findSynonyms(\"ㅋ\", 5).show\nmodel.findSynonyms(\"ㅋㅋㅋ\", 5).show\nmodel.findSynonyms(\"ㅋㅋㅋㅋㅋ\", 5).show\nmodel.findSynonyms(\"ㅋㅋㅋㅋㅋㅋㅋ\", 5).show\nmodel.findSynonyms(\"ㅋㅋㅋㅋㅋㅋㅋㅋ\", 5).show",
+      "user": "anonymous",
+      "dateUpdated": "Jun 23, 2017 5:15:23 PM",
+      "config": {
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/scala",
+        "results": {},
+        "enabled": true,
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false
+        }
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "+----+------------------+\n|word|        similarity|\n+----+------------------+\n|  ㅋㅋ| 0.666283369064331|\n|  엌ㅋ|0.5366542339324951|\n|  욬ㅋ| 0.524599552154541|\n|  낰ㅋ|0.5127382278442383|\n|  여ㅋ|0.4938100576400757|\n+----+------------------+\n\n+------+------------------+\n|  word|        similarity|\n+------+------------------+\n|  ㅋㅋㅋㅋ|0.5899587869644165|\n|    존나| 0.396622896194458|\n|    여ㅋ|        0.38671875|\n|    이거|0.3761533498764038|\n|ㅋㅋㅋㅋㅋㅋ|0.3736876845359802|\n+------+------------------+\n\n+-------+-------------------+\n|   word|         similarity|\n+-------+-------------------+\n|ㅋㅋㅋㅋㅋㅋㅋ|0.47066161036491394|\n|     존나|  0.467081755399704|\n|    개웃김|0.45133092999458313|\n|     닼ㅋ|0.41413551568984985|\n|     앜ㅋ|  0.408585786819458|\n+-------+-------------------+\n\n+------+-------------------+\n|  word|         similarity|\n+------+-------------------+\n| ㅋㅋㅋㅋㅋ| 0.4706614911556244|\n|    우왕|0.38272997736930847|\n|ㅋㅋㅋㅋㅋㅋ| 0.3579738140106201|\n|    요ㅋ| 0.3556855320930481|\n|  ㅋㅋㅋ아| 0.3544406592845917|\n+------+-------------------+\n\n+------+-------------------+\n|  word|         similarity|\n+------+-------------------+\n|    뎈ㅋ| 0.4782648980617523|\n|    게봣|0.38419026136398315|\n|    다재|  0.369990736246109|\n|    존나|  0.369901180267334|\n|ㅋㅋㅋㅋㅋㅋ| 0.3679748475551605|\n+------+-------------------+\n\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498121226584_1941514532",
+      "id": "20170622-143854_609876204",
+      "dateCreated": "Jun 22, 2017 5:47:06 PM",
+      "dateStarted": "Jun 23, 2017 5:35:16 PM",
+      "dateFinished": "Jun 23, 2017 5:35:17 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "model.findSynonyms(\"ㄷ\", 5).show",
+      "user": "anonymous",
+      "dateUpdated": "Jun 25, 2017 9:36:49 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "+----+-------------------+\n|word|         similarity|\n+----+-------------------+\n|   ;|0.47729921340942383|\n|  ㅡㅡ|0.36180949211120605|\n| ㄷㄷㄷ|0.36024603247642517|\n| 정윤희| 0.3533986508846283|\n|로케이션|  0.348561555147171|\n+----+-------------------+\n\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498393949032_1472987734",
+      "id": "20170625-213229_2123057028",
+      "dateCreated": "Jun 25, 2017 9:32:29 PM",
+      "dateStarted": "Jun 25, 2017 9:36:49 PM",
+      "dateFinished": "Jun 25, 2017 9:36:49 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "model.findSynonyms(\"원피스\", 5).show",
+      "user": "anonymous",
+      "dateUpdated": "Jun 23, 2017 5:15:23 PM",
+      "config": {
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/scala",
+        "results": {},
+        "enabled": true,
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false
+        }
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "+----+-------------------+\n|word|         similarity|\n+----+-------------------+\n| 극장판|0.42602741718292236|\n|  판중|0.40113481879234314|\n| 나루토| 0.3867304027080536|\n|도라에몽| 0.3769901692867279|\n| 케로로|0.37093880772590637|\n+----+-------------------+\n\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498121226584_1941514532",
+      "id": "20170622-143905_1482679271",
+      "dateCreated": "Jun 22, 2017 5:47:06 PM",
+      "dateStarted": "Jun 23, 2017 5:35:17 PM",
+      "dateFinished": "Jun 23, 2017 5:35:17 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "model.findSynonyms(\"ㅉ\", 5).show\nmodel.findSynonyms(\"ㅉㅉ\", 5).show\nmodel.findSynonyms(\"ㅉㅉㅉ\", 5).show\nmodel.findSynonyms(\"ㅉㅉㅉㅉ\", 5).show",
+      "user": "anonymous",
+      "dateUpdated": "Jun 23, 2017 5:15:23 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "+----+-------------------+\n|word|         similarity|\n+----+-------------------+\n| ㅡㅡ아|0.34487804770469666|\n| 기영화| 0.3338649272918701|\n|  ㅉㅉ| 0.3300532400608063|\n|  아휴|0.32352593541145325|\n|  거참|0.31292101740837097|\n+----+-------------------+\n\n+----+-------------------+\n|word|         similarity|\n+----+-------------------+\n| ㅉㅉㅉ|0.38352179527282715|\n|  쯧쯧|0.34388285875320435|\n|   쳐| 0.3382667303085327|\n| 꺼져라| 0.3382200300693512|\n|  저걸| 0.3339739143848419|\n+----+-------------------+\n\n+----+-------------------+\n|word|         similarity|\n+----+-------------------+\n|   냐|0.38860586285591125|\n|  박힐| 0.3864786922931671|\n|  ㅉㅉ| 0.3835216164588928|\n| 으이구|0.37661951780319214|\n| 깜둥이|0.37517744302749634|\n+----+-------------------+\n\n+----+-------------------+\n|word|         similarity|\n+----+-------------------+\n| 음식물|0.46694207191467285|\n|  임성|0.46184176206588745|\n| 집구석| 0.4444005787372589|\n|  대선|0.43900832533836365|\n|  씨알|0.43593400716781616|\n+----+-------------------+\n\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498142734625_-1725081410",
+      "id": "20170622-234534_1767620724",
+      "dateCreated": "Jun 22, 2017 11:45:34 PM",
+      "dateStarted": "Jun 23, 2017 5:35:17 PM",
+      "dateFinished": "Jun 23, 2017 5:35:17 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "user": "anonymous",
+      "dateUpdated": "Jun 23, 2017 5:15:23 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "jobName": "paragraph_1498137059216_1728423441",
+      "id": "20170622-221059_1778606660",
+      "dateCreated": "Jun 22, 2017 10:10:59 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    }
+  ],
+  "name": "nsmc/4.Word2Vec",
+  "id": "2CMZ41DVP",
+  "angularObjects": {
+    "2CKTHFEEN:shared_process": [],
+    "2CKEM1FWA:shared_process": [],
+    "2CP4QBJTW:shared_process": [],
+    "2CNH2S2YX:shared_process": [],
+    "2CNY4UK4X:shared_process": [],
+    "2CNV8M2G4:shared_process": [],
+    "2CJUG18JF:shared_process": [],
+    "2CKHXRJRW:shared_process": [],
+    "2CMQQ777A:shared_process": [],
+    "2CP53M4NX:shared_process": [],
+    "2CMPUE6U6:shared_process": [],
+    "2CN9E6YH7:shared_process": [],
+    "2CK2G39DN:shared_process": [],
+    "2CMMW2XRN:shared_process": [],
+    "2CJJBH813:shared_process": [],
+    "2CKEAV2P8:shared_process": [],
+    "2CP6BU88N:shared_process": [],
+    "2CMXE61R1:shared_process": [],
+    "2CN4SHBAH:shared_process": []
+  },
+  "config": {},
+  "info": {}
+}

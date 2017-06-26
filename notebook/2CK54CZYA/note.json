@@ -1,0 +1,2572 @@
+{
+  "paragraphs": [
+    {
+      "title": "Word2Vec 모델 로드",
+      "text": "import org.apache.spark.ml.feature.Word2VecModel\n\nval model \u003d Word2VecModel.load(\"nsmc/model/w2v\")\nval wordVec \u003d model.getVectors",
+      "user": "anonymous",
+      "dateUpdated": "Jun 25, 2017 10:10:06 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala",
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "import org.apache.spark.ml.feature.Word2VecModel\nmodel: org.apache.spark.ml.feature.Word2VecModel \u003d w2v_35278f4db7ad\nwordVec: org.apache.spark.sql.DataFrame \u003d [word: string, vector: vector]\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498145263424_-1762202315",
+      "id": "20170623-002743_847327447",
+      "dateCreated": "Jun 23, 2017 12:27:43 AM",
+      "dateStarted": "Jun 25, 2017 6:50:29 PM",
+      "dateFinished": "Jun 25, 2017 6:50:38 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "PCA로 차원 축소! 300차원 -\u003e 2차원",
+      "text": "import org.apache.spark.ml.feature.PCA\n\nval pca \u003d new PCA()\n    .setInputCol(\"vector\")\n    .setOutputCol(\"pca_vector\")\n    .setK(2)    // 2-dimension\n    .fit(wordVec)\n\nval pcaVec \u003d pca.transform(wordVec)",
+      "user": "anonymous",
+      "dateUpdated": "Jun 25, 2017 10:09:11 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala",
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "import org.apache.spark.ml.feature.PCA\npca: org.apache.spark.ml.feature.PCAModel \u003d pca_fbafb0721c9c\npcaVec: org.apache.spark.sql.DataFrame \u003d [word: string, vector: vector ... 1 more field]\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498145309042_-510721412",
+      "id": "20170623-002829_134018662",
+      "dateCreated": "Jun 23, 2017 12:28:29 AM",
+      "dateStarted": "Jun 23, 2017 6:08:50 PM",
+      "dateFinished": "Jun 23, 2017 6:08:59 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "모든 word embedding을 2차원으로 축소하여 저장",
+      "text": "import org.apache.spark.sql.functions._\nimport org.apache.spark.ml.linalg.Vector\n\nval vec2arr \u003d udf { vector: Vector \u003d\u003e vector.toArray }\n\nval wordPoint \u003d pcaVec.withColumn(\"pca_arr\", vec2arr($\"pca_vector\"))\n    .selectExpr(\"word\", \"pca_arr[0] AS x\", \"pca_arr[1] AS y\")\n\nwordPoint.write.mode(\"overwrite\").parquet(\"nsmc/data/word_points.parquet\")\nwordPoint.createOrReplaceTempView(\"word_point\")",
+      "user": "anonymous",
+      "dateUpdated": "Jun 25, 2017 10:10:23 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala",
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "import org.apache.spark.sql.functions._\nimport org.apache.spark.ml.linalg.Vector\nvec2arr: org.apache.spark.sql.expressions.UserDefinedFunction \u003d UserDefinedFunction(\u003cfunction1\u003e,ArrayType(DoubleType,false),Some(List(org.apache.spark.ml.linalg.VectorUDT@3bfc3ba7)))\nwordPoint: org.apache.spark.sql.DataFrame \u003d [word: string, x: double ... 1 more field]\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498145324537_-1647654412",
+      "id": "20170623-002844_153006493",
+      "dateCreated": "Jun 23, 2017 12:28:44 AM",
+      "dateStarted": "Jun 23, 2017 6:08:52 PM",
+      "dateFinished": "Jun 23, 2017 6:09:00 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "2차원 벡터 공간에 매핑된 단어들의 모습",
+      "text": "%sql SELECT * FROM word_point LIMIT 200",
+      "user": "anonymous",
+      "dateUpdated": "Jun 25, 2017 10:10:30 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {
+          "0": {
+            "graph": {
+              "mode": "zeppelin-highcharts-bubble",
+              "height": 434.0,
+              "optionOpen": false,
+              "setting": {
+                "table": {
+                  "tableGridState": {},
+                  "tableColumnTypeState": {
+                    "names": {
+                      "word": "string",
+                      "x": "string",
+                      "y": "string"
+                    },
+                    "updated": false
+                  },
+                  "tableOptionSpecHash": "[{\"name\":\"useFilter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable filter for columns\"},{\"name\":\"showPagination\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable pagination for better navigation\"},{\"name\":\"showAggregationFooter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable a footer for displaying aggregated values\"}]",
+                  "tableOptionValue": {
+                    "useFilter": false,
+                    "showPagination": false,
+                    "showAggregationFooter": false
+                  },
+                  "updated": false,
+                  "initialized": false
+                },
+                "scatterChart": {
+                  "xAxis": {
+                    "name": "x",
+                    "index": 1.0,
+                    "aggr": "sum"
+                  },
+                  "yAxis": {
+                    "name": "y",
+                    "index": 2.0,
+                    "aggr": "sum"
+                  }
+                },
+                "zeppelin-highcharts-bubble": {
+                  "xAxis": {
+                    "name": "x",
+                    "index": 1.0,
+                    "aggr": "sum"
+                  },
+                  "yAxis": {
+                    "name": "y",
+                    "index": 2.0,
+                    "aggr": "sum"
+                  },
+                  "category": {
+                    "name": "word",
+                    "index": 0.0,
+                    "aggr": "sum"
+                  },
+                  "zAxis": {
+                    "name": "word",
+                    "index": 0.0,
+                    "aggr": "sum"
+                  }
+                }
+              }
+            },
+            "helium": {}
+          }
+        },
+        "editorSetting": {
+          "language": "sql"
+        },
+        "editorMode": "ace/mode/sql",
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TABLE",
+            "data": "word\tx\ty\n룰렛\t-0.09972322080385704\t-0.029277244614673237\n관계\t-1.1688196698691986\t-0.06394008747208904\n틀\t-0.010607466583818753\t0.23656997646144431\n삶\t-1.278852583079312\t0.0291044072163436\n탁구\t-0.13574085332587849\t-0.1211239964860307\n침착\t-0.8924353572515832\t0.3946374840049678\n겠다는\t-0.7918728576219112\t0.6961304656742336\n모세\t-0.6377042356622521\t-0.588948302445262\n신사\t-0.3782896774376738\t0.010840615753967461\n병폐\t-1.0337046331903466\t-0.03092184004248622\n훑어보\t0.08733003739872522\t0.18275636506216936\n도저히\t0.08499765505046875\t0.525367056657068\n원리\t-0.8791840521706462\t-0.09071564986169611\n명곡\t-0.5121235726285235\t-0.8228438413323832\n칭\t-0.13653358939284693\t0.11883099537169625\n다녀야\t-0.2542147255778435\t0.464956726310071\n랄까요\t-0.46344431589115365\t-0.14691641167919234\n2222\t0.15002412294745468\t-0.49105700582464046\n식코\t0.014855526634718149\t-0.39526343756001553\n신다면\t-0.07759818109920268\t0.23031344294082412\n한방\t-0.45407291967575636\t0.2192683856672466\n26\t0.4100276101688216\t0.02864123520698233\n정열\t-0.9066235906335296\t-0.10145876130967549\n데스\t0.6343052351252102\t-0.5387445897488551\n돌란\t-0.45307827363871667\t-0.5760034875986612\n진격\t-0.21346519193098729\t-0.268460383760818\n신\t-0.0915450623578973\t-0.09111655382906021\n사망\t-0.40581621996996886\t0.10878951455946761\n치명\t-0.8681777332096849\t-0.15453374935649183\n브랜드\t-0.6814979231316965\t-0.32734121047771353\n듯ㅠ\t0.26430395092363634\t-0.03889861750389149\n─\t0.24865421098293652\t-0.48791080780672363\n싱그러운\t-0.5708915955108689\t-0.45531658263937647\n인해서\t-0.4252715615006096\t-0.028881203948757213\n나래\t-0.4961562147038661\t-0.06143148218786248\n장신영\t-0.14043889147087102\t-0.5616614394489204\n건드리\t-0.8198473921723809\t0.6437647338507676\n밤하늘\t-0.23870555949802175\t0.22349069436087382\n요다\t-0.14100854441096108\t-0.6028735267719828\n진작\t0.4817904540250698\t0.5957270712867415\n존경심\t-0.7448843754463667\t-0.34314217000605857\nOst\t0.11604126232236096\t-0.72817582903013\n헬로우\t0.16324730618281746\t-0.0798331173139667\n파고드\t-1.1724251478629437\t-0.15215699416350476\n시전\t-0.0269585487814724\t-0.058088020218974405\n와장창\t0.11785716485924308\t0.05278006194885275\nDVD\t0.44321250157319847\t0.1461847745096629\n참가자\t0.2881657881503977\t0.34932979412512766\n무신\t0.8577156734709283\t0.24395871700842703\n에어컨\t0.19946292263684834\t0.4750649080605774\n자비\t-0.7092385251845678\t-0.1891930500921125\n강림\t0.22902908268630218\t-0.361711467829534\n레\t0.468191142469216\t-0.17872506145728193\n지인\t0.03867639584445581\t0.22710723811774858\n달라진\t0.027261012953473045\t0.17406487298242065\n피에타\t0.21833011407312783\t0.1862391022428484\n행오버\t0.03682855016338884\t0.0556790879287028\n이러\t0.608891465841903\t0.5605479866390767\n어쩐지\t0.21154171809848882\t-0.34275216586296803\n베아르\t-0.5566061662129852\t-0.4419905653081271\n매니\t0.1380374895187963\t-0.2058353484188314\n공포증\t-0.325865274516141\t-0.07550801564398729\n클론\t-0.7728326334434708\t-0.41052442212568585\n봅\t0.5165247625906915\t0.1862166115093756\n하긴\t0.31172455275868044\t0.43935086742053053\n패턴\t-0.4692773394206279\t0.09214188153302759\n잠잤\t0.04694494725477578\t0.15145057277183124\n면허\t-0.2872751268068205\t-0.008618866708160483\n경박\t-0.5136050917705941\t0.13348282404328696\n투캅스\t-0.025673452993820192\t-0.6179231653155005\n아임\t-0.01624523536708747\t-0.3347214310045451\n막힐\t-0.15687329425762322\t-0.23835859245528787\n족구\t-0.546671962411689\t-0.18576895016540507\n랭보\t-0.8694705393580903\t0.39164076171485174\n결투\t0.18591274840845037\t-0.6815825786837766\n무지개\t-0.024868912027482284\t-0.18600100347808687\n어른\t-0.48613814411267603\t0.3159993411955358\n무뎌\t0.059342093127990755\t0.22661200468143863\n부인\t-0.2244834035561165\t-0.060505495821383495\n오줌\t0.3584579192251166\t0.5892795253419475\n뻐꾸기\t-0.043100113868892856\t-0.24945898551974513\n찰떡궁합\t-0.16676482140235133\t-0.914916291791119\n인력\t-0.6381381669968873\t-0.12262223769867364\n일진\t-0.2027515162918716\t0.7113465342627185\n자의\t-0.5440698218514098\t-0.05640028629286066\n똘마니\t-0.0532840840500143\t0.22694748860299221\n시켜라\t0.18369224890877692\t0.6742281027790086\n대피\t0.03405273465489709\t-0.11710879009979204\n통렬\t-1.0239263869379776\t0.031021641598071477\n파장\t-0.9869843128695588\t-0.17046804825978773\n조디악\t-0.3586377676578517\t-0.6990815813647998\n파이란\t-0.12520764879373578\t-0.1149144727219803\n낚일\t0.5209776431121231\t0.5200778360046848\n귀여움\t0.4092823102559399\t-0.9457660101916688\n몰라라\t-0.7153887432229493\t-0.06922096070278189\n장모님\t0.11192102050814985\t0.342675018641985\n씨앗\t-0.7612061153366543\t-0.31965648680044584\n짱나\t1.2534331839566535\t0.4393486880399221\n알프레도\t-0.6347435862646195\t-0.2752972115281513\n밀렸\t0.3639995534639534\t-0.09295346168869159\n탈모\t0.1492298081787556\t-0.015518546286934368\n몸뚱이\t-0.06973424406898888\t0.07789122752759665\n\u003c\t0.2757694516404408\t-0.9804584998315425\n맹맹\t-0.21094330120194357\t0.061400981195140106\n간만에\t-0.032372607028559\t-0.21869425319796587\n할애\t-0.5354681596564571\t0.4152190076451328\n가뭄\t-0.25804804597940495\t0.31287161171576494\n허수아비\t-0.3180165952752055\t0.3720631889159112\n수년\t0.007228292425650605\t0.3838933848222061\n그런가보다\t-0.03376090743001004\t0.5423451717972068\n오후\t0.2270453237714548\t-0.08388723729990814\n루크\t-0.046331519307160215\t-1.3398918544652934\n폭동\t-0.8039975895168876\t0.3824771080283914\n부르\t0.00917347432793611\t0.11556598779509072\n따라잡\t-0.3731526514307001\t0.11190388138583299\n뇌\t-0.32664565006787144\t0.5259722564958322\n사간\t0.25372691250074325\t0.3550325869519845\n이승철\t0.1287480958508472\t-0.2830080755437736\n지노\t0.3926987014453524\t-0.44817634652510835\n好\t0.07439051065429027\t-0.19794036297780765\n돼지고기\t-0.02203847448400296\t0.41961265288850547\n쫓아가\t-0.3037437754361779\t0.2894462396756262\n냨ㅋ\t0.602367469684192\t0.3505765821345102\n신비주의\t-1.2244260733785113\t-0.5777603571984129\n드릴께요\t0.5657617302673047\t0.37702594162339403\n칭하\t-0.6261668858278141\t0.069072071493879\n두사부일체\t0.32084369976762583\t-0.3035135100561526\n자부심\t-0.706692001628257\t-0.23453372150567411\n한낱\t-1.199839695253796\t0.10896164558354889\n후레쉬\t0.8915057938383665\t-0.30933233692730383\n조도로프스키\t-0.2683756400215151\t-0.13770324302183917\n메\t0.11817564388939172\t-0.03494411174308593\n숙\t0.029680596420648405\t-0.11331938384755307\n찬양\t-0.4339409877795498\t0.2495454263974825\n프로젝트\t-0.6195649113905956\t-0.5300365580222928\n태왕\t0.024922348897241313\t-0.6060501439181478\n광\t0.1438958426879121\t-0.7119866433295646\n거슬려\t0.3612702232651824\t0.35720961553928726\n라구요\t0.2905270609035156\t0.17151635420807104\n설레\t0.25907812767000105\t-0.08209752078246169\n놓쳤\t-0.4665082045027003\t0.4387374503334148\nㅎㅋ\t0.7434728588772852\t-0.47514145184427586\n인듯\t-0.23690761669692884\t-0.13040343355536205\n자아\t-0.8582345700430453\t0.028069880617466503\n쪽팔리\t0.7380046299111199\t0.4514304063259275\n암세포\t-0.08170479136250021\t0.7836268957174229\n였었\t-0.0057979652629469615\t-0.3595322361309848\n케이츠\t0.0288473946205628\t-0.191832872245514\n소름\t0.06946390205156214\t-0.30804720028297966\n절로\t-0.024313685705363082\t0.023394267750452107\n승리자\t-0.7051579401975734\t0.2382530031362521\n나아가\t-1.1934129250385703\t0.4613623948833285\n지극히\t-1.3862947528709364\t0.07526528437841402\n애드리안\t-0.3487690251263911\t-0.029993472726183204\n다지\t-0.30813878851886933\t0.31597581290607724\n일레븐\t0.23288326096929063\t-0.5618343777971146\n윤소이\t0.0898180015802598\t-0.26069850411505335\n업적\t-0.9259338469809186\t-0.17950279692866283\n공간\t-1.2259364793374476\t-0.1388125444346552\n선물\t-0.40794875321286417\t-0.20061166488243967\n베껴\t-0.1873473201292969\t0.16547622043879662\n비벼\t-0.20328352891354873\t0.35704297559709663\n톱스타\t-0.4154301219103693\t-0.60780907281772\n지연\t0.8206007944638072\t-0.6621604175965605\n피구\t-0.4887895136973651\t-0.06648987928543416\n근원\t-1.6521229702526756\t-0.2591844663614462\n눈살\t-0.09023670036395684\t0.6953963098429395\n아가씨\t-0.025046860597506444\t-0.29181802062355644\n콜라보레이션\t-0.5941048804273943\t-0.4381562314071461\n녀\t0.027233127633283036\t-0.6174141448489052\n엘프\t0.030726314561515186\t-0.8747262999970995\n왁스\t0.10167146588445547\t0.06341986187666213\n서부극\t-0.782635379061247\t-0.7315483296684635\n반복\t-0.5613110545376587\t0.2874659622113239\n어쩌다가\t0.3596321525769851\t0.252354503627095\n조울증\t-0.47983535602640426\t0.09075526322055762\n사파리\t-0.150476132990313\t-0.4068832663940141\n봣는데\t0.9356529756762233\t0.23982837822144765\n명화\t-0.11684936090907828\t-0.2836538087003464\n뛰쳐나왔\t0.6766242380762192\t0.3672901988926903\n숲\t-0.5101594902799969\t-0.2630117014614354\n꽝\t0.2111203161475901\t-0.5532902262507035\n데어데블\t-0.1285594016790446\t0.08184679402213763\n말론\t-0.46556220858681496\t-1.1443238428441118\n다이아나\t-0.22015556884484858\t-0.4037613268340909\n바뀐다\t-0.2224587125584198\t-0.33124342840934284\n쎼\t0.3492961860132228\t0.26679706302481815\n네\t0.5559329585497005\t0.3286323169410061\n망쳤\t-0.08378834914844446\t0.043825928496533016\n꾸밈\t-0.3551527172545985\t-0.0910625464253944\n철인\t-0.059259774130395834\t-0.46426641610032976\n삐딱\t-0.0209578305414158\t0.9324477669522595\n흠흠\t0.3878449373450166\t0.4040788174221791\n웰메이드\t-0.4960096651756691\t-0.4284721826164963\n간판\t0.24523175814777257\t0.32628518422120706\n러\t0.5186233170915742\t0.293787079333762\n케로로\t0.8101749182427446\t-0.4010140850537401\n힘듦\t-0.6788514357397555\t0.3457287348880801\n모른다\t-0.2731847653742305\t0.3745598783097331\n이수만\t-0.01546860613878704\t0.006016658112604405\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498224101264_-753553652",
+      "id": "20170623-222141_1068773826",
+      "dateCreated": "Jun 23, 2017 10:21:41 PM",
+      "dateStarted": "Jun 23, 2017 10:27:13 PM",
+      "dateFinished": "Jun 23, 2017 10:27:13 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "모든 단어의 유사 단어 50개씩 저장",
+      "text": "import org.apache.spark.sql.functions._\n\nval NUM_SYNONYMS \u003d 50\nval findSyn \u003d udf { word: String \u003d\u003e model.findSynonymsArray(word, NUM_SYNONYMS) }\n\nval synonym \u003d wordVec.select(\"word\")\n    .withColumn(\"syn_sims\", findSyn($\"word\"))\n    .withColumn(\"syn_sim\", explode($\"syn_sims\"))\n    .selectExpr(\"word\", \"syn_sim._1 AS synonym\", \"syn_sim._2 AS similarity\")\n    .union(wordVec.selectExpr(\"word\", \"word AS synonym\", \"1.0\"))\n\nsynonym.write.mode(\"overwrite\").parquet(\"nsmc/data/synonyms.parquet\")",
+      "user": "anonymous",
+      "dateUpdated": "Jun 25, 2017 7:23:39 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala",
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "import org.apache.spark.sql.functions._\nNUM_SYNONYMS: Int \u003d 50\nfindSyn: org.apache.spark.sql.expressions.UserDefinedFunction \u003d UserDefinedFunction(\u003cfunction1\u003e,ArrayType(StructType(StructField(_1,StringType,true), StructField(_2,DoubleType,false)),true),Some(List(StringType)))\nsynonym: org.apache.spark.sql.Dataset[org.apache.spark.sql.Row] \u003d [word: string, synonym: string ... 1 more field]\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498150442116_616881259",
+      "id": "20170623-015402_2014135509",
+      "dateCreated": "Jun 23, 2017 1:54:02 AM",
+      "dateStarted": "Jun 23, 2017 6:08:59 PM",
+      "dateFinished": "Jun 23, 2017 6:11:03 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "val synonym \u003d spark.read.parquet(\"nsmc/data/synonyms.parquet\")\nval wordPoint \u003d spark.read.parquet(\"nsmc/data/word_points.parquet\")\n\nsynonym.createOrReplaceTempView(\"synonym\")\nwordPoint.createOrReplaceTempView(\"word_point\")",
+      "user": "anonymous",
+      "dateUpdated": "Jun 25, 2017 10:11:31 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {
+          "0": {
+            "graph": {
+              "mode": "scatterChart",
+              "height": 300.0,
+              "optionOpen": true,
+              "setting": {
+                "table": {
+                  "tableGridState": {},
+                  "tableColumnTypeState": {
+                    "names": {
+                      "word": "string",
+                      "x": "string",
+                      "y": "string"
+                    },
+                    "updated": false
+                  },
+                  "tableOptionSpecHash": "[{\"name\":\"useFilter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable filter for columns\"},{\"name\":\"showPagination\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable pagination for better navigation\"},{\"name\":\"showAggregationFooter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable a footer for displaying aggregated values\"}]",
+                  "tableOptionValue": {
+                    "useFilter": false,
+                    "showPagination": false,
+                    "showAggregationFooter": false
+                  },
+                  "updated": false,
+                  "initialized": false
+                },
+                "scatterChart": {
+                  "xAxis": {
+                    "name": "x",
+                    "index": 1.0,
+                    "aggr": "sum"
+                  },
+                  "yAxis": {
+                    "name": "y",
+                    "index": 2.0,
+                    "aggr": "sum"
+                  }
+                }
+              }
+            },
+            "helium": {}
+          }
+        },
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "synonym: org.apache.spark.sql.DataFrame \u003d [word: string, synonym: string ... 1 more field]\nwordPoint: org.apache.spark.sql.DataFrame \u003d [word: string, x: double ... 1 more field]\n"
+          }
+        ]
+      },
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            "http://192.168.0.19:4040/jobs/job?id\u003d12",
+            "http://192.168.0.19:4040/jobs/job?id\u003d13"
+          ],
+          "interpreterSettingId": "2CN9E6YH7"
+        }
+      },
+      "apps": [],
+      "jobName": "paragraph_1498145690176_-833994211",
+      "id": "20170623-003450_493007571",
+      "dateCreated": "Jun 23, 2017 12:34:50 AM",
+      "dateStarted": "Jun 25, 2017 10:11:31 PM",
+      "dateFinished": "Jun 25, 2017 10:11:31 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "유사 단어 TOP 50 검색기",
+      "text": "%sql\nWITH target_synonym (\n    SELECT *\n    FROM synonym\n    WHERE word \u003d \u0027${Word}\u0027\n)\nSELECT wp.x, wp.y, ts.similarity, ts.synonym AS word\nFROM target_synonym ts\n    JOIN word_point wp ON (ts.synonym \u003d wp.word)\nORDER BY ts.similarity DESC",
+      "user": "anonymous",
+      "dateUpdated": "Jun 25, 2017 10:28:45 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {
+          "0": {
+            "graph": {
+              "mode": "zeppelin-highcharts-bubble",
+              "height": 548.0,
+              "optionOpen": false,
+              "setting": {
+                "table": {
+                  "tableGridState": {},
+                  "tableColumnTypeState": {
+                    "names": {
+                      "x": "string",
+                      "y": "string",
+                      "similarity": "string",
+                      "word": "string"
+                    },
+                    "updated": false
+                  },
+                  "tableOptionSpecHash": "[{\"name\":\"useFilter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable filter for columns\"},{\"name\":\"showPagination\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable pagination for better navigation\"},{\"name\":\"showAggregationFooter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable a footer for displaying aggregated values\"}]",
+                  "tableOptionValue": {
+                    "useFilter": false,
+                    "showPagination": false,
+                    "showAggregationFooter": false
+                  },
+                  "updated": false,
+                  "initialized": false
+                },
+                "zeppelin-highcharts-bubble": {
+                  "xAxis": {
+                    "name": "x",
+                    "index": 0.0,
+                    "aggr": "sum"
+                  },
+                  "yAxis": {
+                    "name": "y",
+                    "index": 1.0,
+                    "aggr": "sum"
+                  },
+                  "zAxis": {
+                    "name": "similarity",
+                    "index": 2.0,
+                    "aggr": "sum"
+                  },
+                  "category": {
+                    "name": "word",
+                    "index": 3.0,
+                    "aggr": "sum"
+                  }
+                },
+                "scatterChart": {
+                  "xAxis": {
+                    "name": "x",
+                    "index": 0.0,
+                    "aggr": "sum"
+                  },
+                  "yAxis": {
+                    "name": "y",
+                    "index": 1.0,
+                    "aggr": "sum"
+                  },
+                  "group": {
+                    "name": "word",
+                    "index": 3.0,
+                    "aggr": "sum"
+                  },
+                  "size": {
+                    "name": "similarity",
+                    "index": 2.0,
+                    "aggr": "sum"
+                  }
+                },
+                "ultimate-scatter-chart": {
+                  "chartChanged": true,
+                  "parameterChanged": false,
+                  "panel": {
+                    "columnPanelOpened": true,
+                    "parameterPanelOpened": false
+                  },
+                  "spec": {
+                    "charts": {
+                      "scatter": {
+                        "transform": {
+                          "method": "array"
+                        },
+                        "sharedAxis": false,
+                        "axis": {
+                          "xAxis": {
+                            "dimension": "single",
+                            "axisType": "key",
+                            "minAxisCount": 1.0,
+                            "description": "serial",
+                            "name": "xAxis"
+                          },
+                          "yAxis": {
+                            "dimension": "multiple",
+                            "axisType": "aggregator",
+                            "minAxisCount": 1.0,
+                            "description": "serial",
+                            "name": "yAxis"
+                          },
+                          "category": {
+                            "dimension": "multiple",
+                            "axisType": "group",
+                            "name": "category"
+                          }
+                        },
+                        "parameter": {
+                          "usePredefinedColorSet": {
+                            "valueType": "boolean",
+                            "defaultValue": true,
+                            "description": "use predefined color set",
+                            "widget": "checkbox",
+                            "name": "usePredefinedColorSet"
+                          },
+                          "markerRadius": {
+                            "valueType": "int",
+                            "defaultValue": 3.0,
+                            "description": "radius size of markers",
+                            "name": "markerRadius"
+                          },
+                          "floatingLegend": {
+                            "valueType": "string",
+                            "defaultValue": "default",
+                            "description": "floating legend",
+                            "widget": "option",
+                            "optionValues": [
+                              "default",
+                              "top-right",
+                              "top-left"
+                            ],
+                            "name": "floatingLegend"
+                          },
+                          "rotateXAxisLabel": {
+                            "valueType": "int",
+                            "defaultValue": 0.0,
+                            "description": "rotate xAxis labels",
+                            "name": "rotateXAxisLabel"
+                          },
+                          "rotateYAxisLabel": {
+                            "valueType": "int",
+                            "defaultValue": 0.0,
+                            "description": "rotate yAxis labels",
+                            "name": "rotateYAxisLabel"
+                          },
+                          "tooltipPrecision": {
+                            "valueType": "string",
+                            "defaultValue": ".1f",
+                            "description": "precision of tooltip format without \u003ccode\u003e:\u003c/code\u003e (\u003ca href\u003d\"http://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting\"\u003edoc\u003c/a\u003e)",
+                            "name": "tooltipPrecision"
+                          },
+                          "legendLabelFormat": {
+                            "valueType": "string",
+                            "defaultValue": "",
+                            "description": "text format of legend (\u003ca href\u003d\"http://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting\"\u003edoc\u003c/a\u003e)",
+                            "name": "legendLabelFormat"
+                          },
+                          "xAxisPosition": {
+                            "valueType": "string",
+                            "defaultValue": "bottom",
+                            "description": "xAxis position",
+                            "widget": "option",
+                            "optionValues": [
+                              "bottom",
+                              "top"
+                            ],
+                            "name": "xAxisPosition"
+                          },
+                          "yAxisPosition": {
+                            "valueType": "string",
+                            "defaultValue": "left",
+                            "description": "yAxis position",
+                            "widget": "option",
+                            "optionValues": [
+                              "left",
+                              "right"
+                            ],
+                            "name": "yAxisPosition"
+                          },
+                          "showLegend": {
+                            "valueType": "boolean",
+                            "defaultValue": true,
+                            "description": "show legend",
+                            "widget": "checkbox",
+                            "name": "showLegend"
+                          },
+                          "legendPosition": {
+                            "valueType": "string",
+                            "defaultValue": "bottom",
+                            "description": "position of legend",
+                            "widget": "option",
+                            "optionValues": [
+                              "bottom",
+                              "top"
+                            ],
+                            "name": "legendPosition"
+                          },
+                          "legendLayout": {
+                            "valueType": "string",
+                            "defaultValue": "horizontal",
+                            "description": "layout of legend",
+                            "widget": "option",
+                            "optionValues": [
+                              "horizontal",
+                              "vertical"
+                            ],
+                            "name": "legendLayout"
+                          },
+                          "zoomType": {
+                            "valueType": "string",
+                            "defaultValue": "xy",
+                            "description": "type of zoom",
+                            "widget": "option",
+                            "optionValues": [
+                              "xy",
+                              "none"
+                            ],
+                            "name": "zoomType"
+                          },
+                          "subTitle": {
+                            "valueType": "string",
+                            "defaultValue": "",
+                            "description": "sub title of chart",
+                            "name": "subTitle"
+                          },
+                          "mainTitle": {
+                            "valueType": "string",
+                            "defaultValue": "",
+                            "description": "main title of chart",
+                            "name": "mainTitle"
+                          },
+                          "xAxisUnit": {
+                            "valueType": "string",
+                            "defaultValue": "",
+                            "description": "unit of xAxis",
+                            "name": "xAxisUnit"
+                          },
+                          "yAxisUnit": {
+                            "valueType": "string",
+                            "defaultValue": "",
+                            "description": "unit of yAxis",
+                            "name": "yAxisUnit"
+                          },
+                          "xAxisName": {
+                            "valueType": "string",
+                            "defaultValue": "",
+                            "description": "name of xAxis",
+                            "name": "xAxisName"
+                          },
+                          "yAxisName": {
+                            "valueType": "string",
+                            "defaultValue": "",
+                            "description": "name of yAxis",
+                            "name": "yAxisName"
+                          }
+                        }
+                      },
+                      "bubble": {
+                        "transform": {
+                          "method": "array:2-key"
+                        },
+                        "sharedAxis": false,
+                        "axis": {
+                          "xAxis": {
+                            "dimension": "single",
+                            "axisType": "key",
+                            "minAxisCount": 1.0,
+                            "description": "serial",
+                            "name": "xAxis"
+                          },
+                          "yAxis": {
+                            "dimension": "single",
+                            "axisType": "key",
+                            "minAxisCount": 1.0,
+                            "description": "serial",
+                            "name": "yAxis"
+                          },
+                          "zAxis": {
+                            "dimension": "multiple",
+                            "axisType": "aggregator",
+                            "minAxisCount": 1.0,
+                            "name": "zAxis"
+                          },
+                          "category": {
+                            "dimension": "multiple",
+                            "axisType": "group",
+                            "name": "category"
+                          }
+                        },
+                        "parameter": {
+                          "minBubbleSize": {
+                            "valueType": "int",
+                            "defaultValue": 3.0,
+                            "description": "minimum size of bubble",
+                            "name": "minBubbleSize"
+                          },
+                          "maxBubbleSize": {
+                            "valueType": "int",
+                            "defaultValue": 50.0,
+                            "description": "maximum size of bubble",
+                            "name": "maxBubbleSize"
+                          },
+                          "plotBorderWidth": {
+                            "valueType": "int",
+                            "defaultValue": 1.0,
+                            "description": "border width of plot",
+                            "name": "plotBorderWidth"
+                          },
+                          "xGridLineWidth": {
+                            "valueType": "int",
+                            "defaultValue": 1.0,
+                            "description": "grid line width of X axis",
+                            "name": "xGridLineWidth"
+                          },
+                          "yGridLineWidth": {
+                            "valueType": "int",
+                            "defaultValue": 1.0,
+                            "description": "grid line width of Y axis",
+                            "name": "yGridLineWidth"
+                          },
+                          "floatingLegend": {
+                            "valueType": "string",
+                            "defaultValue": "default",
+                            "description": "floating legend",
+                            "widget": "option",
+                            "optionValues": [
+                              "default",
+                              "top-right",
+                              "top-left"
+                            ],
+                            "name": "floatingLegend"
+                          },
+                          "rotateXAxisLabel": {
+                            "valueType": "int",
+                            "defaultValue": 0.0,
+                            "description": "rotate xAxis labels",
+                            "name": "rotateXAxisLabel"
+                          },
+                          "rotateYAxisLabel": {
+                            "valueType": "int",
+                            "defaultValue": 0.0,
+                            "description": "rotate yAxis labels",
+                            "name": "rotateYAxisLabel"
+                          },
+                          "tooltipPrecision": {
+                            "valueType": "string",
+                            "defaultValue": ".1f",
+                            "description": "precision of tooltip format without \u003ccode\u003e:\u003c/code\u003e (\u003ca href\u003d\"http://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting\"\u003edoc\u003c/a\u003e)",
+                            "name": "tooltipPrecision"
+                          },
+                          "legendLabelFormat": {
+                            "valueType": "string",
+                            "defaultValue": "",
+                            "description": "text format of legend (\u003ca href\u003d\"http://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting\"\u003edoc\u003c/a\u003e)",
+                            "name": "legendLabelFormat"
+                          },
+                          "xAxisPosition": {
+                            "valueType": "string",
+                            "defaultValue": "bottom",
+                            "description": "xAxis position",
+                            "widget": "option",
+                            "optionValues": [
+                              "bottom",
+                              "top"
+                            ],
+                            "name": "xAxisPosition"
+                          },
+                          "yAxisPosition": {
+                            "valueType": "string",
+                            "defaultValue": "left",
+                            "description": "yAxis position",
+                            "widget": "option",
+                            "optionValues": [
+                              "left",
+                              "right"
+                            ],
+                            "name": "yAxisPosition"
+                          },
+                          "showLegend": {
+                            "valueType": "boolean",
+                            "defaultValue": true,
+                            "description": "show legend",
+                            "widget": "checkbox",
+                            "name": "showLegend"
+                          },
+                          "legendPosition": {
+                            "valueType": "string",
+                            "defaultValue": "bottom",
+                            "description": "position of legend",
+                            "widget": "option",
+                            "optionValues": [
+                              "bottom",
+                              "top"
+                            ],
+                            "name": "legendPosition"
+                          },
+                          "legendLayout": {
+                            "valueType": "string",
+                            "defaultValue": "horizontal",
+                            "description": "layout of legend",
+                            "widget": "option",
+                            "optionValues": [
+                              "horizontal",
+                              "vertical"
+                            ],
+                            "name": "legendLayout"
+                          },
+                          "zoomType": {
+                            "valueType": "string",
+                            "defaultValue": "xy",
+                            "description": "type of zoom",
+                            "widget": "option",
+                            "optionValues": [
+                              "xy",
+                              "none"
+                            ],
+                            "name": "zoomType"
+                          },
+                          "subTitle": {
+                            "valueType": "string",
+                            "defaultValue": "",
+                            "description": "sub title of chart",
+                            "name": "subTitle"
+                          },
+                          "mainTitle": {
+                            "valueType": "string",
+                            "defaultValue": "",
+                            "description": "main title of chart",
+                            "name": "mainTitle"
+                          },
+                          "xAxisUnit": {
+                            "valueType": "string",
+                            "defaultValue": "",
+                            "description": "unit of xAxis",
+                            "name": "xAxisUnit"
+                          },
+                          "yAxisUnit": {
+                            "valueType": "string",
+                            "defaultValue": "",
+                            "description": "unit of yAxis",
+                            "name": "yAxisUnit"
+                          },
+                          "zAxisUnit": {
+                            "valueType": "string",
+                            "defaultValue": "",
+                            "description": "unit of zAxis",
+                            "name": "zAxisUnit"
+                          },
+                          "xAxisName": {
+                            "valueType": "string",
+                            "defaultValue": "",
+                            "description": "name of xAxis",
+                            "name": "xAxisName"
+                          },
+                          "yAxisName": {
+                            "valueType": "string",
+                            "defaultValue": "",
+                            "description": "name of yAxis",
+                            "name": "yAxisName"
+                          }
+                        }
+                      }
+                    },
+                    "initialized": false,
+                    "version": {
+                      "axis": "{\"scatter\":[{\"dimension\":\"single\",\"axisType\":\"key\",\"minAxisCount\":1,\"description\":\"serial\",\"name\":\"xAxis\"},{\"dimension\":\"multiple\",\"axisType\":\"aggregator\",\"minAxisCount\":1,\"description\":\"serial\",\"name\":\"yAxis\"},{\"dimension\":\"multiple\",\"axisType\":\"group\",\"name\":\"category\"}],\"bubble\":[{\"dimension\":\"single\",\"axisType\":\"key\",\"minAxisCount\":1,\"description\":\"serial\",\"name\":\"xAxis\"},{\"dimension\":\"single\",\"axisType\":\"key\",\"minAxisCount\":1,\"description\":\"serial\",\"name\":\"yAxis\"},{\"dimension\":\"multiple\",\"axisType\":\"aggregator\",\"minAxisCount\":1,\"name\":\"zAxis\"},{\"dimension\":\"multiple\",\"axisType\":\"group\",\"name\":\"category\"}]}",
+                      "parameter": "{\"scatter\":[{\"valueType\":\"boolean\",\"defaultValue\":true,\"description\":\"use predefined color set\",\"widget\":\"checkbox\",\"name\":\"usePredefinedColorSet\"},{\"valueType\":\"int\",\"defaultValue\":3,\"description\":\"radius size of markers\",\"name\":\"markerRadius\"},{\"valueType\":\"string\",\"defaultValue\":\"default\",\"description\":\"floating legend\",\"widget\":\"option\",\"optionValues\":[\"default\",\"top-right\",\"top-left\"],\"name\":\"floatingLegend\"},{\"valueType\":\"int\",\"defaultValue\":0,\"description\":\"rotate xAxis labels\",\"name\":\"rotateXAxisLabel\"},{\"valueType\":\"int\",\"defaultValue\":0,\"description\":\"rotate yAxis labels\",\"name\":\"rotateYAxisLabel\"},{\"valueType\":\"string\",\"defaultValue\":\".1f\",\"description\":\"precision of tooltip format without \u003ccode\u003e:\u003c/code\u003e (\u003ca href\u003d\\\"http://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting\\\"\u003edoc\u003c/a\u003e)\",\"name\":\"tooltipPrecision\"},{\"valueType\":\"string\",\"defaultValue\":\"\",\"description\":\"text format of legend (\u003ca href\u003d\\\"http://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting\\\"\u003edoc\u003c/a\u003e)\",\"name\":\"legendLabelFormat\"},{\"valueType\":\"string\",\"defaultValue\":\"bottom\",\"description\":\"xAxis position\",\"widget\":\"option\",\"optionValues\":[\"bottom\",\"top\"],\"name\":\"xAxisPosition\"},{\"valueType\":\"string\",\"defaultValue\":\"left\",\"description\":\"yAxis position\",\"widget\":\"option\",\"optionValues\":[\"left\",\"right\"],\"name\":\"yAxisPosition\"},{\"valueType\":\"boolean\",\"defaultValue\":true,\"description\":\"show legend\",\"widget\":\"checkbox\",\"name\":\"showLegend\"},{\"valueType\":\"string\",\"defaultValue\":\"bottom\",\"description\":\"position of legend\",\"widget\":\"option\",\"optionValues\":[\"bottom\",\"top\"],\"name\":\"legendPosition\"},{\"valueType\":\"string\",\"defaultValue\":\"horizontal\",\"description\":\"layout of legend\",\"widget\":\"option\",\"optionValues\":[\"horizontal\",\"vertical\"],\"name\":\"legendLayout\"},{\"valueType\":\"string\",\"defaultValue\":\"xy\",\"description\":\"type of zoom\",\"widget\":\"option\",\"optionValues\":[\"xy\",\"none\"],\"name\":\"zoomType\"},{\"valueType\":\"string\",\"defaultValue\":\"\",\"description\":\"sub title of chart\",\"name\":\"subTitle\"},{\"valueType\":\"string\",\"defaultValue\":\"\",\"description\":\"main title of chart\",\"name\":\"mainTitle\"},{\"valueType\":\"string\",\"defaultValue\":\"\",\"description\":\"unit of xAxis\",\"name\":\"xAxisUnit\"},{\"valueType\":\"string\",\"defaultValue\":\"\",\"description\":\"unit of yAxis\",\"name\":\"yAxisUnit\"},{\"valueType\":\"string\",\"defaultValue\":\"\",\"description\":\"name of xAxis\",\"name\":\"xAxisName\"},{\"valueType\":\"string\",\"defaultValue\":\"\",\"description\":\"name of yAxis\",\"name\":\"yAxisName\"}],\"bubble\":[{\"valueType\":\"int\",\"defaultValue\":3,\"description\":\"minimum size of bubble\",\"name\":\"minBubbleSize\"},{\"valueType\":\"int\",\"defaultValue\":50,\"description\":\"maximum size of bubble\",\"name\":\"maxBubbleSize\"},{\"valueType\":\"int\",\"defaultValue\":1,\"description\":\"border width of plot\",\"name\":\"plotBorderWidth\"},{\"valueType\":\"int\",\"defaultValue\":1,\"description\":\"grid line width of X axis\",\"name\":\"xGridLineWidth\"},{\"valueType\":\"int\",\"defaultValue\":1,\"description\":\"grid line width of Y axis\",\"name\":\"yGridLineWidth\"},{\"valueType\":\"string\",\"defaultValue\":\"default\",\"description\":\"floating legend\",\"widget\":\"option\",\"optionValues\":[\"default\",\"top-right\",\"top-left\"],\"name\":\"floatingLegend\"},{\"valueType\":\"int\",\"defaultValue\":0,\"description\":\"rotate xAxis labels\",\"name\":\"rotateXAxisLabel\"},{\"valueType\":\"int\",\"defaultValue\":0,\"description\":\"rotate yAxis labels\",\"name\":\"rotateYAxisLabel\"},{\"valueType\":\"string\",\"defaultValue\":\".1f\",\"description\":\"precision of tooltip format without \u003ccode\u003e:\u003c/code\u003e (\u003ca href\u003d\\\"http://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting\\\"\u003edoc\u003c/a\u003e)\",\"name\":\"tooltipPrecision\"},{\"valueType\":\"string\",\"defaultValue\":\"\",\"description\":\"text format of legend (\u003ca href\u003d\\\"http://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting\\\"\u003edoc\u003c/a\u003e)\",\"name\":\"legendLabelFormat\"},{\"valueType\":\"string\",\"defaultValue\":\"bottom\",\"description\":\"xAxis position\",\"widget\":\"option\",\"optionValues\":[\"bottom\",\"top\"],\"name\":\"xAxisPosition\"},{\"valueType\":\"string\",\"defaultValue\":\"left\",\"description\":\"yAxis position\",\"widget\":\"option\",\"optionValues\":[\"left\",\"right\"],\"name\":\"yAxisPosition\"},{\"valueType\":\"boolean\",\"defaultValue\":true,\"description\":\"show legend\",\"widget\":\"checkbox\",\"name\":\"showLegend\"},{\"valueType\":\"string\",\"defaultValue\":\"bottom\",\"description\":\"position of legend\",\"widget\":\"option\",\"optionValues\":[\"bottom\",\"top\"],\"name\":\"legendPosition\"},{\"valueType\":\"string\",\"defaultValue\":\"horizontal\",\"description\":\"layout of legend\",\"widget\":\"option\",\"optionValues\":[\"horizontal\",\"vertical\"],\"name\":\"legendLayout\"},{\"valueType\":\"string\",\"defaultValue\":\"xy\",\"description\":\"type of zoom\",\"widget\":\"option\",\"optionValues\":[\"xy\",\"none\"],\"name\":\"zoomType\"},{\"valueType\":\"string\",\"defaultValue\":\"\",\"description\":\"sub title of chart\",\"name\":\"subTitle\"},{\"valueType\":\"string\",\"defaultValue\":\"\",\"description\":\"main title of chart\",\"name\":\"mainTitle\"},{\"valueType\":\"string\",\"defaultValue\":\"\",\"description\":\"unit of xAxis\",\"name\":\"xAxisUnit\"},{\"valueType\":\"string\",\"defaultValue\":\"\",\"description\":\"unit of yAxis\",\"name\":\"yAxisUnit\"},{\"valueType\":\"string\",\"defaultValue\":\"\",\"description\":\"unit of zAxis\",\"name\":\"zAxisUnit\"},{\"valueType\":\"string\",\"defaultValue\":\"\",\"description\":\"name of xAxis\",\"name\":\"xAxisName\"},{\"valueType\":\"string\",\"defaultValue\":\"\",\"description\":\"name of yAxis\",\"name\":\"yAxisName\"}]}"
+                    }
+                  },
+                  "chart": {
+                    "current": "bubble",
+                    "available": [
+                      "scatter",
+                      "bubble"
+                    ]
+                  },
+                  "axis": {
+                    "scatter": {
+                      "yAxis": [],
+                      "category": [],
+                      "xAxis": {
+                        "name": "x",
+                        "index": 0.0,
+                        "aggr": "sum"
+                      }
+                    },
+                    "bubble": {
+                      "zAxis": [
+                        {
+                          "name": "similarity",
+                          "index": 2.0,
+                          "aggr": "sum"
+                        }
+                      ],
+                      "category": [
+                        {
+                          "name": "word",
+                          "index": 3.0,
+                          "aggr": "sum"
+                        }
+                      ],
+                      "xAxis": {
+                        "name": "x",
+                        "index": 0.0,
+                        "aggr": "sum"
+                      },
+                      "yAxis": {
+                        "name": "y",
+                        "index": 1.0,
+                        "aggr": "sum"
+                      }
+                    }
+                  },
+                  "sharedAxis": {},
+                  "axisSpecs": {
+                    "scatter": [
+                      {
+                        "dimension": "single",
+                        "axisType": "key",
+                        "minAxisCount": 1.0,
+                        "description": "serial",
+                        "name": "xAxis"
+                      },
+                      {
+                        "dimension": "multiple",
+                        "axisType": "aggregator",
+                        "minAxisCount": 1.0,
+                        "description": "serial",
+                        "name": "yAxis"
+                      },
+                      {
+                        "dimension": "multiple",
+                        "axisType": "group",
+                        "name": "category"
+                      }
+                    ],
+                    "bubble": [
+                      {
+                        "dimension": "single",
+                        "axisType": "key",
+                        "minAxisCount": 1.0,
+                        "description": "serial",
+                        "name": "xAxis"
+                      },
+                      {
+                        "dimension": "single",
+                        "axisType": "key",
+                        "minAxisCount": 1.0,
+                        "description": "serial",
+                        "name": "yAxis"
+                      },
+                      {
+                        "dimension": "multiple",
+                        "axisType": "aggregator",
+                        "minAxisCount": 1.0,
+                        "name": "zAxis"
+                      },
+                      {
+                        "dimension": "multiple",
+                        "axisType": "group",
+                        "name": "category"
+                      }
+                    ]
+                  },
+                  "parameter": {
+                    "scatter": {
+                      "usePredefinedColorSet": true,
+                      "markerRadius": 3.0,
+                      "floatingLegend": "default",
+                      "rotateXAxisLabel": 0.0,
+                      "rotateYAxisLabel": 0.0,
+                      "tooltipPrecision": ".1f",
+                      "legendLabelFormat": "",
+                      "xAxisPosition": "bottom",
+                      "yAxisPosition": "left",
+                      "showLegend": true,
+                      "legendPosition": "bottom",
+                      "legendLayout": "horizontal",
+                      "zoomType": "xy",
+                      "subTitle": "",
+                      "mainTitle": "",
+                      "xAxisUnit": "",
+                      "yAxisUnit": "",
+                      "xAxisName": "",
+                      "yAxisName": ""
+                    },
+                    "bubble": {
+                      "minBubbleSize": 3.0,
+                      "maxBubbleSize": 50.0,
+                      "plotBorderWidth": 1.0,
+                      "xGridLineWidth": 1.0,
+                      "yGridLineWidth": 1.0,
+                      "floatingLegend": "default",
+                      "rotateXAxisLabel": 0.0,
+                      "rotateYAxisLabel": 0.0,
+                      "tooltipPrecision": ".1f",
+                      "legendLabelFormat": "",
+                      "xAxisPosition": "bottom",
+                      "yAxisPosition": "left",
+                      "showLegend": true,
+                      "legendPosition": "bottom",
+                      "legendLayout": "horizontal",
+                      "zoomType": "xy",
+                      "subTitle": "",
+                      "mainTitle": "",
+                      "xAxisUnit": "",
+                      "yAxisUnit": "",
+                      "zAxisUnit": "",
+                      "xAxisName": "",
+                      "yAxisName": ""
+                    }
+                  },
+                  "paramSpecs": {
+                    "scatter": [
+                      {
+                        "valueType": "boolean",
+                        "defaultValue": true,
+                        "description": "use predefined color set",
+                        "widget": "checkbox",
+                        "name": "usePredefinedColorSet"
+                      },
+                      {
+                        "valueType": "int",
+                        "defaultValue": 3.0,
+                        "description": "radius size of markers",
+                        "name": "markerRadius"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "default",
+                        "description": "floating legend",
+                        "widget": "option",
+                        "optionValues": [
+                          "default",
+                          "top-right",
+                          "top-left"
+                        ],
+                        "name": "floatingLegend"
+                      },
+                      {
+                        "valueType": "int",
+                        "defaultValue": 0.0,
+                        "description": "rotate xAxis labels",
+                        "name": "rotateXAxisLabel"
+                      },
+                      {
+                        "valueType": "int",
+                        "defaultValue": 0.0,
+                        "description": "rotate yAxis labels",
+                        "name": "rotateYAxisLabel"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": ".1f",
+                        "description": "precision of tooltip format without \u003ccode\u003e:\u003c/code\u003e (\u003ca href\u003d\"http://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting\"\u003edoc\u003c/a\u003e)",
+                        "name": "tooltipPrecision"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "",
+                        "description": "text format of legend (\u003ca href\u003d\"http://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting\"\u003edoc\u003c/a\u003e)",
+                        "name": "legendLabelFormat"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "bottom",
+                        "description": "xAxis position",
+                        "widget": "option",
+                        "optionValues": [
+                          "bottom",
+                          "top"
+                        ],
+                        "name": "xAxisPosition"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "left",
+                        "description": "yAxis position",
+                        "widget": "option",
+                        "optionValues": [
+                          "left",
+                          "right"
+                        ],
+                        "name": "yAxisPosition"
+                      },
+                      {
+                        "valueType": "boolean",
+                        "defaultValue": true,
+                        "description": "show legend",
+                        "widget": "checkbox",
+                        "name": "showLegend"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "bottom",
+                        "description": "position of legend",
+                        "widget": "option",
+                        "optionValues": [
+                          "bottom",
+                          "top"
+                        ],
+                        "name": "legendPosition"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "horizontal",
+                        "description": "layout of legend",
+                        "widget": "option",
+                        "optionValues": [
+                          "horizontal",
+                          "vertical"
+                        ],
+                        "name": "legendLayout"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "xy",
+                        "description": "type of zoom",
+                        "widget": "option",
+                        "optionValues": [
+                          "xy",
+                          "none"
+                        ],
+                        "name": "zoomType"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "",
+                        "description": "sub title of chart",
+                        "name": "subTitle"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "",
+                        "description": "main title of chart",
+                        "name": "mainTitle"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "",
+                        "description": "unit of xAxis",
+                        "name": "xAxisUnit"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "",
+                        "description": "unit of yAxis",
+                        "name": "yAxisUnit"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "",
+                        "description": "name of xAxis",
+                        "name": "xAxisName"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "",
+                        "description": "name of yAxis",
+                        "name": "yAxisName"
+                      }
+                    ],
+                    "bubble": [
+                      {
+                        "valueType": "int",
+                        "defaultValue": 3.0,
+                        "description": "minimum size of bubble",
+                        "name": "minBubbleSize"
+                      },
+                      {
+                        "valueType": "int",
+                        "defaultValue": 50.0,
+                        "description": "maximum size of bubble",
+                        "name": "maxBubbleSize"
+                      },
+                      {
+                        "valueType": "int",
+                        "defaultValue": 1.0,
+                        "description": "border width of plot",
+                        "name": "plotBorderWidth"
+                      },
+                      {
+                        "valueType": "int",
+                        "defaultValue": 1.0,
+                        "description": "grid line width of X axis",
+                        "name": "xGridLineWidth"
+                      },
+                      {
+                        "valueType": "int",
+                        "defaultValue": 1.0,
+                        "description": "grid line width of Y axis",
+                        "name": "yGridLineWidth"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "default",
+                        "description": "floating legend",
+                        "widget": "option",
+                        "optionValues": [
+                          "default",
+                          "top-right",
+                          "top-left"
+                        ],
+                        "name": "floatingLegend"
+                      },
+                      {
+                        "valueType": "int",
+                        "defaultValue": 0.0,
+                        "description": "rotate xAxis labels",
+                        "name": "rotateXAxisLabel"
+                      },
+                      {
+                        "valueType": "int",
+                        "defaultValue": 0.0,
+                        "description": "rotate yAxis labels",
+                        "name": "rotateYAxisLabel"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": ".1f",
+                        "description": "precision of tooltip format without \u003ccode\u003e:\u003c/code\u003e (\u003ca href\u003d\"http://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting\"\u003edoc\u003c/a\u003e)",
+                        "name": "tooltipPrecision"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "",
+                        "description": "text format of legend (\u003ca href\u003d\"http://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting\"\u003edoc\u003c/a\u003e)",
+                        "name": "legendLabelFormat"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "bottom",
+                        "description": "xAxis position",
+                        "widget": "option",
+                        "optionValues": [
+                          "bottom",
+                          "top"
+                        ],
+                        "name": "xAxisPosition"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "left",
+                        "description": "yAxis position",
+                        "widget": "option",
+                        "optionValues": [
+                          "left",
+                          "right"
+                        ],
+                        "name": "yAxisPosition"
+                      },
+                      {
+                        "valueType": "boolean",
+                        "defaultValue": true,
+                        "description": "show legend",
+                        "widget": "checkbox",
+                        "name": "showLegend"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "bottom",
+                        "description": "position of legend",
+                        "widget": "option",
+                        "optionValues": [
+                          "bottom",
+                          "top"
+                        ],
+                        "name": "legendPosition"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "horizontal",
+                        "description": "layout of legend",
+                        "widget": "option",
+                        "optionValues": [
+                          "horizontal",
+                          "vertical"
+                        ],
+                        "name": "legendLayout"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "xy",
+                        "description": "type of zoom",
+                        "widget": "option",
+                        "optionValues": [
+                          "xy",
+                          "none"
+                        ],
+                        "name": "zoomType"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "",
+                        "description": "sub title of chart",
+                        "name": "subTitle"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "",
+                        "description": "main title of chart",
+                        "name": "mainTitle"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "",
+                        "description": "unit of xAxis",
+                        "name": "xAxisUnit"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "",
+                        "description": "unit of yAxis",
+                        "name": "yAxisUnit"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "",
+                        "description": "unit of zAxis",
+                        "name": "zAxisUnit"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "",
+                        "description": "name of xAxis",
+                        "name": "xAxisName"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "",
+                        "description": "name of yAxis",
+                        "name": "yAxisName"
+                      }
+                    ]
+                  }
+                }
+              },
+              "commonSetting": {}
+            },
+            "helium": {}
+          }
+        },
+        "editorSetting": {
+          "language": "sql"
+        },
+        "editorMode": "ace/mode/sql",
+        "title": true
+      },
+      "settings": {
+        "params": {
+          "Word": "코미디"
+        },
+        "forms": {
+          "Word": {
+            "name": "Word",
+            "defaultValue": "",
+            "hidden": false
+          }
+        }
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TABLE",
+            "data": "x\ty\tsimilarity\tword\n-0.25780764653464605\t-0.17407245041814312\t1.0\t코미디\n-0.3194927274467824\t-0.31853471868566696\t0.6706542372703552\t코메디\n-0.17680007855058452\t-0.36831904307914154\t0.5354257822036743\t로맨틱\n-0.5289366591517441\t-0.22577873418539937\t0.4886772036552429\t스릴러\n-0.6040466904254019\t-0.2994893467043418\t0.4539542496204376\t로멘\n-0.337079894198738\t-0.3668854216529919\t0.44105300307273865\t코믹\n-0.6273713381477574\t-0.21297463212444187\t0.43911439180374146\t장르\n0.002662855326035535\t-0.018319329459222353\t0.431440532207489\t개그\n-0.4867211342552926\t-0.29406714737496326\t0.42674189805984497\tsf\n-0.5885045413602725\t-0.2710965079434303\t0.4250028729438782\t로맨스\n-0.43361137565849095\t-0.6901837623234677\t0.4209822416305542\t블랙\n-0.5711557357705456\t0.11446835782554085\t0.40993982553482056\t미국식\n-0.6595396044311236\t-0.32145376456333596\t0.396623432636261\t오컬트\n-0.24021566277185383\t-0.45301168464398317\t0.3878006935119629\t하이틴\n-0.7595813058719895\t-0.5179950220944911\t0.38027554750442505\t멜로\n-0.7274207801493743\t-0.7087257559494111\t0.3781614303588867\t정석\n-0.4243642531378588\t-0.44858085991860636\t0.3692499101161957\tSF\n0.15321224635082312\t-0.3019636095939805\t0.36156123876571655\t매디\n-0.34819922839286965\t-0.2397817103795584\t0.36152684688568115\t에로\n-0.6453633308125576\t-0.6444993053871133\t0.3610231876373291\t슬랩스틱\n-0.48445946561824593\t-0.23857647722816583\t0.3586606979370117\t판타지\n-0.2997360614465562\t-0.6459107123780768\t0.35585981607437134\t주성치\n-0.49829669448991876\t-0.5498399876536502\t0.3548613488674164\t호러\n-0.11364975472292102\t-0.15643491653454084\t0.3528262972831726\t고풍\n-0.8198609998283846\t-0.12612899634973912\t0.35237443447113037\t빙자\n-0.48827305279204225\t-0.7545462740017342\t0.3520087003707886\t무비\n-0.39278183526515215\t-0.3311013793990115\t0.3473135530948639\t프랑스\n0.15517881551141785\t0.17900008451127056\t0.3450714945793152\t코미\n-0.7562827695891978\t-0.26606110092534574\t0.33985280990600586\t최루성\n-0.5685127769738423\t-0.17754383445605434\t0.3391995429992676\t틱\n-0.2883427607413886\t-0.034134305700571514\t0.3352750837802887\t간간이\n-0.2642238653037014\t-0.1330949342243012\t0.3339078426361084\t코드\n0.2597112932654071\t-0.17525592825928885\t0.3329092562198639\t재밌다ㅋㅋㅋ\n-1.159594822717606\t-0.10783380722309024\t0.32535937428474426\t풍자\n-1.2577879421010076\t-0.5905880850683404\t0.32450711727142334\t결합\n-0.8309732577533456\t0.4980487556668027\t0.3229522407054901\t분류\n-0.9306406133642755\t-0.1736934089379617\t0.3225898742675781\t옴니버스\n-0.3077217792007936\t-0.009938885848181714\t0.3201698660850525\t공포\n-0.9883073987412179\t-0.1401200904293471\t0.31801778078079224\t요소\n-0.8516062121883802\t-0.5864039200128959\t0.3169240653514862\t첩보\n-0.39641601524942194\t-0.4229089455567061\t0.31400081515312195\t블록버스터\n-0.8329893686895411\t-0.36983220082459234\t0.3135300576686859\t정통\n-0.42067307406791893\t-0.5460111478919333\t0.31226807832717896\t무협\n-0.1565403220005584\t-0.7380452623283915\t0.3084576427936554\t갱스터\n-0.6856593551170529\t-0.8487852735595827\t0.30758318305015564\t최고봉\n-0.42063040478558544\t0.519772861452322\t0.3069988787174225\t웃겨야\n-0.11811448922841114\t-0.2398100755057061\t0.30666688084602356\t러시아워\n-0.30720636145161173\t-0.03855388019923278\t0.30608880519866943\t물\n-0.5911728213740304\t-0.4209732557350312\t0.30557239055633545\t퓨전\n-0.32262933489110934\t0.038525753396413065\t0.30489373207092285\t조폭\n-0.9640882966495482\t-0.3412542241020382\t0.3024453818798065\t정체불명\n"
+          }
+        ]
+      },
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            "http://192.168.0.19:4040/jobs/job?id\u003d76",
+            "http://192.168.0.19:4040/jobs/job?id\u003d77"
+          ],
+          "interpreterSettingId": "2CN9E6YH7"
+        }
+      },
+      "apps": [],
+      "jobName": "paragraph_1498145942549_396199620",
+      "id": "20170623-003902_1105614749",
+      "dateCreated": "Jun 23, 2017 12:39:02 AM",
+      "dateStarted": "Jun 25, 2017 10:28:45 PM",
+      "dateFinished": "Jun 25, 2017 10:28:45 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "벡터 연산 함수: A - B + C",
+      "text": "import breeze.linalg.{DenseVector \u003d\u003e BDV}\nimport org.apache.spark.ml.linalg.{Vector, Vectors}\n\ndef word2BDV(word: String) \u003d {\n    val vector \u003d model.getVectors.where(s\"word \u003d \u0027${word}\u0027\").first.getAs[Vector](1)\n    val bdv \u003d BDV(vector.toArray)\n    bdv\n}\n\ndef vectorOp(a: String, b: String, c: String) \u003d {\n    val bdv \u003d word2BDV(a) - word2BDV(b) + word2BDV(c)\n    val vector \u003d Vectors.dense(bdv.toArray)\n    model.findSynonyms(vector, 10)\n}",
+      "user": "anonymous",
+      "dateUpdated": "Jun 25, 2017 7:26:06 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala",
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "import breeze.linalg.{DenseVector\u003d\u003eBDV}\nimport org.apache.spark.ml.linalg.{Vector, Vectors}\nword2BDV: (word: String)breeze.linalg.DenseVector[Double]\nvectorOp: (a: String, b: String, c: String)org.apache.spark.sql.DataFrame\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498153862198_639471933",
+      "id": "20170623-025102_1869227019",
+      "dateCreated": "Jun 23, 2017 2:51:02 AM",
+      "dateStarted": "Jun 25, 2017 7:25:19 PM",
+      "dateFinished": "Jun 25, 2017 7:25:20 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "남주 - 남자 + 여자",
+      "text": "vectorOp(\"남주\", \"남자\", \"여자\").show",
+      "user": "anonymous",
+      "dateUpdated": "Jun 25, 2017 7:25:27 PM",
+      "config": {
+        "colWidth": 6.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala",
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "+----+-------------------+\n|word|         similarity|\n+----+-------------------+\n|  남주| 0.8992162346839905|\n|  여주| 0.5678582191467285|\n|  이쁨|  0.406688928604126|\n| 남상미|0.38266995549201965|\n|  됫다| 0.3808382451534271|\n|  여자| 0.3687098026275635|\n| 못생겼| 0.3448648154735565|\n|  이쁘| 0.3384454846382141|\n|  서기| 0.3302232623100281|\n|  예쁨| 0.3251012861728668|\n+----+-------------------+\n\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498385630979_-1535142497",
+      "id": "20170625-191350_949605903",
+      "dateCreated": "Jun 25, 2017 7:13:50 PM",
+      "dateStarted": "Jun 25, 2017 7:14:02 PM",
+      "dateFinished": "Jun 25, 2017 7:14:03 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "영화관 - 유료 + 무료",
+      "text": "vectorOp(\"영화관\", \"유료\", \"무료\").show",
+      "user": "anonymous",
+      "dateUpdated": "Jun 25, 2017 7:25:30 PM",
+      "config": {
+        "colWidth": 6.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala",
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "+----+-------------------+\n|word|         similarity|\n+----+-------------------+\n|  무료|  0.738811194896698|\n| 영화관| 0.6844367384910583|\n|  티비| 0.5511360764503479|\n|  극장| 0.5355647802352905|\n| 케이블| 0.4440514147281647|\n| cgv| 0.4380829930305481|\n| ocn| 0.4360048770904541|\n|  공짜| 0.4351451098918915|\n|영화채널| 0.4166061580181122|\n| ebs|0.41384339332580566|\n+----+-------------------+\n\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498385662535_-988368337",
+      "id": "20170625-191422_593200076",
+      "dateCreated": "Jun 25, 2017 7:14:22 PM",
+      "dateStarted": "Jun 25, 2017 7:14:24 PM",
+      "dateFinished": "Jun 25, 2017 7:14:25 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "남주, 여주, 남자, 여자의 word embeddings",
+      "text": "%sql\nSELECT *\nFROM word_point\nWHERE word IN (\u0027여주\u0027, \u0027남주\u0027, \u0027여자\u0027, \u0027남자\u0027)",
+      "user": "anonymous",
+      "dateUpdated": "Jun 25, 2017 7:12:03 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {
+          "0": {
+            "graph": {
+              "mode": "zeppelin-highcharts-bubble",
+              "height": 512.0,
+              "optionOpen": false,
+              "setting": {
+                "table": {
+                  "tableGridState": {},
+                  "tableColumnTypeState": {
+                    "names": {
+                      "word": "string",
+                      "x": "string",
+                      "y": "string"
+                    },
+                    "updated": false
+                  },
+                  "tableOptionSpecHash": "[{\"name\":\"useFilter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable filter for columns\"},{\"name\":\"showPagination\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable pagination for better navigation\"},{\"name\":\"showAggregationFooter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable a footer for displaying aggregated values\"}]",
+                  "tableOptionValue": {
+                    "useFilter": false,
+                    "showPagination": false,
+                    "showAggregationFooter": false
+                  },
+                  "updated": false,
+                  "initialized": false
+                },
+                "zeppelin-highcharts-bubble": {
+                  "xAxis": {
+                    "name": "x",
+                    "index": 1.0,
+                    "aggr": "sum"
+                  },
+                  "yAxis": {
+                    "name": "y",
+                    "index": 2.0,
+                    "aggr": "sum"
+                  },
+                  "category": {
+                    "name": "word",
+                    "index": 0.0,
+                    "aggr": "sum"
+                  },
+                  "zAxis": {
+                    "name": "word",
+                    "index": 0.0,
+                    "aggr": "sum"
+                  }
+                },
+                "ultimate-scatter-chart": {
+                  "chartChanged": true,
+                  "parameterChanged": false,
+                  "panel": {
+                    "columnPanelOpened": true,
+                    "parameterPanelOpened": false
+                  },
+                  "spec": {
+                    "charts": {
+                      "scatter": {
+                        "transform": {
+                          "method": "array"
+                        },
+                        "sharedAxis": false,
+                        "axis": {
+                          "xAxis": {
+                            "dimension": "single",
+                            "axisType": "key",
+                            "minAxisCount": 1.0,
+                            "description": "serial",
+                            "name": "xAxis"
+                          },
+                          "yAxis": {
+                            "dimension": "multiple",
+                            "axisType": "aggregator",
+                            "minAxisCount": 1.0,
+                            "description": "serial",
+                            "name": "yAxis"
+                          },
+                          "category": {
+                            "dimension": "multiple",
+                            "axisType": "group",
+                            "name": "category"
+                          }
+                        },
+                        "parameter": {
+                          "usePredefinedColorSet": {
+                            "valueType": "boolean",
+                            "defaultValue": true,
+                            "description": "use predefined color set",
+                            "widget": "checkbox",
+                            "name": "usePredefinedColorSet"
+                          },
+                          "markerRadius": {
+                            "valueType": "int",
+                            "defaultValue": 3.0,
+                            "description": "radius size of markers",
+                            "name": "markerRadius"
+                          },
+                          "floatingLegend": {
+                            "valueType": "string",
+                            "defaultValue": "default",
+                            "description": "floating legend",
+                            "widget": "option",
+                            "optionValues": [
+                              "default",
+                              "top-right",
+                              "top-left"
+                            ],
+                            "name": "floatingLegend"
+                          },
+                          "rotateXAxisLabel": {
+                            "valueType": "int",
+                            "defaultValue": 0.0,
+                            "description": "rotate xAxis labels",
+                            "name": "rotateXAxisLabel"
+                          },
+                          "rotateYAxisLabel": {
+                            "valueType": "int",
+                            "defaultValue": 0.0,
+                            "description": "rotate yAxis labels",
+                            "name": "rotateYAxisLabel"
+                          },
+                          "tooltipPrecision": {
+                            "valueType": "string",
+                            "defaultValue": ".1f",
+                            "description": "precision of tooltip format without \u003ccode\u003e:\u003c/code\u003e (\u003ca href\u003d\"http://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting\"\u003edoc\u003c/a\u003e)",
+                            "name": "tooltipPrecision"
+                          },
+                          "legendLabelFormat": {
+                            "valueType": "string",
+                            "defaultValue": "",
+                            "description": "text format of legend (\u003ca href\u003d\"http://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting\"\u003edoc\u003c/a\u003e)",
+                            "name": "legendLabelFormat"
+                          },
+                          "xAxisPosition": {
+                            "valueType": "string",
+                            "defaultValue": "bottom",
+                            "description": "xAxis position",
+                            "widget": "option",
+                            "optionValues": [
+                              "bottom",
+                              "top"
+                            ],
+                            "name": "xAxisPosition"
+                          },
+                          "yAxisPosition": {
+                            "valueType": "string",
+                            "defaultValue": "left",
+                            "description": "yAxis position",
+                            "widget": "option",
+                            "optionValues": [
+                              "left",
+                              "right"
+                            ],
+                            "name": "yAxisPosition"
+                          },
+                          "showLegend": {
+                            "valueType": "boolean",
+                            "defaultValue": true,
+                            "description": "show legend",
+                            "widget": "checkbox",
+                            "name": "showLegend"
+                          },
+                          "legendPosition": {
+                            "valueType": "string",
+                            "defaultValue": "bottom",
+                            "description": "position of legend",
+                            "widget": "option",
+                            "optionValues": [
+                              "bottom",
+                              "top"
+                            ],
+                            "name": "legendPosition"
+                          },
+                          "legendLayout": {
+                            "valueType": "string",
+                            "defaultValue": "horizontal",
+                            "description": "layout of legend",
+                            "widget": "option",
+                            "optionValues": [
+                              "horizontal",
+                              "vertical"
+                            ],
+                            "name": "legendLayout"
+                          },
+                          "zoomType": {
+                            "valueType": "string",
+                            "defaultValue": "xy",
+                            "description": "type of zoom",
+                            "widget": "option",
+                            "optionValues": [
+                              "xy",
+                              "none"
+                            ],
+                            "name": "zoomType"
+                          },
+                          "subTitle": {
+                            "valueType": "string",
+                            "defaultValue": "",
+                            "description": "sub title of chart",
+                            "name": "subTitle"
+                          },
+                          "mainTitle": {
+                            "valueType": "string",
+                            "defaultValue": "",
+                            "description": "main title of chart",
+                            "name": "mainTitle"
+                          },
+                          "xAxisUnit": {
+                            "valueType": "string",
+                            "defaultValue": "",
+                            "description": "unit of xAxis",
+                            "name": "xAxisUnit"
+                          },
+                          "yAxisUnit": {
+                            "valueType": "string",
+                            "defaultValue": "",
+                            "description": "unit of yAxis",
+                            "name": "yAxisUnit"
+                          },
+                          "xAxisName": {
+                            "valueType": "string",
+                            "defaultValue": "",
+                            "description": "name of xAxis",
+                            "name": "xAxisName"
+                          },
+                          "yAxisName": {
+                            "valueType": "string",
+                            "defaultValue": "",
+                            "description": "name of yAxis",
+                            "name": "yAxisName"
+                          }
+                        }
+                      },
+                      "bubble": {
+                        "transform": {
+                          "method": "array:2-key"
+                        },
+                        "sharedAxis": false,
+                        "axis": {
+                          "xAxis": {
+                            "dimension": "single",
+                            "axisType": "key",
+                            "minAxisCount": 1.0,
+                            "description": "serial",
+                            "name": "xAxis"
+                          },
+                          "yAxis": {
+                            "dimension": "single",
+                            "axisType": "key",
+                            "minAxisCount": 1.0,
+                            "description": "serial",
+                            "name": "yAxis"
+                          },
+                          "zAxis": {
+                            "dimension": "multiple",
+                            "axisType": "aggregator",
+                            "minAxisCount": 1.0,
+                            "name": "zAxis"
+                          },
+                          "category": {
+                            "dimension": "multiple",
+                            "axisType": "group",
+                            "name": "category"
+                          }
+                        },
+                        "parameter": {
+                          "minBubbleSize": {
+                            "valueType": "int",
+                            "defaultValue": 3.0,
+                            "description": "minimum size of bubble",
+                            "name": "minBubbleSize"
+                          },
+                          "maxBubbleSize": {
+                            "valueType": "int",
+                            "defaultValue": 50.0,
+                            "description": "maximum size of bubble",
+                            "name": "maxBubbleSize"
+                          },
+                          "plotBorderWidth": {
+                            "valueType": "int",
+                            "defaultValue": 1.0,
+                            "description": "border width of plot",
+                            "name": "plotBorderWidth"
+                          },
+                          "xGridLineWidth": {
+                            "valueType": "int",
+                            "defaultValue": 1.0,
+                            "description": "grid line width of X axis",
+                            "name": "xGridLineWidth"
+                          },
+                          "yGridLineWidth": {
+                            "valueType": "int",
+                            "defaultValue": 1.0,
+                            "description": "grid line width of Y axis",
+                            "name": "yGridLineWidth"
+                          },
+                          "floatingLegend": {
+                            "valueType": "string",
+                            "defaultValue": "default",
+                            "description": "floating legend",
+                            "widget": "option",
+                            "optionValues": [
+                              "default",
+                              "top-right",
+                              "top-left"
+                            ],
+                            "name": "floatingLegend"
+                          },
+                          "rotateXAxisLabel": {
+                            "valueType": "int",
+                            "defaultValue": 0.0,
+                            "description": "rotate xAxis labels",
+                            "name": "rotateXAxisLabel"
+                          },
+                          "rotateYAxisLabel": {
+                            "valueType": "int",
+                            "defaultValue": 0.0,
+                            "description": "rotate yAxis labels",
+                            "name": "rotateYAxisLabel"
+                          },
+                          "tooltipPrecision": {
+                            "valueType": "string",
+                            "defaultValue": ".1f",
+                            "description": "precision of tooltip format without \u003ccode\u003e:\u003c/code\u003e (\u003ca href\u003d\"http://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting\"\u003edoc\u003c/a\u003e)",
+                            "name": "tooltipPrecision"
+                          },
+                          "legendLabelFormat": {
+                            "valueType": "string",
+                            "defaultValue": "",
+                            "description": "text format of legend (\u003ca href\u003d\"http://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting\"\u003edoc\u003c/a\u003e)",
+                            "name": "legendLabelFormat"
+                          },
+                          "xAxisPosition": {
+                            "valueType": "string",
+                            "defaultValue": "bottom",
+                            "description": "xAxis position",
+                            "widget": "option",
+                            "optionValues": [
+                              "bottom",
+                              "top"
+                            ],
+                            "name": "xAxisPosition"
+                          },
+                          "yAxisPosition": {
+                            "valueType": "string",
+                            "defaultValue": "left",
+                            "description": "yAxis position",
+                            "widget": "option",
+                            "optionValues": [
+                              "left",
+                              "right"
+                            ],
+                            "name": "yAxisPosition"
+                          },
+                          "showLegend": {
+                            "valueType": "boolean",
+                            "defaultValue": true,
+                            "description": "show legend",
+                            "widget": "checkbox",
+                            "name": "showLegend"
+                          },
+                          "legendPosition": {
+                            "valueType": "string",
+                            "defaultValue": "bottom",
+                            "description": "position of legend",
+                            "widget": "option",
+                            "optionValues": [
+                              "bottom",
+                              "top"
+                            ],
+                            "name": "legendPosition"
+                          },
+                          "legendLayout": {
+                            "valueType": "string",
+                            "defaultValue": "horizontal",
+                            "description": "layout of legend",
+                            "widget": "option",
+                            "optionValues": [
+                              "horizontal",
+                              "vertical"
+                            ],
+                            "name": "legendLayout"
+                          },
+                          "zoomType": {
+                            "valueType": "string",
+                            "defaultValue": "xy",
+                            "description": "type of zoom",
+                            "widget": "option",
+                            "optionValues": [
+                              "xy",
+                              "none"
+                            ],
+                            "name": "zoomType"
+                          },
+                          "subTitle": {
+                            "valueType": "string",
+                            "defaultValue": "",
+                            "description": "sub title of chart",
+                            "name": "subTitle"
+                          },
+                          "mainTitle": {
+                            "valueType": "string",
+                            "defaultValue": "",
+                            "description": "main title of chart",
+                            "name": "mainTitle"
+                          },
+                          "xAxisUnit": {
+                            "valueType": "string",
+                            "defaultValue": "",
+                            "description": "unit of xAxis",
+                            "name": "xAxisUnit"
+                          },
+                          "yAxisUnit": {
+                            "valueType": "string",
+                            "defaultValue": "",
+                            "description": "unit of yAxis",
+                            "name": "yAxisUnit"
+                          },
+                          "zAxisUnit": {
+                            "valueType": "string",
+                            "defaultValue": "",
+                            "description": "unit of zAxis",
+                            "name": "zAxisUnit"
+                          },
+                          "xAxisName": {
+                            "valueType": "string",
+                            "defaultValue": "",
+                            "description": "name of xAxis",
+                            "name": "xAxisName"
+                          },
+                          "yAxisName": {
+                            "valueType": "string",
+                            "defaultValue": "",
+                            "description": "name of yAxis",
+                            "name": "yAxisName"
+                          }
+                        }
+                      }
+                    },
+                    "initialized": false,
+                    "version": {
+                      "axis": "{\"scatter\":[{\"dimension\":\"single\",\"axisType\":\"key\",\"minAxisCount\":1,\"description\":\"serial\",\"name\":\"xAxis\"},{\"dimension\":\"multiple\",\"axisType\":\"aggregator\",\"minAxisCount\":1,\"description\":\"serial\",\"name\":\"yAxis\"},{\"dimension\":\"multiple\",\"axisType\":\"group\",\"name\":\"category\"}],\"bubble\":[{\"dimension\":\"single\",\"axisType\":\"key\",\"minAxisCount\":1,\"description\":\"serial\",\"name\":\"xAxis\"},{\"dimension\":\"single\",\"axisType\":\"key\",\"minAxisCount\":1,\"description\":\"serial\",\"name\":\"yAxis\"},{\"dimension\":\"multiple\",\"axisType\":\"aggregator\",\"minAxisCount\":1,\"name\":\"zAxis\"},{\"dimension\":\"multiple\",\"axisType\":\"group\",\"name\":\"category\"}]}",
+                      "parameter": "{\"scatter\":[{\"valueType\":\"boolean\",\"defaultValue\":true,\"description\":\"use predefined color set\",\"widget\":\"checkbox\",\"name\":\"usePredefinedColorSet\"},{\"valueType\":\"int\",\"defaultValue\":3,\"description\":\"radius size of markers\",\"name\":\"markerRadius\"},{\"valueType\":\"string\",\"defaultValue\":\"default\",\"description\":\"floating legend\",\"widget\":\"option\",\"optionValues\":[\"default\",\"top-right\",\"top-left\"],\"name\":\"floatingLegend\"},{\"valueType\":\"int\",\"defaultValue\":0,\"description\":\"rotate xAxis labels\",\"name\":\"rotateXAxisLabel\"},{\"valueType\":\"int\",\"defaultValue\":0,\"description\":\"rotate yAxis labels\",\"name\":\"rotateYAxisLabel\"},{\"valueType\":\"string\",\"defaultValue\":\".1f\",\"description\":\"precision of tooltip format without \u003ccode\u003e:\u003c/code\u003e (\u003ca href\u003d\\\"http://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting\\\"\u003edoc\u003c/a\u003e)\",\"name\":\"tooltipPrecision\"},{\"valueType\":\"string\",\"defaultValue\":\"\",\"description\":\"text format of legend (\u003ca href\u003d\\\"http://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting\\\"\u003edoc\u003c/a\u003e)\",\"name\":\"legendLabelFormat\"},{\"valueType\":\"string\",\"defaultValue\":\"bottom\",\"description\":\"xAxis position\",\"widget\":\"option\",\"optionValues\":[\"bottom\",\"top\"],\"name\":\"xAxisPosition\"},{\"valueType\":\"string\",\"defaultValue\":\"left\",\"description\":\"yAxis position\",\"widget\":\"option\",\"optionValues\":[\"left\",\"right\"],\"name\":\"yAxisPosition\"},{\"valueType\":\"boolean\",\"defaultValue\":true,\"description\":\"show legend\",\"widget\":\"checkbox\",\"name\":\"showLegend\"},{\"valueType\":\"string\",\"defaultValue\":\"bottom\",\"description\":\"position of legend\",\"widget\":\"option\",\"optionValues\":[\"bottom\",\"top\"],\"name\":\"legendPosition\"},{\"valueType\":\"string\",\"defaultValue\":\"horizontal\",\"description\":\"layout of legend\",\"widget\":\"option\",\"optionValues\":[\"horizontal\",\"vertical\"],\"name\":\"legendLayout\"},{\"valueType\":\"string\",\"defaultValue\":\"xy\",\"description\":\"type of zoom\",\"widget\":\"option\",\"optionValues\":[\"xy\",\"none\"],\"name\":\"zoomType\"},{\"valueType\":\"string\",\"defaultValue\":\"\",\"description\":\"sub title of chart\",\"name\":\"subTitle\"},{\"valueType\":\"string\",\"defaultValue\":\"\",\"description\":\"main title of chart\",\"name\":\"mainTitle\"},{\"valueType\":\"string\",\"defaultValue\":\"\",\"description\":\"unit of xAxis\",\"name\":\"xAxisUnit\"},{\"valueType\":\"string\",\"defaultValue\":\"\",\"description\":\"unit of yAxis\",\"name\":\"yAxisUnit\"},{\"valueType\":\"string\",\"defaultValue\":\"\",\"description\":\"name of xAxis\",\"name\":\"xAxisName\"},{\"valueType\":\"string\",\"defaultValue\":\"\",\"description\":\"name of yAxis\",\"name\":\"yAxisName\"}],\"bubble\":[{\"valueType\":\"int\",\"defaultValue\":3,\"description\":\"minimum size of bubble\",\"name\":\"minBubbleSize\"},{\"valueType\":\"int\",\"defaultValue\":50,\"description\":\"maximum size of bubble\",\"name\":\"maxBubbleSize\"},{\"valueType\":\"int\",\"defaultValue\":1,\"description\":\"border width of plot\",\"name\":\"plotBorderWidth\"},{\"valueType\":\"int\",\"defaultValue\":1,\"description\":\"grid line width of X axis\",\"name\":\"xGridLineWidth\"},{\"valueType\":\"int\",\"defaultValue\":1,\"description\":\"grid line width of Y axis\",\"name\":\"yGridLineWidth\"},{\"valueType\":\"string\",\"defaultValue\":\"default\",\"description\":\"floating legend\",\"widget\":\"option\",\"optionValues\":[\"default\",\"top-right\",\"top-left\"],\"name\":\"floatingLegend\"},{\"valueType\":\"int\",\"defaultValue\":0,\"description\":\"rotate xAxis labels\",\"name\":\"rotateXAxisLabel\"},{\"valueType\":\"int\",\"defaultValue\":0,\"description\":\"rotate yAxis labels\",\"name\":\"rotateYAxisLabel\"},{\"valueType\":\"string\",\"defaultValue\":\".1f\",\"description\":\"precision of tooltip format without \u003ccode\u003e:\u003c/code\u003e (\u003ca href\u003d\\\"http://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting\\\"\u003edoc\u003c/a\u003e)\",\"name\":\"tooltipPrecision\"},{\"valueType\":\"string\",\"defaultValue\":\"\",\"description\":\"text format of legend (\u003ca href\u003d\\\"http://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting\\\"\u003edoc\u003c/a\u003e)\",\"name\":\"legendLabelFormat\"},{\"valueType\":\"string\",\"defaultValue\":\"bottom\",\"description\":\"xAxis position\",\"widget\":\"option\",\"optionValues\":[\"bottom\",\"top\"],\"name\":\"xAxisPosition\"},{\"valueType\":\"string\",\"defaultValue\":\"left\",\"description\":\"yAxis position\",\"widget\":\"option\",\"optionValues\":[\"left\",\"right\"],\"name\":\"yAxisPosition\"},{\"valueType\":\"boolean\",\"defaultValue\":true,\"description\":\"show legend\",\"widget\":\"checkbox\",\"name\":\"showLegend\"},{\"valueType\":\"string\",\"defaultValue\":\"bottom\",\"description\":\"position of legend\",\"widget\":\"option\",\"optionValues\":[\"bottom\",\"top\"],\"name\":\"legendPosition\"},{\"valueType\":\"string\",\"defaultValue\":\"horizontal\",\"description\":\"layout of legend\",\"widget\":\"option\",\"optionValues\":[\"horizontal\",\"vertical\"],\"name\":\"legendLayout\"},{\"valueType\":\"string\",\"defaultValue\":\"xy\",\"description\":\"type of zoom\",\"widget\":\"option\",\"optionValues\":[\"xy\",\"none\"],\"name\":\"zoomType\"},{\"valueType\":\"string\",\"defaultValue\":\"\",\"description\":\"sub title of chart\",\"name\":\"subTitle\"},{\"valueType\":\"string\",\"defaultValue\":\"\",\"description\":\"main title of chart\",\"name\":\"mainTitle\"},{\"valueType\":\"string\",\"defaultValue\":\"\",\"description\":\"unit of xAxis\",\"name\":\"xAxisUnit\"},{\"valueType\":\"string\",\"defaultValue\":\"\",\"description\":\"unit of yAxis\",\"name\":\"yAxisUnit\"},{\"valueType\":\"string\",\"defaultValue\":\"\",\"description\":\"unit of zAxis\",\"name\":\"zAxisUnit\"},{\"valueType\":\"string\",\"defaultValue\":\"\",\"description\":\"name of xAxis\",\"name\":\"xAxisName\"},{\"valueType\":\"string\",\"defaultValue\":\"\",\"description\":\"name of yAxis\",\"name\":\"yAxisName\"}]}"
+                    }
+                  },
+                  "chart": {
+                    "current": "bubble",
+                    "available": [
+                      "scatter",
+                      "bubble"
+                    ]
+                  },
+                  "axis": {
+                    "scatter": {
+                      "yAxis": [
+                        {
+                          "name": "y",
+                          "index": 2.0,
+                          "aggr": "sum"
+                        }
+                      ],
+                      "category": [
+                        {
+                          "name": "word",
+                          "index": 0.0,
+                          "aggr": "sum"
+                        }
+                      ],
+                      "xAxis": {
+                        "name": "x",
+                        "index": 1.0,
+                        "aggr": "sum"
+                      }
+                    },
+                    "bubble": {
+                      "zAxis": [
+                        {
+                          "name": "bubble",
+                          "index": 3.0,
+                          "aggr": "sum"
+                        }
+                      ],
+                      "category": [
+                        {
+                          "name": "word",
+                          "index": 0.0,
+                          "aggr": "sum"
+                        }
+                      ],
+                      "xAxis": {
+                        "name": "x",
+                        "index": 1.0,
+                        "aggr": "sum"
+                      },
+                      "yAxis": {
+                        "name": "y",
+                        "index": 2.0,
+                        "aggr": "sum"
+                      }
+                    }
+                  },
+                  "sharedAxis": {},
+                  "axisSpecs": {
+                    "scatter": [
+                      {
+                        "dimension": "single",
+                        "axisType": "key",
+                        "minAxisCount": 1.0,
+                        "description": "serial",
+                        "name": "xAxis"
+                      },
+                      {
+                        "dimension": "multiple",
+                        "axisType": "aggregator",
+                        "minAxisCount": 1.0,
+                        "description": "serial",
+                        "name": "yAxis"
+                      },
+                      {
+                        "dimension": "multiple",
+                        "axisType": "group",
+                        "name": "category"
+                      }
+                    ],
+                    "bubble": [
+                      {
+                        "dimension": "single",
+                        "axisType": "key",
+                        "minAxisCount": 1.0,
+                        "description": "serial",
+                        "name": "xAxis"
+                      },
+                      {
+                        "dimension": "single",
+                        "axisType": "key",
+                        "minAxisCount": 1.0,
+                        "description": "serial",
+                        "name": "yAxis"
+                      },
+                      {
+                        "dimension": "multiple",
+                        "axisType": "aggregator",
+                        "minAxisCount": 1.0,
+                        "name": "zAxis"
+                      },
+                      {
+                        "dimension": "multiple",
+                        "axisType": "group",
+                        "name": "category"
+                      }
+                    ]
+                  },
+                  "parameter": {
+                    "scatter": {
+                      "usePredefinedColorSet": true,
+                      "markerRadius": 3.0,
+                      "floatingLegend": "default",
+                      "rotateXAxisLabel": 0.0,
+                      "rotateYAxisLabel": 0.0,
+                      "tooltipPrecision": ".1f",
+                      "legendLabelFormat": "",
+                      "xAxisPosition": "bottom",
+                      "yAxisPosition": "left",
+                      "showLegend": true,
+                      "legendPosition": "bottom",
+                      "legendLayout": "horizontal",
+                      "zoomType": "xy",
+                      "subTitle": "",
+                      "mainTitle": "",
+                      "xAxisUnit": "",
+                      "yAxisUnit": "",
+                      "xAxisName": "",
+                      "yAxisName": ""
+                    },
+                    "bubble": {
+                      "minBubbleSize": 3.0,
+                      "maxBubbleSize": 50.0,
+                      "plotBorderWidth": 1.0,
+                      "xGridLineWidth": 1.0,
+                      "yGridLineWidth": 1.0,
+                      "floatingLegend": "default",
+                      "rotateXAxisLabel": 0.0,
+                      "rotateYAxisLabel": 0.0,
+                      "tooltipPrecision": ".1f",
+                      "legendLabelFormat": "",
+                      "xAxisPosition": "bottom",
+                      "yAxisPosition": "left",
+                      "showLegend": true,
+                      "legendPosition": "bottom",
+                      "legendLayout": "horizontal",
+                      "zoomType": "xy",
+                      "subTitle": "",
+                      "mainTitle": "",
+                      "xAxisUnit": "",
+                      "yAxisUnit": "",
+                      "zAxisUnit": "",
+                      "xAxisName": "",
+                      "yAxisName": ""
+                    }
+                  },
+                  "paramSpecs": {
+                    "scatter": [
+                      {
+                        "valueType": "boolean",
+                        "defaultValue": true,
+                        "description": "use predefined color set",
+                        "widget": "checkbox",
+                        "name": "usePredefinedColorSet"
+                      },
+                      {
+                        "valueType": "int",
+                        "defaultValue": 3.0,
+                        "description": "radius size of markers",
+                        "name": "markerRadius"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "default",
+                        "description": "floating legend",
+                        "widget": "option",
+                        "optionValues": [
+                          "default",
+                          "top-right",
+                          "top-left"
+                        ],
+                        "name": "floatingLegend"
+                      },
+                      {
+                        "valueType": "int",
+                        "defaultValue": 0.0,
+                        "description": "rotate xAxis labels",
+                        "name": "rotateXAxisLabel"
+                      },
+                      {
+                        "valueType": "int",
+                        "defaultValue": 0.0,
+                        "description": "rotate yAxis labels",
+                        "name": "rotateYAxisLabel"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": ".1f",
+                        "description": "precision of tooltip format without \u003ccode\u003e:\u003c/code\u003e (\u003ca href\u003d\"http://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting\"\u003edoc\u003c/a\u003e)",
+                        "name": "tooltipPrecision"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "",
+                        "description": "text format of legend (\u003ca href\u003d\"http://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting\"\u003edoc\u003c/a\u003e)",
+                        "name": "legendLabelFormat"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "bottom",
+                        "description": "xAxis position",
+                        "widget": "option",
+                        "optionValues": [
+                          "bottom",
+                          "top"
+                        ],
+                        "name": "xAxisPosition"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "left",
+                        "description": "yAxis position",
+                        "widget": "option",
+                        "optionValues": [
+                          "left",
+                          "right"
+                        ],
+                        "name": "yAxisPosition"
+                      },
+                      {
+                        "valueType": "boolean",
+                        "defaultValue": true,
+                        "description": "show legend",
+                        "widget": "checkbox",
+                        "name": "showLegend"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "bottom",
+                        "description": "position of legend",
+                        "widget": "option",
+                        "optionValues": [
+                          "bottom",
+                          "top"
+                        ],
+                        "name": "legendPosition"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "horizontal",
+                        "description": "layout of legend",
+                        "widget": "option",
+                        "optionValues": [
+                          "horizontal",
+                          "vertical"
+                        ],
+                        "name": "legendLayout"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "xy",
+                        "description": "type of zoom",
+                        "widget": "option",
+                        "optionValues": [
+                          "xy",
+                          "none"
+                        ],
+                        "name": "zoomType"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "",
+                        "description": "sub title of chart",
+                        "name": "subTitle"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "",
+                        "description": "main title of chart",
+                        "name": "mainTitle"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "",
+                        "description": "unit of xAxis",
+                        "name": "xAxisUnit"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "",
+                        "description": "unit of yAxis",
+                        "name": "yAxisUnit"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "",
+                        "description": "name of xAxis",
+                        "name": "xAxisName"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "",
+                        "description": "name of yAxis",
+                        "name": "yAxisName"
+                      }
+                    ],
+                    "bubble": [
+                      {
+                        "valueType": "int",
+                        "defaultValue": 3.0,
+                        "description": "minimum size of bubble",
+                        "name": "minBubbleSize"
+                      },
+                      {
+                        "valueType": "int",
+                        "defaultValue": 50.0,
+                        "description": "maximum size of bubble",
+                        "name": "maxBubbleSize"
+                      },
+                      {
+                        "valueType": "int",
+                        "defaultValue": 1.0,
+                        "description": "border width of plot",
+                        "name": "plotBorderWidth"
+                      },
+                      {
+                        "valueType": "int",
+                        "defaultValue": 1.0,
+                        "description": "grid line width of X axis",
+                        "name": "xGridLineWidth"
+                      },
+                      {
+                        "valueType": "int",
+                        "defaultValue": 1.0,
+                        "description": "grid line width of Y axis",
+                        "name": "yGridLineWidth"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "default",
+                        "description": "floating legend",
+                        "widget": "option",
+                        "optionValues": [
+                          "default",
+                          "top-right",
+                          "top-left"
+                        ],
+                        "name": "floatingLegend"
+                      },
+                      {
+                        "valueType": "int",
+                        "defaultValue": 0.0,
+                        "description": "rotate xAxis labels",
+                        "name": "rotateXAxisLabel"
+                      },
+                      {
+                        "valueType": "int",
+                        "defaultValue": 0.0,
+                        "description": "rotate yAxis labels",
+                        "name": "rotateYAxisLabel"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": ".1f",
+                        "description": "precision of tooltip format without \u003ccode\u003e:\u003c/code\u003e (\u003ca href\u003d\"http://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting\"\u003edoc\u003c/a\u003e)",
+                        "name": "tooltipPrecision"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "",
+                        "description": "text format of legend (\u003ca href\u003d\"http://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting\"\u003edoc\u003c/a\u003e)",
+                        "name": "legendLabelFormat"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "bottom",
+                        "description": "xAxis position",
+                        "widget": "option",
+                        "optionValues": [
+                          "bottom",
+                          "top"
+                        ],
+                        "name": "xAxisPosition"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "left",
+                        "description": "yAxis position",
+                        "widget": "option",
+                        "optionValues": [
+                          "left",
+                          "right"
+                        ],
+                        "name": "yAxisPosition"
+                      },
+                      {
+                        "valueType": "boolean",
+                        "defaultValue": true,
+                        "description": "show legend",
+                        "widget": "checkbox",
+                        "name": "showLegend"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "bottom",
+                        "description": "position of legend",
+                        "widget": "option",
+                        "optionValues": [
+                          "bottom",
+                          "top"
+                        ],
+                        "name": "legendPosition"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "horizontal",
+                        "description": "layout of legend",
+                        "widget": "option",
+                        "optionValues": [
+                          "horizontal",
+                          "vertical"
+                        ],
+                        "name": "legendLayout"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "xy",
+                        "description": "type of zoom",
+                        "widget": "option",
+                        "optionValues": [
+                          "xy",
+                          "none"
+                        ],
+                        "name": "zoomType"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "",
+                        "description": "sub title of chart",
+                        "name": "subTitle"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "",
+                        "description": "main title of chart",
+                        "name": "mainTitle"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "",
+                        "description": "unit of xAxis",
+                        "name": "xAxisUnit"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "",
+                        "description": "unit of yAxis",
+                        "name": "yAxisUnit"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "",
+                        "description": "unit of zAxis",
+                        "name": "zAxisUnit"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "",
+                        "description": "name of xAxis",
+                        "name": "xAxisName"
+                      },
+                      {
+                        "valueType": "string",
+                        "defaultValue": "",
+                        "description": "name of yAxis",
+                        "name": "yAxisName"
+                      }
+                    ]
+                  }
+                },
+                "scatterChart": {
+                  "xAxis": {
+                    "name": "x",
+                    "index": 1.0,
+                    "aggr": "sum"
+                  },
+                  "yAxis": {
+                    "name": "y",
+                    "index": 2.0,
+                    "aggr": "sum"
+                  },
+                  "group": {
+                    "name": "word",
+                    "index": 0.0,
+                    "aggr": "sum"
+                  }
+                }
+              }
+            },
+            "helium": {}
+          }
+        },
+        "editorSetting": {
+          "language": "sql"
+        },
+        "editorMode": "ace/mode/sql",
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TABLE",
+            "data": "word\tx\ty\n여주\t0.34440841684914897\t-0.18214436291319755\n여자\t0.025915381790709766\t0.13534078317985837\n남자\t-0.12874199210629417\t0.030596614953837423\n남주\t0.3164531789113289\t-0.522630892646805\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498155426943_-739910587",
+      "id": "20170623-031706_1073675128",
+      "dateCreated": "Jun 23, 2017 3:17:06 AM",
+      "dateStarted": "Jun 23, 2017 10:17:43 PM",
+      "dateFinished": "Jun 23, 2017 10:17:43 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "영화관, 유료, 티비, 무료의 word embeddings",
+      "text": "%sql\nSELECT *\nFROM word_point\nWHERE word IN (\u0027영화관\u0027, \u0027무료\u0027, \u0027유료\u0027, \u0027티비\u0027)",
+      "user": "anonymous",
+      "dateUpdated": "Jun 25, 2017 7:15:58 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {
+          "0": {
+            "graph": {
+              "mode": "zeppelin-highcharts-bubble",
+              "height": 474.0,
+              "optionOpen": false,
+              "setting": {
+                "table": {
+                  "tableGridState": {},
+                  "tableColumnTypeState": {
+                    "names": {
+                      "word": "string",
+                      "x": "string",
+                      "y": "string"
+                    },
+                    "updated": false
+                  },
+                  "tableOptionSpecHash": "[{\"name\":\"useFilter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable filter for columns\"},{\"name\":\"showPagination\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable pagination for better navigation\"},{\"name\":\"showAggregationFooter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable a footer for displaying aggregated values\"}]",
+                  "tableOptionValue": {
+                    "useFilter": false,
+                    "showPagination": false,
+                    "showAggregationFooter": false
+                  },
+                  "updated": false,
+                  "initialized": false
+                },
+                "zeppelin-highcharts-bubble": {
+                  "xAxis": {
+                    "name": "x",
+                    "index": 1.0,
+                    "aggr": "sum"
+                  },
+                  "yAxis": {
+                    "name": "y",
+                    "index": 2.0,
+                    "aggr": "sum"
+                  },
+                  "zAxis": {
+                    "name": "word",
+                    "index": 0.0,
+                    "aggr": "sum"
+                  },
+                  "category": {
+                    "name": "word",
+                    "index": 0.0,
+                    "aggr": "sum"
+                  }
+                }
+              }
+            },
+            "helium": {}
+          }
+        },
+        "editorSetting": {
+          "language": "sql"
+        },
+        "editorMode": "ace/mode/sql",
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TABLE",
+            "data": "word\tx\ty\n무료\t0.5998883216794733\t0.5250242001854006\n영화관\t0.5100706429937849\t0.2260826229131401\n티비\t0.8179842569459601\t0.17150264494145184\n유료\t0.2523537026731955\t0.6386196613451129\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498385687729_1202638731",
+      "id": "20170625-191447_537748065",
+      "dateCreated": "Jun 25, 2017 7:14:47 PM",
+      "dateStarted": "Jun 25, 2017 7:14:58 PM",
+      "dateFinished": "Jun 25, 2017 7:14:58 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "",
+      "user": "anonymous",
+      "dateUpdated": "Jun 25, 2017 7:25:51 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "jobName": "paragraph_1498197391182_1683898725",
+      "id": "20170623-145631_103532110",
+      "dateCreated": "Jun 23, 2017 2:56:31 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    }
+  ],
+  "name": "nsmc/5.Word2VecViz",
+  "id": "2CK54CZYA",
+  "angularObjects": {
+    "2CKTHFEEN:shared_process": [],
+    "2CKEM1FWA:shared_process": [],
+    "2CP4QBJTW:shared_process": [],
+    "2CNH2S2YX:shared_process": [],
+    "2CNY4UK4X:shared_process": [],
+    "2CNV8M2G4:shared_process": [],
+    "2CJUG18JF:shared_process": [],
+    "2CKHXRJRW:shared_process": [],
+    "2CMQQ777A:shared_process": [],
+    "2CP53M4NX:shared_process": [],
+    "2CMPUE6U6:shared_process": [],
+    "2CN9E6YH7:shared_process": [],
+    "2CK2G39DN:shared_process": [],
+    "2CMMW2XRN:shared_process": [],
+    "2CJJBH813:shared_process": [],
+    "2CKEAV2P8:shared_process": [],
+    "2CP6BU88N:shared_process": [],
+    "2CMXE61R1:shared_process": [],
+    "2CN4SHBAH:shared_process": []
+  },
+  "config": {},
+  "info": {}
+}

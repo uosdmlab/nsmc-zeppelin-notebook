@@ -1,0 +1,409 @@
+{
+  "paragraphs": [
+    {
+      "title": "Sample dataset 생성",
+      "text": "val df \u003d spark.createDataset(\n    Seq(\n        (1, \"제주도 놀러 가고 싶다!\"),\n        (2, \"아버지가방에들어가신다.\"),\n        (3, \"사랑해요 제플린!\"),\n        (4, \"Spark Day 왔어요~\")\n    )\n).toDF(\"id\", \"text\")",
+      "user": "anonymous",
+      "dateUpdated": "Jun 25, 2017 9:21:27 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala",
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "df: org.apache.spark.sql.DataFrame \u003d [id: int, text: string]\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498219161505_956518117",
+      "id": "20170623-205921_163817355",
+      "dateCreated": "Jun 23, 2017 8:59:21 PM",
+      "dateStarted": "Jun 25, 2017 9:21:27 PM",
+      "dateFinished": "Jun 25, 2017 9:21:30 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Tokenizer 예제",
+      "text": "import com.github.uosdmlab.nkp.Tokenizer\n\nval tokenizer \u003d new Tokenizer()\n    .setInputCol(\"text\")\n    .setOutputCol(\"words\")\n\nval result \u003d tokenizer.transform(df)\nresult.show(truncate \u003d false)",
+      "user": "anonymous",
+      "dateUpdated": "Jun 25, 2017 9:21:16 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala",
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "import com.github.uosdmlab.nkp.Tokenizer\ntokenizer: com.github.uosdmlab.nkp.Tokenizer \u003d nkp_t_0f5b1a67c88e\nresult: org.apache.spark.sql.DataFrame \u003d [id: int, text: string ... 1 more field]\n+---+--------------+----------------------------+\n|id |text          |words                       |\n+---+--------------+----------------------------+\n|1  |제주도 놀러 가고 싶다! |[제주, 도, 놀, 러, 가, 고, 싶, 다, !]|\n|2  |아버지가방에들어가신다.  |[아버지, 가, 방, 에, 들어가, 신다, .]  |\n|3  |사랑해요 제플린!     |[사랑, 해요, 제플린, !]            |\n|4  |Spark Day 왔어요~|[Spark, Day, 왔, 어요, ~]      |\n+---+--------------+----------------------------+\n\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498219173120_-458973086",
+      "id": "20170623-205933_4710330",
+      "dateCreated": "Jun 23, 2017 8:59:33 PM",
+      "dateStarted": "Jun 23, 2017 9:06:45 PM",
+      "dateFinished": "Jun 23, 2017 9:06:46 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Tokenizer 명사 추출 예제",
+      "text": "import com.github.uosdmlab.nkp.Tokenizer\n\nval tokenizer \u003d new Tokenizer()\n    .setInputCol(\"text\")\n    .setOutputCol(\"words\")\n    .setFilter(\"N\")\n\nval result \u003d tokenizer.transform(df)\nresult.show(truncate \u003d false)",
+      "user": "anonymous",
+      "dateUpdated": "Jun 25, 2017 9:21:12 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala",
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "import com.github.uosdmlab.nkp.Tokenizer\ntokenizer: com.github.uosdmlab.nkp.Tokenizer \u003d nkp_t_32de57fa7c12\nresult: org.apache.spark.sql.DataFrame \u003d [id: int, text: string ... 1 more field]\n+---+--------------+---------+\n|id |text          |words    |\n+---+--------------+---------+\n|1  |제주도 놀러 가고 싶다! |[제주]     |\n|2  |아버지가방에들어가신다.  |[아버지, 방] |\n|3  |사랑해요 제플린!     |[사랑, 제플린]|\n|4  |Spark Day 왔어요~|[]       |\n+---+--------------+---------+\n\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498219223479_-2076195307",
+      "id": "20170623-210023_1334472954",
+      "dateCreated": "Jun 23, 2017 9:00:23 PM",
+      "dateStarted": "Jun 23, 2017 9:06:46 PM",
+      "dateFinished": "Jun 23, 2017 9:06:46 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Tokenizer 명사, 동사 추출 예제",
+      "text": "import com.github.uosdmlab.nkp.Tokenizer\n\nval tokenizer \u003d new Tokenizer()\n    .setInputCol(\"text\")\n    .setOutputCol(\"words\")\n    .setFilter(\"N\", \"V\")\n\nval result \u003d tokenizer.transform(df)\nresult.show(truncate \u003d false)",
+      "user": "anonymous",
+      "dateUpdated": "Jun 25, 2017 9:21:57 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala",
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "import com.github.uosdmlab.nkp.Tokenizer\ntokenizer: com.github.uosdmlab.nkp.Tokenizer \u003d nkp_t_7685bc06c74a\nresult: org.apache.spark.sql.DataFrame \u003d [id: int, text: string ... 1 more field]\n+---+--------------+-------------+\n|id |text          |words        |\n+---+--------------+-------------+\n|1  |제주도 놀러 가고 싶다! |[제주, 놀, 가, 싶]|\n|2  |아버지가방에들어가신다.  |[아버지, 방, 들어가]|\n|3  |사랑해요 제플린!     |[사랑, 제플린]    |\n|4  |Spark Day 왔어요~|[왔]          |\n+---+--------------+-------------+\n\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498393285071_1408617007",
+      "id": "20170625-212125_897600989",
+      "dateCreated": "Jun 25, 2017 9:21:25 PM",
+      "dateStarted": "Jun 25, 2017 9:21:58 PM",
+      "dateFinished": "Jun 25, 2017 9:22:02 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "형태소 분석",
+      "text": "import com.github.uosdmlab.nkp.Analyzer\n\nval tokenizer \u003d new Analyzer()\n    .setIdCol(\"id\")\n    .setTextCol(\"text\")\n\nval result \u003d tokenizer.transform(df)\nresult.createOrReplaceTempView(\"analysis\")",
+      "user": "anonymous",
+      "dateUpdated": "Jun 24, 2017 9:35:11 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala",
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "import com.github.uosdmlab.nkp.Analyzer\ntokenizer: com.github.uosdmlab.nkp.Analyzer \u003d nkp_a_c07b97b97811\nresult: org.apache.spark.sql.DataFrame \u003d [id: int, word: string ... 4 more fields]\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498219364290_1788789640",
+      "id": "20170623-210244_1042622216",
+      "dateCreated": "Jun 23, 2017 9:02:44 PM",
+      "dateStarted": "Jun 24, 2017 9:35:11 PM",
+      "dateFinished": "Jun 24, 2017 9:35:14 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "%sql SELECT * FROM analysis",
+      "user": "anonymous",
+      "dateUpdated": "Jun 24, 2017 9:36:12 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {
+          "0": {
+            "graph": {
+              "mode": "table",
+              "height": 300.0,
+              "optionOpen": false,
+              "setting": {
+                "table": {
+                  "tableGridState": {
+                    "columns": [
+                      {
+                        "name": "id",
+                        "visible": true,
+                        "width": "*",
+                        "sort": {},
+                        "filters": [
+                          {}
+                        ],
+                        "pinned": ""
+                      },
+                      {
+                        "name": "word",
+                        "visible": true,
+                        "width": "*",
+                        "sort": {},
+                        "filters": [
+                          {}
+                        ],
+                        "pinned": ""
+                      },
+                      {
+                        "name": "pos",
+                        "visible": true,
+                        "width": "*",
+                        "sort": {},
+                        "filters": [
+                          {}
+                        ],
+                        "pinned": ""
+                      },
+                      {
+                        "name": "feature",
+                        "visible": true,
+                        "width": 201.0,
+                        "sort": {},
+                        "filters": [
+                          {}
+                        ],
+                        "pinned": ""
+                      },
+                      {
+                        "name": "start",
+                        "visible": true,
+                        "width": 161.0,
+                        "sort": {},
+                        "filters": [
+                          {}
+                        ],
+                        "pinned": ""
+                      },
+                      {
+                        "name": "end",
+                        "visible": true,
+                        "width": "*",
+                        "sort": {},
+                        "filters": [
+                          {}
+                        ],
+                        "pinned": ""
+                      }
+                    ],
+                    "scrollFocus": {},
+                    "selection": [],
+                    "grouping": {
+                      "grouping": [],
+                      "aggregations": [],
+                      "rowExpandedStates": {}
+                    },
+                    "treeView": {},
+                    "pagination": {
+                      "paginationCurrentPage": 1.0,
+                      "paginationPageSize": 250.0
+                    }
+                  },
+                  "tableColumnTypeState": {
+                    "names": {
+                      "id": "string",
+                      "word": "string",
+                      "pos": "string",
+                      "feature": "string",
+                      "start": "string",
+                      "end": "string"
+                    },
+                    "updated": false
+                  },
+                  "tableOptionSpecHash": "[{\"name\":\"useFilter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable filter for columns\"},{\"name\":\"showPagination\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable pagination for better navigation\"},{\"name\":\"showAggregationFooter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable a footer for displaying aggregated values\"}]",
+                  "tableOptionValue": {
+                    "useFilter": false,
+                    "showPagination": false,
+                    "showAggregationFooter": false
+                  },
+                  "updated": false,
+                  "initialized": false
+                }
+              },
+              "commonSetting": {}
+            }
+          }
+        },
+        "editorSetting": {
+          "language": "sql"
+        },
+        "editorMode": "ace/mode/sql"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TABLE",
+            "data": "id\tword\tpos\tfeature\tstart\tend\n1\t제주\tWrappedArray(N)\tWrappedArray(NNP, 지명, F, 제주, *, *, *, *)\t0\t2\n1\t도\tWrappedArray(J)\tWrappedArray(JX, *, F, 도, *, *, *, *)\t2\t3\n1\t놀\tWrappedArray(V)\tWrappedArray(VV, *, T, 놀, *, *, *, *)\t4\t5\n1\t러\tWrappedArray(E)\tWrappedArray(EC, *, F, 러, *, *, *, *)\t5\t6\n1\t가\tWrappedArray(V)\tWrappedArray(VX, *, F, 가, *, *, *, *)\t7\t8\n1\t고\tWrappedArray(E)\tWrappedArray(EC, *, F, 고, *, *, *, *)\t8\t9\n1\t싶\tWrappedArray(V)\tWrappedArray(VX, *, T, 싶, *, *, *, *)\t10\t11\n1\t다\tWrappedArray(E)\tWrappedArray(EF, *, F, 다, *, *, *, *)\t11\t12\n1\t!\tWrappedArray(S)\tWrappedArray(SF, *, *, *, *, *, *, *)\t12\t13\n2\t아버지\tWrappedArray(N)\tWrappedArray(NNG, *, F, 아버지, *, *, *, *)\t0\t3\n2\t가\tWrappedArray(J)\tWrappedArray(JKS, *, F, 가, *, *, *, *)\t3\t4\n2\t방\tWrappedArray(N)\tWrappedArray(NNG, *, T, 방, *, *, *, *)\t4\t5\n2\t에\tWrappedArray(J)\tWrappedArray(JKB, *, F, 에, *, *, *, *)\t5\t6\n2\t들어가\tWrappedArray(V)\tWrappedArray(VV, *, F, 들어가, *, *, *, *)\t6\t9\n2\t신다\tWrappedArray(EP, E)\tWrappedArray(EP+EF, *, F, 신다, Inflect, EP, EF, 시/EP/*+ᆫ다/EF/*)\t9\t11\n2\t.\tWrappedArray(S)\tWrappedArray(SF, *, *, *, *, *, *, *)\t11\t12\n3\t사랑\tWrappedArray(N)\tWrappedArray(NNG, *, T, 사랑, *, *, *, *)\t0\t2\n3\t해요\tWrappedArray(XS, E)\tWrappedArray(XSV+EF, *, F, 해요, Inflect, XSV, EF, 하/XSV/*+아요/EF/*)\t2\t4\n3\t제플린\tWrappedArray(N)\tWrappedArray(NNP, *, T, 제플린, *, *, *, *)\t5\t8\n3\t!\tWrappedArray(S)\tWrappedArray(SF, *, *, *, *, *, *, *)\t8\t9\n4\tSpark\tWrappedArray(SL)\tWrappedArray(SL, *, *, *, *, *, *, *)\t0\t5\n4\tDay\tWrappedArray(SL)\tWrappedArray(SL, *, *, *, *, *, *, *)\t6\t9\n4\t왔\tWrappedArray(V, EP)\tWrappedArray(VV+EP, *, T, 왔, Inflect, VV, EP, 오/VV/*+았/EP/*)\t10\t11\n4\t어요\tWrappedArray(E)\tWrappedArray(EF, *, F, 어요, *, *, *, *)\t11\t13\n4\t~\tWrappedArray(S)\tWrappedArray(SY, *, *, *, *, *, *, *)\t13\t14\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498307715894_-1541501891",
+      "id": "20170624-213515_757501294",
+      "dateCreated": "Jun 24, 2017 9:35:15 PM",
+      "dateStarted": "Jun 24, 2017 9:36:01 PM",
+      "dateFinished": "Jun 24, 2017 9:36:01 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "%md\n\u003e 자세한 품사 태그 설명은 은전한닢 형태소 분석기의 [품사 태그 설명](https://docs.google.com/spreadsheets/d/1-9blXKjtjeKZqsf4NzHeYJCrr49-nXeRF6D80udfcwY/edit#gid\u003d589544265)을 참고하세요~",
+      "user": "anonymous",
+      "dateUpdated": "Jun 23, 2017 9:11:17 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorMode": "ace/mode/markdown",
+        "editorHide": true,
+        "tableHide": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003cblockquote\u003e\n  \u003cp\u003e자세한 품사 태그 설명은 은전한닢 형태소 분석기의 \u003ca href\u003d\"https://docs.google.com/spreadsheets/d/1-9blXKjtjeKZqsf4NzHeYJCrr49-nXeRF6D80udfcwY/edit#gid\u003d589544265\"\u003e품사 태그 설명\u003c/a\u003e을 참고하세요~\u003c/p\u003e\n\u003c/blockquote\u003e\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498219570074_612317804",
+      "id": "20170623-210610_178597259",
+      "dateCreated": "Jun 23, 2017 9:06:10 PM",
+      "dateStarted": "Jun 23, 2017 9:11:17 PM",
+      "dateFinished": "Jun 23, 2017 9:11:17 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "user": "anonymous",
+      "config": {},
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "jobName": "paragraph_1498220001100_-1195787488",
+      "id": "20170623-211321_1524468844",
+      "dateCreated": "Jun 23, 2017 9:13:21 PM",
+      "status": "READY",
+      "progressUpdateIntervalMs": 500
+    }
+  ],
+  "name": "nsmc/2.Spark NKP",
+  "id": "2CKK3T13Q",
+  "angularObjects": {
+    "2CKTHFEEN:shared_process": [],
+    "2CKEM1FWA:shared_process": [],
+    "2CP4QBJTW:shared_process": [],
+    "2CNH2S2YX:shared_process": [],
+    "2CNY4UK4X:shared_process": [],
+    "2CNV8M2G4:shared_process": [],
+    "2CJUG18JF:shared_process": [],
+    "2CKHXRJRW:shared_process": [],
+    "2CMQQ777A:shared_process": [],
+    "2CP53M4NX:shared_process": [],
+    "2CMPUE6U6:shared_process": [],
+    "2CN9E6YH7:shared_process": [],
+    "2CK2G39DN:shared_process": [],
+    "2CMMW2XRN:shared_process": [],
+    "2CJJBH813:shared_process": [],
+    "2CKEAV2P8:shared_process": [],
+    "2CP6BU88N:shared_process": [],
+    "2CMXE61R1:shared_process": [],
+    "2CN4SHBAH:shared_process": []
+  },
+  "config": {},
+  "info": {}
+}

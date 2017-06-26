@@ -1,0 +1,228 @@
+{
+  "paragraphs": [
+    {
+      "text": "%md\n# NOTE!\nSingle machine으로 돌리실 경우 `\u003cZEPPELIN_HOME\u003e/conf/zeppelin-env.sh`에 다음 라인을 추가하여 메모리를 늘려주세요!\n(안그러면 Word2Vec 1시간반 동안 학습하다가 메모리 부족으로 죽습니다..ㅜㅜ)\n```sh\nexport SPARK_SUBMIT_OPTIONS\u003d\"--driver-memory 8G\"\n```\n\n수정 후에 재시작 잊지 마시구요!\n```sh\nbin/zeppelin-daemon.sh restart\n```",
+      "user": "anonymous",
+      "dateUpdated": "Jun 24, 2017 10:09:05 PM",
+      "config": {
+        "tableHide": false,
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/markdown",
+        "editorHide": true,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch1\u003eNOTE!\u003c/h1\u003e\n\u003cp\u003eSingle machine으로 돌리실 경우 \u003ccode\u003e\u0026lt;ZEPPELIN_HOME\u0026gt;/conf/zeppelin-env.sh\u003c/code\u003e에 다음 라인을 추가하여 메모리를 늘려주세요!\u003cbr/\u003e(안그러면 Word2Vec 1시간반 동안 학습하다가 메모리 부족으로 죽습니다..ㅜㅜ)\u003c/p\u003e\n\u003cpre\u003e\u003ccode class\u003d\"sh\"\u003eexport SPARK_SUBMIT_OPTIONS\u003d\u0026quot;--driver-memory 8G\u0026quot;\n\u003c/code\u003e\u003c/pre\u003e\n\u003cp\u003e수정 후에 재시작 잊지 마시구요!\u003c/p\u003e\n\u003cpre\u003e\u003ccode class\u003d\"sh\"\u003ebin/zeppelin-daemon.sh restart\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498121023276_1876752479",
+      "id": "20170622-143420_1562701962",
+      "dateCreated": "Jun 22, 2017 5:43:43 PM",
+      "dateStarted": "Jun 24, 2017 10:09:05 PM",
+      "dateFinished": "Jun 24, 2017 10:09:05 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Spark NKP dependency 추가",
+      "text": "%spark.dep\nz.load(\"com.github.uosdmlab:spark-nkp_2.11:0.2.1\")",
+      "dateUpdated": "Jun 24, 2017 9:40:21 PM",
+      "config": {
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/scala",
+        "results": {},
+        "enabled": true,
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false
+        },
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "res0: org.apache.zeppelin.dep.Dependency \u003d org.apache.zeppelin.dep.Dependency@61b858bf\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498121023277_1876367730",
+      "id": "20170622-140150_1523472119",
+      "dateCreated": "Jun 22, 2017 5:43:43 PM",
+      "status": "READY",
+      "errorMessage": "",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Spark interpreter 동작 확인",
+      "text": "spark.version",
+      "dateUpdated": "Jun 24, 2017 9:40:31 PM",
+      "config": {
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/scala",
+        "results": {},
+        "enabled": true,
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false
+        },
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "res0: String \u003d 2.2.0\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498121023277_1876367730",
+      "id": "20170622-140211_1917108153",
+      "dateCreated": "Jun 22, 2017 5:43:43 PM",
+      "status": "READY",
+      "errorMessage": "",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "%md\n\u003e Spark는 `v2.2.0-rc5` 버전을 직접 빌드하여 사용하였습니다.",
+      "user": "anonymous",
+      "dateUpdated": "Jun 23, 2017 8:58:47 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorMode": "ace/mode/markdown",
+        "editorHide": true,
+        "tableHide": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003cblockquote\u003e\n  \u003cp\u003eSpark는 \u003ccode\u003ev2.2.0-rc5\u003c/code\u003e 버전을 직접 빌드하여 사용하였습니다.\u003c/p\u003e\n\u003c/blockquote\u003e\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498219069238_369221085",
+      "id": "20170623-205749_1463595442",
+      "dateCreated": "Jun 23, 2017 8:57:49 PM",
+      "dateStarted": "Jun 23, 2017 8:58:47 PM",
+      "dateFinished": "Jun 23, 2017 8:58:52 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Spark NKP 동작 확인",
+      "text": "import com.github.uosdmlab.nkp.Tokenizer\n\nval df \u003d spark.createDataset(\n    Seq(\n        \"아버지가방에들어가신다.\",\n        \"사랑해요 제플린!\",\n        \"스파크는 재밌어\",\n        \"나는야 데이터과학자\",\n        \"데이터야~ 놀자~\"\n    )\n).toDF(\"text\")\n\nval tokenizer \u003d new Tokenizer()\n    .setInputCol(\"text\")\n    .setOutputCol(\"words\")\n\nval result \u003d tokenizer.transform(df)\nresult.show(truncate \u003d false)",
+      "dateUpdated": "Jun 24, 2017 9:39:54 PM",
+      "config": {
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/scala",
+        "results": {},
+        "enabled": true,
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false
+        },
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "import com.github.uosdmlab.nkp.Tokenizer\ndf: org.apache.spark.sql.DataFrame \u003d [text: string]\ntokenizer: com.github.uosdmlab.nkp.Tokenizer \u003d nkp_t_ccfa0ad32079\nresult: org.apache.spark.sql.DataFrame \u003d [text: string, words: array\u003cstring\u003e]\n+------------+--------------------------+\n|text        |words                     |\n+------------+--------------------------+\n|아버지가방에들어가신다.|[아버지, 가, 방, 에, 들어가, 신다, .]|\n|사랑해요 제플린!   |[사랑, 해요, 제플린, !]          |\n|스파크는 재밌어    |[스파크, 는, 재밌, 어]           |\n|나는야 데이터과학자  |[나, 는, 야, 데이터, 과학자]       |\n|데이터야~ 놀자~   |[데이터, 야, ~, 놀자, ~]        |\n+------------+--------------------------+\n\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498121023279_1877137228",
+      "id": "20170622-140216_1506319196",
+      "dateCreated": "Jun 22, 2017 5:43:43 PM",
+      "status": "READY",
+      "errorMessage": "",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "dateUpdated": "Jun 22, 2017 5:43:43 PM",
+      "config": {},
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "jobName": "paragraph_1498121023280_1887525448",
+      "id": "20170622-140302_47060097",
+      "dateCreated": "Jun 22, 2017 5:43:43 PM",
+      "status": "READY",
+      "errorMessage": "",
+      "progressUpdateIntervalMs": 500
+    }
+  ],
+  "name": "nsmc/0.Settings",
+  "id": "2CK1MBNJS",
+  "angularObjects": {
+    "2CKTHFEEN:shared_process": [],
+    "2CKEM1FWA:shared_process": [],
+    "2CP4QBJTW:shared_process": [],
+    "2CNH2S2YX:shared_process": [],
+    "2CNY4UK4X:shared_process": [],
+    "2CNV8M2G4:shared_process": [],
+    "2CJUG18JF:shared_process": [],
+    "2CKHXRJRW:shared_process": [],
+    "2CMQQ777A:shared_process": [],
+    "2CP53M4NX:shared_process": [],
+    "2CMPUE6U6:shared_process": [],
+    "2CN9E6YH7:shared_process": [],
+    "2CK2G39DN:shared_process": [],
+    "2CMMW2XRN:shared_process": [],
+    "2CJJBH813:shared_process": [],
+    "2CKEAV2P8:shared_process": [],
+    "2CP6BU88N:shared_process": [],
+    "2CMXE61R1:shared_process": [],
+    "2CN4SHBAH:shared_process": []
+  },
+  "config": {},
+  "info": {}
+}

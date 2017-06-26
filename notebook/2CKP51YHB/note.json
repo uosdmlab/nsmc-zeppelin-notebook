@@ -1,0 +1,422 @@
+{
+  "paragraphs": [
+    {
+      "text": "val rating \u003d spark.read.parquet(\"nsmc/data/ratings.parquet\")",
+      "user": "anonymous",
+      "dateUpdated": "Jun 24, 2017 9:53:17 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "rating: org.apache.spark.sql.DataFrame \u003d [id: int, document: string ... 1 more field]\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498225291091_859619099",
+      "id": "20170623-224131_1430486653",
+      "dateCreated": "Jun 23, 2017 10:41:31 PM",
+      "dateStarted": "Jun 24, 2017 9:53:17 PM",
+      "dateFinished": "Jun 24, 2017 9:53:17 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Pipeline을 이용하여 TF \u0026 TF-IDF extractor 생성",
+      "text": "import org.apache.spark.ml.feature.{CountVectorizer, IDF}\nimport org.apache.spark.ml.Pipeline\nimport com.github.uosdmlab.nkp.Tokenizer\n\nval tokenizer \u003d new Tokenizer()\n    .setInputCol(\"document\")\n    .setOutputCol(\"words\")\n\nval cv \u003d new CountVectorizer()\n    .setInputCol(\"words\")\n    .setOutputCol(\"tf\")\n\nval idf \u003d new IDF()\n    .setInputCol(\"tf\")\n    .setOutputCol(\"tfidf\")\n\nval featureExtractor \u003d new Pipeline()\n  .setStages(Array(tokenizer, cv, idf))\n  .fit(rating)",
+      "user": "anonymous",
+      "dateUpdated": "Jun 25, 2017 9:24:12 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala",
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "import org.apache.spark.ml.feature.{CountVectorizer, IDF}\nimport org.apache.spark.ml.Pipeline\nimport com.github.uosdmlab.nkp.Tokenizer\ntokenizer: com.github.uosdmlab.nkp.Tokenizer \u003d nkp_t_ebc31bf10e43\ncv: org.apache.spark.ml.feature.CountVectorizer \u003d cntVec_edc5cb6a809b\nidf: org.apache.spark.ml.feature.IDF \u003d idf_db8e478e3afb\nfeatureExtractor: org.apache.spark.ml.PipelineModel \u003d pipeline_406b647d3351\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498225324958_846162755",
+      "id": "20170623-224204_1884083586",
+      "dateCreated": "Jun 23, 2017 10:42:04 PM",
+      "dateStarted": "Jun 24, 2017 9:53:17 PM",
+      "dateFinished": "Jun 24, 2017 9:53:35 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Feature 추출",
+      "text": "val feature \u003d featureExtractor.transform(rating)\nfeature.createOrReplaceTempView(\"feature\")",
+      "user": "anonymous",
+      "dateUpdated": "Jun 24, 2017 9:53:17 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala",
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "feature: org.apache.spark.sql.DataFrame \u003d [id: int, document: string ... 4 more fields]\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498308220472_1126454775",
+      "id": "20170624-214340_1459984662",
+      "dateCreated": "Jun 24, 2017 9:43:40 PM",
+      "dateStarted": "Jun 24, 2017 9:53:17 PM",
+      "dateFinished": "Jun 24, 2017 9:53:35 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "%sql SELECT * FROM feature LIMIT 10",
+      "user": "anonymous",
+      "dateUpdated": "Jun 24, 2017 9:58:07 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {
+          "0": {
+            "graph": {
+              "mode": "table",
+              "height": 300.0,
+              "optionOpen": false,
+              "setting": {
+                "table": {
+                  "tableGridState": {},
+                  "tableColumnTypeState": {
+                    "names": {
+                      "id": "string",
+                      "document": "string",
+                      "label": "string",
+                      "words": "string",
+                      "tf": "string",
+                      "tfidf": "string"
+                    },
+                    "updated": false
+                  },
+                  "tableOptionSpecHash": "[{\"name\":\"useFilter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable filter for columns\"},{\"name\":\"showPagination\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable pagination for better navigation\"},{\"name\":\"showAggregationFooter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable a footer for displaying aggregated values\"}]",
+                  "tableOptionValue": {
+                    "useFilter": false,
+                    "showPagination": false,
+                    "showAggregationFooter": false
+                  },
+                  "updated": false,
+                  "initialized": false
+                }
+              },
+              "commonSetting": {}
+            }
+          }
+        },
+        "editorSetting": {
+          "language": "sql"
+        },
+        "editorMode": "ace/mode/sql"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TABLE",
+            "data": "id\tdocument\tlabel\twords\ttf\ttfidf\n9071047\t전혀 맥아더에 관한 영화가 아니다. 감성과잉 울보장군의 울여친찾기 + 왜왕정체밝히기 영화임. 걍 뒷통수 한대 빡~! 갈기면서 너 색갸 왜 전쟁일켰어 대갈이박어! 하면 될껄 너무 띄워주네\t0\tWrappedArray(전혀, 맥아더, 에, 관한, 영화, 가, 아니, 다, ., 감성, 과잉, 울보, 장군, 의, 울, 여친, 찾, 기, +, 왜왕, 정체, 밝히, 기, 영화, 임, ., 걍, 뒷, 통수, 한대, 빡, ~, !, 갈기, 면서, 너, 색, 갸, 왜, 전쟁, 일, 켰, 어, 대갈, 이, 박, 어, !, 하, 면, 될, 껄, 너무, 띄워, 주, 네)\t(69437,[0,1,3,4,6,8,9,10,12,24,29,43,50,55,58,63,75,81,124,146,171,293,313,322,379,438,517,520,675,695,1265,1465,1772,1950,2175,2335,2554,2811,3346,3533,3730,4616,5109,8307,9064,9302,12063,18323,18887,18943,47242],[2.0,1.0,2.0,1.0,1.0,1.0,1.0,2.0,1.0,1.0,1.0,2.0,2.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0])\t(69437,[0,1,3,4,6,8,9,10,12,24,29,43,50,55,58,63,75,81,124,146,171,293,313,322,379,438,517,520,675,695,1265,1465,1772,1950,2175,2335,2554,2811,3346,3533,3730,4616,5109,8307,9064,9302,12063,18323,18887,18943,47242],[1.3184459233622785,1.0756911842688945,2.3619079346460925,1.235875767249362,1.4893557745121355,1.7249821276737443,1.6855552800218299,4.735991382913201,1.75790292014003,2.863616932584269,2.704297121121285,5.857199058817965,6.023450068037348,3.0457282065470417,3.087264466466967,3.1779388329352605,3.3431293497990318,3.424175155358714,3.928371484066156,4.115022603207128,4.305401031899655,4.9661050535971905,4.980556172135365,5.016115474171851,5.240013457811546,5.479804242558913,5.908928324983724,5.580645276909704,5.952208833342186,5.925641805957465,6.750716529559958,6.938179485854331,7.143442611890692,7.271563711786968,7.514689762688516,7.621070166247088,7.695178138400809,7.799318397653407,8.16298637708311,8.217053598353385,8.254793926336232,8.492465578213352,8.679677120301498,9.372824300861444,9.5669803153024,9.5669803153024,9.903452551923614,10.414278175689605,10.59659973248356,10.59659973248356,11.512890464357714])\n4167525\t속편이 뭐 다 그렇지..\t0\tWrappedArray(속편, 이, 뭐, 다, 그렇, 지, ., .)\t(69437,[0,1,4,19,100,340,922],[2.0,1.0,1.0,1.0,1.0,1.0,1.0])\t(69437,[0,1,4,19,100,340,922],[1.3184459233622785,1.0756911842688945,1.235875767249362,2.204244403597408,3.6211858050276073,5.115960809141567,6.3227152564293805])\n5651454\t제 점수는요...원표만 안나왔어도,그냥 1점줘버리는건데,원표가 살렸다.바보들의행진.\t0\tWrappedArray(제, 점수, 는, 요, ., ., ., 원표, 만, 안, 나왔, 어도, ,, 그냥, 1, 점, 줘, 버리, 는, 건데, ,, 원표, 가, 살렸, 다, ., 바보, 들, 의, 행진, .)\t(69437,[0,2,4,8,9,15,18,30,33,41,76,104,220,353,364,395,439,537,842,983,1270,2182,3685,12909],[5.0,2.0,1.0,1.0,1.0,2.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,2.0,1.0])\t(69437,[0,2,4,8,9,15,18,30,33,41,76,104,220,353,364,395,439,537,842,983,1270,2182,3685,12909],[3.2961148084056964,2.2874736020453295,1.235875767249362,1.7249821276737443,1.6855552800218299,4.763078377263806,2.1413244988823115,2.690126167653956,2.7817155634196533,3.0339184857616743,3.3970707631463877,3.665127926884106,4.596671106963448,5.161132527788289,5.169010030231383,5.272614619186944,5.386021280243529,5.615736596720973,6.175352384656396,6.413024036533516,6.7464521307735,7.452447453811295,16.588029278979025,10.00881306758144])\n5703834\t다세포 소녀 이겼으면 -_-\t0\tWrappedArray(다, 세포, 소녀, 이겼으면, -, _, -)\t(69437,[4,127,334,975,2506,24290],[1.0,2.0,1.0,1.0,1.0,1.0])\t(69437,[4,127,334,975,2506,24290],[1.235875767249362,8.852305059694274,5.126853250307992,6.437716649123887,7.673438151764404,10.819743283797768])\n5663207\t명성에 걸맞게 기괴한 긴 기괴하다\t0\tWrappedArray(명성, 에, 걸맞, 게, 기괴, 한, 긴, 기괴, 하, 다)\t(69437,[4,6,12,16,17,219,1706,2853,6031],[1.0,1.0,1.0,1.0,1.0,1.0,1.0,2.0,1.0])\t(69437,[4,6,12,16,17,219,1706,2853,6031],[1.235875767249362,1.4893557745121355,1.75790292014003,2.03814944121912,2.0378424219896294,4.561596883361093,7.100092171017079,15.698657636456135,8.873833134742455])\n9292782\t2010년에도 19세기 신파는 눈물을 갈구해.\t0\tWrappedArray(2010, 년, 에, 도, 19, 세기, 신파, 는, 눈물, 을, 갈구, 해, .)\t(69437,[0,2,7,12,13,79,110,273,1485,1504,2109,4125,10184],[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0])\t(69437,[0,2,7,12,13,79,110,273,1485,1504,2109,4125,10184],[0.6592229616811393,1.1437368010226647,1.7686038226248268,1.75790292014003,1.8370566186136819,3.3822424961971302,3.7950942533441325,4.828278736689787,6.974929028063073,7.0130807940274495,7.46110551655441,8.421848010999398,9.641088287456123])\n6139125\t시나리오가 최악. 딱히 갈등이 없어서 심심함...뻔한설정들의 연속;;\t0\tWrappedArray(시나리오, 가, 최악, ., 딱히, 갈등, 이, 없, 어서, 심심, 함, ., ., ., 뻔한, 설정, 들, 의, 연속, ;, ;)\t(69437,[0,1,8,9,18,23,53,89,165,174,455,458,470,1210,1558,1599,1635],[4.0,1.0,1.0,1.0,1.0,1.0,2.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0])\t(69437,[0,1,8,9,18,23,53,89,165,174,455,458,470,1210,1558,1599,1635],[2.636891846724557,1.0756911842688945,1.7249821276737443,1.6855552800218299,2.1413244988823115,2.3390066293921463,7.621120424371036,3.5177523786590164,4.269377489692233,4.2812417309612245,5.466701017560486,5.501623289953552,5.479804242558913,6.676608557406237,7.002030957840864,7.007540613651834,7.02988791234383])\n9674476\t원래 영화에 댓글 안 남기는데 4.4.4 로 맞추신 분들의 노고를 생각하니 눈물이 다 나서 저도 동참합니다\t0\tWrappedArray(원래, 영화, 에, 댓글, 안, 남기, 는, 데, 4, ., 4, ., 4, 로, 맞추, 신, 분, 들, 의, 노고, 를, 생각, 하, 니, 눈물, 이, 다, 나, 서, 저, 도, 동참, 합니다)\t(69437,[0,1,2,3,4,6,7,8,12,18,21,26,33,35,71,118,126,145,204,212,271,273,280,286,853,892,1051,1500,5379,7013],[2.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,3.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0])\t(69437,[0,1,2,3,4,6,7,8,12,18,21,26,33,35,71,118,126,145,204,212,271,273,280,286,853,892,1051,1500,5379,7013],[1.3184459233622785,1.0756911842688945,1.1437368010226647,1.1809539673230462,1.235875767249362,1.4893557745121355,1.7686038226248268,1.7249821276737443,1.75790292014003,2.1413244988823115,2.305404161364438,2.559638299748679,2.7817155634196533,2.8139592196859384,3.316591479599371,3.850657749664026,3.955678693440365,4.155334263447361,4.424899135072644,4.518040478524643,4.784860116322266,4.828278736689787,14.769829395936199,4.90826936238628,6.289835582310224,6.255395092329932,6.485725868310248,6.953764216871029,8.70953008345118,9.114995191559343])\n2862169\t귀신을 캐스팅한 태국전통 홍보영화. 세계가 주목했던 태국공포도 이젠 한물 갔나?\t0\tWrappedArray(귀신, 을, 캐스팅, 한, 태국, 전통, 홍보, 영화, ., 세계, 가, 주목, 했, 던, 태국, 공포, 도, 이젠, 한물, 갔, 나, ?)\t(69437,[0,3,7,9,13,16,20,26,48,70,232,493,684,685,905,1087,1298,3027,3701,4854,10556],[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,2.0,1.0,1.0,1.0])\t(69437,[0,3,7,9,13,16,20,26,48,70,232,493,684,685,905,1087,1298,3027,3701,4854,10556],[0.6592229616811393,1.1809539673230462,1.7686038226248268,1.6855552800218299,1.8370566186136819,2.03814944121912,2.4943161080034857,2.559638299748679,2.971004660351105,3.3240624606687925,4.698896565190052,5.528954183670524,5.920039550408795,5.936941361211398,6.36830719775172,6.508944158412255,6.807874943399907,15.9438622806408,8.235745731365538,8.62251870646155,9.72113099512966])\n9482036\t욕나온다. 시간참 아깝다.\t0\tWrappedArray(욕, 나온다, ., 시간, 참, 아깝, 다, .)\t(69437,[0,4,109,151,153,482,775],[2.0,1.0,1.0,1.0,1.0,1.0,1.0])\t(69437,[0,4,109,151,153,482,775],[1.3184459233622785,1.235875767249362,3.694661338822987,4.151197423816635,4.146445316030115,5.5164383757386934,6.072639601921011])\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498308259692_1825220074",
+      "id": "20170624-214419_1739072831",
+      "dateCreated": "Jun 24, 2017 9:44:19 PM",
+      "dateStarted": "Jun 24, 2017 9:53:35 PM",
+      "dateFinished": "Jun 24, 2017 9:53:35 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Word count: 가장 많이 나오는 단어 TOP5는?",
+      "text": "%sql\nWITH word (\n    SELECT EXPLODE(words) AS word\n    FROM feature\n)\nSELECT word, COUNT(*) AS cnt\nFROM word\nGROUP BY word\nORDER BY cnt DESC\nLIMIT 5",
+      "user": "anonymous",
+      "dateUpdated": "Jun 25, 2017 9:25:04 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {
+          "0": {
+            "graph": {
+              "mode": "multiBarChart",
+              "height": 300.0,
+              "optionOpen": false,
+              "setting": {
+                "table": {
+                  "tableGridState": {},
+                  "tableColumnTypeState": {
+                    "names": {
+                      "word": "string",
+                      "cnt": "string"
+                    },
+                    "updated": false
+                  },
+                  "tableOptionSpecHash": "[{\"name\":\"useFilter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable filter for columns\"},{\"name\":\"showPagination\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable pagination for better navigation\"},{\"name\":\"showAggregationFooter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable a footer for displaying aggregated values\"}]",
+                  "tableOptionValue": {
+                    "useFilter": false,
+                    "showPagination": false,
+                    "showAggregationFooter": false
+                  },
+                  "updated": false,
+                  "initialized": false
+                },
+                "multiBarChart": {
+                  "rotate": {
+                    "degree": "-45"
+                  },
+                  "xLabelStatus": "default"
+                }
+              },
+              "commonSetting": {},
+              "keys": [
+                {
+                  "name": "word",
+                  "index": 0.0,
+                  "aggr": "sum"
+                }
+              ],
+              "groups": [],
+              "values": [
+                {
+                  "name": "cnt",
+                  "index": 1.0,
+                  "aggr": "sum"
+                }
+              ]
+            },
+            "helium": {}
+          }
+        },
+        "editorSetting": {
+          "language": "sql"
+        },
+        "editorMode": "ace/mode/sql",
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TABLE",
+            "data": "word\tcnt\n.\t321069\n이\t97633\n는\t89019\n영화\t77025\n다\t73414\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498308301869_-1248292057",
+      "id": "20170624-214501_1183209385",
+      "dateCreated": "Jun 24, 2017 9:45:01 PM",
+      "dateStarted": "Jun 24, 2017 9:53:35 PM",
+      "dateFinished": "Jun 24, 2017 9:53:44 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "각 단어의 TF \u0026 TF-IDF 비교",
+      "text": "val df \u003d spark.createDataset(\n    Seq(\n        (\".\"),\n        (\"이\"),\n        (\"영화\"),\n        (\"남자\"),\n        (\"트랜스포머\")\n    )\n).toDF(\"document\")\n\nfeatureExtractor.transform(df)\n    .select(\"words\", \"tf\", \"tfidf\")\n    .createOrReplaceTempView(\"comparison\")",
+      "user": "anonymous",
+      "dateUpdated": "Jun 24, 2017 9:55:36 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala",
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "df: org.apache.spark.sql.DataFrame \u003d [document: string]\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498295077955_824190366",
+      "id": "20170624-180437_13321254",
+      "dateCreated": "Jun 24, 2017 6:04:37 PM",
+      "dateStarted": "Jun 24, 2017 9:55:03 PM",
+      "dateFinished": "Jun 24, 2017 9:55:03 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "각 단어의 TF \u0026 TF-IDF 비교",
+      "text": "%sql SELECT words[0], tf, tfidf FROM comparison",
+      "user": "anonymous",
+      "dateUpdated": "Jun 24, 2017 9:55:40 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {
+          "0": {
+            "graph": {
+              "mode": "table",
+              "height": 194.0,
+              "optionOpen": false,
+              "setting": {
+                "table": {
+                  "tableGridState": {},
+                  "tableColumnTypeState": {
+                    "names": {
+                      "words[0]": "string",
+                      "tf": "string",
+                      "tfidf": "string"
+                    },
+                    "updated": false
+                  },
+                  "tableOptionSpecHash": "[{\"name\":\"useFilter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable filter for columns\"},{\"name\":\"showPagination\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable pagination for better navigation\"},{\"name\":\"showAggregationFooter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable a footer for displaying aggregated values\"}]",
+                  "tableOptionValue": {
+                    "useFilter": false,
+                    "showPagination": false,
+                    "showAggregationFooter": false
+                  },
+                  "updated": false,
+                  "initialized": false
+                }
+              },
+              "commonSetting": {}
+            }
+          }
+        },
+        "editorSetting": {
+          "language": "sql"
+        },
+        "editorMode": "ace/mode/sql",
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TABLE",
+            "data": "words[0]\ttf\ttfidf\n.\t(69437,[0],[1.0])\t(69437,[0],[0.6592229616811393])\n이\t(69437,[1],[1.0])\t(69437,[1],[1.0756911842688945])\n영화\t(69437,[3],[1.0])\t(69437,[3],[1.1809539673230462])\n남자\t(69437,[228],[1.0])\t(69437,[228],[4.666478815616629])\n트랜스포머\t(69437,[3357],[1.0])\t(69437,[3357],[8.11169308269556])\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498298089449_-695473153",
+      "id": "20170624-185449_1317240507",
+      "dateCreated": "Jun 24, 2017 6:54:49 PM",
+      "dateStarted": "Jun 24, 2017 9:55:04 PM",
+      "dateFinished": "Jun 24, 2017 9:55:04 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "%sql\n",
+      "user": "anonymous",
+      "dateUpdated": "Jun 24, 2017 9:53:17 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "sql"
+        },
+        "editorMode": "ace/mode/sql"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "jobName": "paragraph_1498308745462_-1618408464",
+      "id": "20170624-215225_389387272",
+      "dateCreated": "Jun 24, 2017 9:52:25 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    }
+  ],
+  "name": "nsmc/3.TF \u0026 TF-IDF",
+  "id": "2CKP51YHB",
+  "angularObjects": {
+    "2CKTHFEEN:shared_process": [],
+    "2CKEM1FWA:shared_process": [],
+    "2CP4QBJTW:shared_process": [],
+    "2CNH2S2YX:shared_process": [],
+    "2CNY4UK4X:shared_process": [],
+    "2CNV8M2G4:shared_process": [],
+    "2CJUG18JF:shared_process": [],
+    "2CKHXRJRW:shared_process": [],
+    "2CMQQ777A:shared_process": [],
+    "2CP53M4NX:shared_process": [],
+    "2CMPUE6U6:shared_process": [],
+    "2CN9E6YH7:shared_process": [],
+    "2CK2G39DN:shared_process": [],
+    "2CMMW2XRN:shared_process": [],
+    "2CJJBH813:shared_process": [],
+    "2CKEAV2P8:shared_process": [],
+    "2CP6BU88N:shared_process": [],
+    "2CMXE61R1:shared_process": [],
+    "2CN4SHBAH:shared_process": []
+  },
+  "config": {},
+  "info": {}
+}

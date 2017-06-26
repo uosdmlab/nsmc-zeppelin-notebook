@@ -1,0 +1,449 @@
+{
+  "paragraphs": [
+    {
+      "text": "%md\n# Naver Sentiment Movie Corpus (NSMC)\n\u003e 출처: https://github.com/e9t/nsmc",
+      "dateUpdated": "Jun 22, 2017 5:46:53 PM",
+      "config": {
+        "tableHide": false,
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/markdown",
+        "editorHide": true,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch1\u003eNaver Sentiment Movie Corpus (NSMC)\u003c/h1\u003e\n\u003cblockquote\u003e\n  \u003cp\u003e출처: \u003ca href\u003d\"https://github.com/e9t/nsmc\"\u003ehttps://github.com/e9t/nsmc\u003c/a\u003e\u003c/p\u003e\n\u003c/blockquote\u003e\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498121213005_-57286652",
+      "id": "20170622-133834_1933173202",
+      "dateCreated": "Jun 22, 2017 5:46:53 PM",
+      "status": "READY",
+      "errorMessage": "",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Download NSMC",
+      "text": "%sh\nmkdir -p nsmc/data\ncurl -o nsmc/data/ratings.tsv \"https://raw.githubusercontent.com/e9t/nsmc/master/ratings.txt\"\ncurl -o nsmc/data/ratings_train.tsv \"https://raw.githubusercontent.com/e9t/nsmc/master/ratings_train.txt\"\ncurl -o nsmc/data/ratings_test.tsv \"https://raw.githubusercontent.com/e9t/nsmc/master/ratings_test.txt\"",
+      "dateUpdated": "Jun 22, 2017 5:46:53 PM",
+      "config": {
+        "editorSetting": {
+          "language": "sh",
+          "editOnDblClick": false
+        },
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/sh",
+        "title": true,
+        "results": {
+          "0": {
+            "graph": {
+              "mode": "table",
+              "height": 88.0,
+              "optionOpen": false
+            }
+          }
+        },
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0\r  3 18.6M    3  687k    0     0   299k      0  0:01:03  0:00:02  0:01:01  312k\r 10 18.6M   10 1967k    0     0   597k      0  0:00:31  0:00:03  0:00:28  615k\r 15 18.6M   15 3023k    0     0   704k      0  0:00:27  0:00:04  0:00:23  720k\r 21 18.6M   21 4175k    0     0   788k      0  0:00:24  0:00:05  0:00:19  836k\r 28 18.6M   28 5391k    0     0   856k      0  0:00:22  0:00:06  0:00:16 1081k\r 34 18.6M   34 6495k    0     0   890k      0  0:00:21  0:00:07  0:00:14 1162k\r 39 18.6M   39 7487k    0     0   902k      0  0:00:21  0:00:08  0:00:13 1104k\r 45 18.6M   45 8671k    0     0   933k      0  0:00:20  0:00:09  0:00:11 1129k\r 51 18.6M   51 9855k    0     0   957k      0  0:00:19  0:00:10  0:00:09 1136k\r 57 18.6M   57 10.7M    0     0   970k      0  0:00:19  0:00:11  0:00:08 1113k\r 63 18.6M   63 11.8M    0     0   989k      0  0:00:19  0:00:12  0:00:07 1133k\r 70 18.6M   70 13.0M    0     0  1003k      0  0:00:18  0:00:13  0:00:05 1171k\r 74 18.6M   74 13.8M    0     0   991k      0  0:00:19  0:00:14  0:00:05 1099k\r 81 18.6M   81 15.2M    0     0  1017k      0  0:00:18  0:00:15  0:00:03 1142k\r 87 18.6M   87 16.3M    0     0  1027k      0  0:00:18  0:00:16  0:00:02 1155k\r 93 18.6M   93 17.4M    0     0  1035k      0  0:00:18  0:00:17  0:00:01 1148k\r 99 18.6M   99 18.4M    0     0  1032k      0  0:00:18  0:00:18 --:--:-- 1110k\r100 18.6M  100 18.6M    0     0  1033k      0  0:00:18  0:00:18 --:--:-- 1182k\n  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r  0 13.9M    0  1906    0     0   2074      0  1:57:33 --:--:--  1:57:33  2078\r  7 13.9M    7 1023k    0     0   554k      0  0:00:25  0:00:01  0:00:24  555k\r 15 13.9M   15 2159k    0     0   759k      0  0:00:18  0:00:02  0:00:16  759k\r 23 13.9M   23 3311k    0     0   861k      0  0:00:16  0:00:03  0:00:13  861k\r 31 13.9M   31 4479k    0     0   924k      0  0:00:15  0:00:04  0:00:11  925k\r 39 13.9M   39 5663k    0     0   969k      0  0:00:14  0:00:05  0:00:09 1149k\r 47 13.9M   47 6751k    0     0   986k      0  0:00:14  0:00:06  0:00:08 1145k\r 55 13.9M   55 7903k    0     0  1007k      0  0:00:14  0:00:07  0:00:07 1149k\r 62 13.9M   62 8975k    0     0  1014k      0  0:00:14  0:00:08  0:00:06 1132k\r 69 13.9M   69 9871k    0     0  1002k      0  0:00:14  0:00:09  0:00:05 1078k\r 76 13.9M   76 10.6M    0     0  1006k      0  0:00:14  0:00:10  0:00:04 1049k\r 82 13.9M   82 11.5M    0     0   996k      0  0:00:14  0:00:11  0:00:03 1011k\r 90 13.9M   90 12.6M    0     0  1005k      0  0:00:14  0:00:12  0:00:02 1001k\r 98 13.9M   98 13.7M    0     0  1015k      0  0:00:14  0:00:13  0:00:01 1017k\r100 13.9M  100 13.9M    0     0  1017k      0  0:00:14  0:00:14 --:--:-- 1051k\n  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r 22 4778k   22 1087k    0     0   606k      0  0:00:07  0:00:01  0:00:06  624k\r 47 4778k   47 2255k    0     0   808k      0  0:00:05  0:00:02  0:00:03  823k\r 70 4778k   70 3391k    0     0   894k      0  0:00:05  0:00:03  0:00:02  907k\r 92 4778k   92 4431k    0     0   925k      0  0:00:05  0:00:04  0:00:01  935k\r100 4778k  100 4778k    0     0   938k      0  0:00:05  0:00:05 --:--:-- 1110k\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498121213007_-56517154",
+      "id": "20170622-133343_1001404940",
+      "dateCreated": "Jun 22, 2017 5:46:53 PM",
+      "status": "READY",
+      "errorMessage": "",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "NSMC dataset 로드",
+      "text": "val rating \u003d spark.read\n    .option(\"delimiter\", \"\\t\")      // Use tab as delimiter.\n    .option(\"header\", \"true\")       // Use first line of all files as header.\n    .option(\"inferSchema\", \"true\")  // Automatically infer data types.\n    .csv(\"nsmc/data/ratings.tsv\")\n    \nrating.createOrReplaceTempView(\"rating\")",
+      "user": "anonymous",
+      "dateUpdated": "Jun 25, 2017 8:55:14 PM",
+      "config": {
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/scala",
+        "results": {},
+        "enabled": true,
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false
+        },
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "rating: org.apache.spark.sql.DataFrame \u003d [id: int, document: string ... 1 more field]\n"
+          }
+        ]
+      },
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            "http://192.168.0.19:4040/jobs/job?id\u003d0",
+            "http://192.168.0.19:4040/jobs/job?id\u003d1"
+          ],
+          "interpreterSettingId": "2CN9E6YH7"
+        }
+      },
+      "apps": [],
+      "jobName": "paragraph_1498121213008_-46128934",
+      "id": "20170622-131710_1839607172",
+      "dateCreated": "Jun 22, 2017 5:46:53 PM",
+      "dateStarted": "Jun 25, 2017 8:55:15 PM",
+      "dateFinished": "Jun 25, 2017 8:55:31 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Raw 데이터",
+      "text": "%sql SELECT * FROM rating ORDER BY id LIMIT 100",
+      "user": "anonymous",
+      "dateUpdated": "Jun 25, 2017 9:14:52 PM",
+      "config": {
+        "colWidth": 11.0,
+        "editorMode": "ace/mode/sql",
+        "results": {
+          "0": {
+            "graph": {
+              "mode": "table",
+              "height": 394.0,
+              "optionOpen": false,
+              "setting": {
+                "table": {
+                  "tableGridState": {
+                    "columns": [
+                      {
+                        "name": "id",
+                        "visible": true,
+                        "width": 51.0,
+                        "sort": {
+                          "priority": 0.0,
+                          "direction": "asc"
+                        },
+                        "filters": [
+                          {}
+                        ],
+                        "pinned": ""
+                      },
+                      {
+                        "name": "label",
+                        "visible": true,
+                        "width": 72.0,
+                        "sort": {},
+                        "filters": [
+                          {}
+                        ],
+                        "pinned": ""
+                      },
+                      {
+                        "name": "document",
+                        "visible": true,
+                        "width": "*",
+                        "sort": {},
+                        "filters": [
+                          {}
+                        ],
+                        "pinned": ""
+                      }
+                    ],
+                    "scrollFocus": {},
+                    "selection": [],
+                    "grouping": {
+                      "grouping": [],
+                      "aggregations": [],
+                      "rowExpandedStates": {}
+                    },
+                    "treeView": {},
+                    "pagination": {
+                      "paginationCurrentPage": 1.0,
+                      "paginationPageSize": 250.0
+                    }
+                  },
+                  "tableColumnTypeState": {
+                    "names": {
+                      "id": "string",
+                      "document": "string",
+                      "label": "string"
+                    },
+                    "updated": false
+                  },
+                  "tableOptionSpecHash": "[{\"name\":\"useFilter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable filter for columns\"},{\"name\":\"showPagination\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable pagination for better navigation\"},{\"name\":\"showAggregationFooter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable a footer for displaying aggregated values\"}]",
+                  "tableOptionValue": {
+                    "useFilter": false,
+                    "showPagination": false,
+                    "showAggregationFooter": false
+                  },
+                  "updated": false,
+                  "initialized": false
+                }
+              },
+              "commonSetting": {}
+            }
+          }
+        },
+        "enabled": true,
+        "editorSetting": {
+          "language": "sql",
+          "editOnDblClick": false
+        },
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TABLE",
+            "data": "id\tdocument\tlabel\n33\t최고의 영화...정말 최고다..\t1\n93\t조폭마누라 2와 맞먹는.............\t0\n127\t볼만하다..좋다.아주\t1\n138\t한번쯤 볼만한 독특한 프랑스 애미메이션\t0\n223\t재미 무지없었다.공짜로 다시보라고해도 안 봄.\t0\n336\t정말 많이 울어본 영화입니다.\t1\n601\t글쎄.. 스토리 전개가 너무 허술해..\t0\n627\t정말 명작이 될겁니다.\t1\n778\t독특한척하지만, 결론은 맹탕.괜히 쇼크먹었네.\t0\n796\t조금 더 신경썼으면 좋은 평가를 받을 수 있었는데...\t0\n828\t페미니즘영화 간호사 하나때문에 남자몇십명이 죽어난다.\t0\n860\t경쾌한 죽음이라...\t1\n876\t안보심이 좋을듯 전 별로 재미없게 보았습니다 옛날서부영화가 그립습니다\t0\n887\t뻔한 얘긴데, 훌륭하다.\t1\n974\t그냥 예고편만 보시길. 그게 훨신 재밌고, 감동적임.\t0\n1019\t피리부는 사나이의 컬트판?!\t0\n1052\t너무너무 재밉심더\t1\n1117\t원작은 광기의 파멸인데,이것은 구원에 관한 거다. 지가 무슨 스콜세지야~\t0\n1142\t계속 보면 볼수록 주접스럽고 치졸해지는 작품\t0\n1152\t터프한 유머와 치밀한 구성의 역작\t1\n1164\t정말 잘 만들었습니다.\t1\n1167\t예술적으로 성룡최고 작품\t1\n1170\t주인공이 왜 이리 이소룡 흉내 내나 했더니, 이유가 있었군..\t0\n1210\t도대체 영화가 내포하고자 하는게 머야.\t0\n1274\t이 영화 볼 시간 있으면 후레쉬맨을 보겠따 ㅡㅡ;\t0\n1307\t아키라 감독 영화 중 제일 재미있는 작품\t1\n1311\t유쾌한 영화! 해리슨포드의 어리숙한 연기가 귀여웠음\t0\n1484\t도박 영화 속 편들 중에서는 가장 잘 만들었다.\t1\n1485\t웃기지도 않고, 액션도 재미없고, 유치하긴 또 엄청나고.. 참 왕정스럽다\t0\n1494\t아기자기하면서도 기괴한 매력이 있는 걸작\t1\n1502\t교과서적인 킬러영화. 차가운 스타일에 멋진 액션.\t1\n1532\t전편만한 속편없다......\t0\n1533\t해리슨포드의 새로운 연기가 돋보임. 웃음이 절로나오는 코메디영화~~^^*\t1\n1550\t해리슨포드도 정말 이젠 늙었다는걸 알려주는 영화 ㅡ.ㅜ\t0\n1572\t정말 절망적인 영화 보고 나서 정말 후회\t0\n1671\t뭘 말하려하는지 모르겠다. 아역배우의 대사는 어린이가 아닌 완전 어른.\t0\n1739\t이 영화만 볼 수 있다면...\t1\n1772\t정말 잼있어요 특이 기차역신은..야니음악짱\t1\n1794\t뭐냐 이영환 보드장면은 별루 없고 한마디로 실망이다. 익스트림이상을 기대\t0\n1800\t출연자들의사진을볼려고해도못보고 이거정말 너무한거아닌가요? 좀볼려고했더니.\t1\n1851\t내가 본 최고의 만화!\t1\n1938\t재미있다재미없다매밌다잼없다재미있나재미없다재밌다ㅋㅋㅋ\t1\n2027\t영화라고 하기 참...뭐하네여...-_-;\t0\n2059\t불면증으로 시달리시는 분들..극장에서 편안히 맘껏 주무세요~!!\t0\n2100\t시간낭비입니다..\t0\n2114\t영화내용은 별루고, 앳된모습의 배우들만 보인다.\t0\n2162\t잔인한 주제와 함께 아름다운 이미지를 적나라하게 펼쳐놓는 영화\t1\n2200\t재밌다..한번 볼만한 영화..\t1\n2215\t시간 때우기힘든영화, 취향에 관계없이 재미없는 영화\t0\n2250\t사랑에 대한 그만의 해석 ... 다케시는 뒷힘이 약해\t0\n2276\t내살다살다 30평생 영화초반부터 아예자리깔고 잔영환 첨이다..\t0\n2280\t이거 진짜 재밌습니다. 화영웅, 정말 추천입니다.\t1\n2291\t최악의영화.....돈 아까워 혼났습니다..\t0\n2325\t일본영화 배틀로얄과는 좀 다르지만 큰 줄거리는 아마 일본이 모방한건지도.\t0\n2343\t최근본영화중에최고로재미없는영화취향차이를말하지만10에9은재미없는영화\t0\n2350\t별로\t0\n2365\t인물들 하나하나가 재미있는 영화~\t1\n2382\t보면 기절할 영화....넘 재미 없어서....해리슨포드 최악의 영화...\t0\n2406\t포스터를 저따위로밖에 못만든 제작자의 소심함에 침을 뱉고 싶다.\t1\n2411\t여전사 : 난닝구 입고 머리안감는 여자\t0\n2413\t잔혹한 코미디, 잔잔한 멜로, 그리고 감동. 배우들의 연기력이 볼만합니다\t1\n2503\t밑도 끝도 없는 비판에 화가 난 백수\t1\n2512\t에이미의 또랑또랑한 목소리와 아름다운 음악이 귀를 즐겁게 해주는 영화\t1\n2513\t평범한 액션, 깜찍한 유머!\t1\n2525\t지금 봐도 재밋는영화!!!!코믹과 감동!!!그리고 요리!!!\t1\n2638\t볼거리는 충만하나 내용은 너무 미약하다...\t0\n2828\t포스터도 그렇고 해서 재미있을것 같다.\t1\n2938\t이걸 영화라고 만들었냐...얼마나 가나 보자...\t0\n2939\t비디오용도 안되는.. 저예산영화..우리나라 관객모독용ㅋㅋ\t0\n3144\t우디 앨런스러운, 그러나 다소 진부.\t0\n3148\t제목 그대로,,, 진짜 크게 때리는 영화\t0\n3153\t그저 영화자체가 황당하다\t0\n3185\t제시카 스타인의 자아찾기\t1\n3237\t반전이라도 있겠지 - 하면서 봤던 나는 실망실망실망.\t0\n3379\t이거만든 감독 똥꼬에 칼꼿고 싶다...\t0\n3380\t뻔한 이야기 같지만 화면이나 스토리가 참 이뻤어요.\t1\n3505\t내용은 슬프지만 화면은 웃긴 영화~! 보고나면 가슴에 남는 영화~!\t1\n3538\t나도 모르게 빠져들게 만드는 영화 허영란의 파격노출\t0\n3556\t내가 믿는건...(눈물흘리며)\t1\n3563\t나도 노래를 들려줄께.. 띠리리띠디디\t1\n3636\t전형적인 헐리웃 콤비 형사물이라 할수있겠네요.베테랑 선배와 초보 형사.\t0\n3641\t어색한 코메디.어설픈 스토리.글쎄요....\t0\n3854\t영화평 절대 믿지 마세염.. 정말 재미없음\t0\n3909\t간혹 코믹하기도 하구 지루하지도 않은 괜찮았던 영화\t0\n3914\t영화의 영상은 그나마 볼만 하지만 내용의 연결면에선 기대에 미치지 못해요\t0\n4056\t이상하네 ; 이거 정말 재밌는데- _-a\t0\n4170\t연기,스토리,그래픽 다 엉성한 3류 영화...아직도 이런 영화를 만드는군\t0\n4190\t이자벨 위페르의 연기 최고!\t1\n4258\t영화예고편이 이 영화의 전부입니다~\t0\n4282\t전천후 배우다. 모건 프리먼\t1\n4556\tcreep이라는 노래가 너무나 잘 어울리는 노래\t1\n4798\t잔잔한 감동을 주는 영화가 좋은 영화다. 줄리안무어의 매력!\t1\n4862\t내용도 없고 무술도 그저그런...에휴~\t0\n5170\t인간의 본질에 대해 생각하게 해주는 영화\t1\n5192\t어린 내게 서부영화를 재미있게 기억하게 만든 영화\t1\n5245\t프랑스영화, 정말잼없다는 말밖에는...\t0\n5266\t절대.비추.짜증의 연속.못믿겠다고?그래도 보지마셈 (-.ㅡ)p\t0\n5280\t흑인 특유의 신나는 음악이 너치는 영화..이제시대의 우리와 닮은..\t1\n5306\t최고의 영화 윗트와 감동\t1\n5315\t볼거라곤 시종일관 스노우보드 타는 모습뿐..\t0\n"
+          }
+        ]
+      },
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            "http://192.168.0.19:4040/jobs/job?id\u003d2"
+          ],
+          "interpreterSettingId": "2CN9E6YH7"
+        }
+      },
+      "apps": [],
+      "jobName": "paragraph_1498121213008_-46128934",
+      "id": "20170622-131713_688813676",
+      "dateCreated": "Jun 22, 2017 5:46:53 PM",
+      "dateStarted": "Jun 25, 2017 8:55:20 PM",
+      "dateFinished": "Jun 25, 2017 8:55:32 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "통계량 출력",
+      "text": "rating.describe().show",
+      "dateUpdated": "Jun 24, 2017 9:16:21 PM",
+      "config": {
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/scala",
+        "results": {},
+        "enabled": true,
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false
+        },
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "+-------+------------------+--------------------+------------------+\n|summary|                id|            document|             label|\n+-------+------------------+--------------------+------------------+\n|  count|            200000|              199992|            200000|\n|   mean|     6739773.92434|2.410852713178294...|               0.5|\n| stddev|2923504.4588599633| 2.73820231867269E68|0.5000012500046874|\n|    min|                33|                   !|                 0|\n|    max|          10278149|          紐⑦넗濡쒕씪異⑹쟾濡|                 1|\n+-------+------------------+--------------------+------------------+\n\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498121213008_-46128934",
+      "id": "20170622-134521_2068460855",
+      "dateCreated": "Jun 22, 2017 5:46:53 PM",
+      "status": "READY",
+      "errorMessage": "",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "%md\n## 여기서 `describe()`를 통해 알 수 있는 것들\n이런! `document` column의 `count` 값을 보니 200,000보다 작은 것을 알 수 있습니다. \n이는 `document` column이 `null` 값을 8개 포함하고 있다는 뜻입니다. \n아래는 `null`을 하나라도 갖는 row는 모두 지우는 코드입니다.\n\n또한 `document` column의 `min`, `max` 값을 통해 이상한 값들이 들어가있는 것을 알 수 있습니다.\n실제로 업무에 적용할때는 이러한 값들 또한 제거해야겠지만, 여기서는 생략하도록 하겠습니다.",
+      "user": "anonymous",
+      "dateUpdated": "Jun 23, 2017 9:22:02 PM",
+      "config": {
+        "tableHide": false,
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/markdown",
+        "editorHide": true,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003e여기서 \u003ccode\u003edescribe()\u003c/code\u003e를 통해 알 수 있는 것들\u003c/h2\u003e\n\u003cp\u003e이런! \u003ccode\u003edocument\u003c/code\u003e column의 \u003ccode\u003ecount\u003c/code\u003e 값을 보니 200,000보다 작은 것을 알 수 있습니다.\u003cbr/\u003e이는 \u003ccode\u003edocument\u003c/code\u003e column이 \u003ccode\u003enull\u003c/code\u003e 값을 8개 포함하고 있다는 뜻입니다.\u003cbr/\u003e아래는 \u003ccode\u003enull\u003c/code\u003e을 하나라도 갖는 row는 모두 지우는 코드입니다.\u003c/p\u003e\n\u003cp\u003e또한 \u003ccode\u003edocument\u003c/code\u003e column의 \u003ccode\u003emin\u003c/code\u003e, \u003ccode\u003emax\u003c/code\u003e 값을 통해 이상한 값들이 들어가있는 것을 알 수 있습니다.\u003cbr/\u003e실제로 업무에 적용할때는 이러한 값들 또한 제거해야겠지만, 여기서는 생략하도록 하겠습니다.\u003c/p\u003e\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498121213008_-46128934",
+      "id": "20170622-134529_212492",
+      "dateCreated": "Jun 22, 2017 5:46:53 PM",
+      "dateStarted": "Jun 23, 2017 9:22:02 PM",
+      "dateFinished": "Jun 23, 2017 9:22:02 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Null을 포함한 row 제거 후 다시 통계량 확인",
+      "text": "val cleanRating \u003d rating.na.drop(\"any\")\ncleanRating.describe().show",
+      "dateUpdated": "Jun 24, 2017 9:16:46 PM",
+      "config": {
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/scala",
+        "results": {},
+        "enabled": true,
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false
+        },
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "\ncleanRating: org.apache.spark.sql.DataFrame \u003d [id: int, document: string ... 1 more field]\n+-------+-----------------+--------------------+------------------+\n|summary|               id|            document|             label|\n+-------+-----------------+--------------------+------------------+\n|  count|           199992|              199992|            199992|\n|   mean|6739931.053592144|2.410852713178294...|               0.5|\n| stddev|2923418.711761617| 2.73820231867269E68|0.5000012500546898|\n|    min|               33|                   !|                 0|\n|    max|         10278149|          紐⑦넗濡쒕씪異⑹쟾濡|                 1|\n+-------+-----------------+--------------------+------------------+\n\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498121213009_-46513683",
+      "id": "20170622-134740_581526750",
+      "dateCreated": "Jun 22, 2017 5:46:53 PM",
+      "status": "READY",
+      "errorMessage": "",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "*.tsv 파일들을 *.parquet으로 저장",
+      "text": "def tsv2parquet(path: String) {\n    val outputPath \u003d path.replace(\".tsv\", \".parquet\")\n    \n    spark.read\n    .option(\"delimiter\", \"\\t\")      // Use tab as delimiter.\n    .option(\"header\", \"true\")       // Use first line of all files as header.\n    .option(\"inferSchema\", \"true\")  // Automatically infer data types.\n    .csv(path)\n    .na.drop(\"any\")                 // Drop rows containing any null.\n    .write.mode(\"overwrite\")\n    .parquet(outputPath)\n}\n\ntsv2parquet(\"nsmc/data/ratings.tsv\")\ntsv2parquet(\"nsmc/data/ratings_train.tsv\")\ntsv2parquet(\"nsmc/data/ratings_test.tsv\")",
+      "dateUpdated": "Jun 22, 2017 5:46:53 PM",
+      "config": {
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false
+        },
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/scala",
+        "title": true,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "\ntsv2parquet: (path: String)Unit\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1498121213009_-46513683",
+      "id": "20170622-134944_72444878",
+      "dateCreated": "Jun 22, 2017 5:46:53 PM",
+      "status": "READY",
+      "errorMessage": "",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "dateUpdated": "Jun 22, 2017 5:46:53 PM",
+      "config": {},
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "jobName": "paragraph_1498121213009_-46513683",
+      "id": "20170622-135648_531686138",
+      "dateCreated": "Jun 22, 2017 5:46:53 PM",
+      "status": "READY",
+      "errorMessage": "",
+      "progressUpdateIntervalMs": 500
+    }
+  ],
+  "name": "nsmc/1.NSMC",
+  "id": "2CKYRVJES",
+  "angularObjects": {
+    "2CKTHFEEN:shared_process": [],
+    "2CKEM1FWA:shared_process": [],
+    "2CP4QBJTW:shared_process": [],
+    "2CNH2S2YX:shared_process": [],
+    "2CNY4UK4X:shared_process": [],
+    "2CNV8M2G4:shared_process": [],
+    "2CJUG18JF:shared_process": [],
+    "2CKHXRJRW:shared_process": [],
+    "2CMQQ777A:shared_process": [],
+    "2CP53M4NX:shared_process": [],
+    "2CMPUE6U6:shared_process": [],
+    "2CN9E6YH7:shared_process": [],
+    "2CK2G39DN:shared_process": [],
+    "2CMMW2XRN:shared_process": [],
+    "2CJJBH813:shared_process": [],
+    "2CKEAV2P8:shared_process": [],
+    "2CP6BU88N:shared_process": [],
+    "2CMXE61R1:shared_process": [],
+    "2CN4SHBAH:shared_process": []
+  },
+  "config": {},
+  "info": {}
+}
