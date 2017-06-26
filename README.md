@@ -1,5 +1,6 @@
 # Zeppelin 노트북: Naver Sentiment Movie Corpus Word2Vec & Classification
 > 2017년 6월 27일 (화) **Spark Day 2017**의 세션 **Spark & Zeppelin을 활용한 한국어 텍스트 분류** 발표에 사용된 노트북입니다.
+
 > 슬라이드: [Spark & Zeppelin을 활용한 한국어 텍스트 분류](https://www.slideshare.net/JunKim22/spark-zeppelin-77273056)
 
 ## 노트북 개요
