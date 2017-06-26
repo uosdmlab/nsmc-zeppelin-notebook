@@ -4,7 +4,7 @@
 > 슬라이드: [Spark & Zeppelin을 활용한 한국어 텍스트 분류](https://www.slideshare.net/JunKim22/spark-zeppelin-77273056)
 
 ## 노트북 개요
-네이버 영화 리뷰 데이터셋에 대해 Word2Vec을 적용해보고 감성 분류를 합니다. (영화 리뷰가 긍정적인지 부정적인지)
+**네이버 영화 리뷰 데이터셋**에 대해 Word2Vec을 적용해보고 감정 분류를 합니다. (영화 리뷰가 긍정적인지 부정적인지)
 
 ## 미리 보기: ZEPL Viewer
 
